@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WASIL - Ministry of Health System Administration">
+    <title>WASIL | MOH Admin Panel</title>
+    <link rel="stylesheet" href="../Css files/wasil-admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../Js files/supabase-config.js"></script>
+</head>
+
+<body>
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Logo -->
+        <div class="sidebar-logo">
+            <div class="moh-emblem">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7L12 2z"></path>
+                    <path d="M9 12l2 2 4-4"></path>
+                </svg>
+            </div>
+            <div class="sidebar-brand">
+                <span class="brand-title" data-i18n="admin.title">Ministry of Health</span>
+                <span class="brand-sub" data-i18n="admin.subtitle">WASIL Admin</span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <a class="nav-item active" data-section="dashboard" onclick="showSection('dashboard', this)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span data-i18n="admin.dashboard">Dashboard</span>
+            </a>
+            <a class="nav-item" data-section="deployed" onclick="showSection('deployed', this)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span data-i18n="admin.deployed_clinics">Deployed Clinics</span>
+            </a>
+            <a class="nav-item" data-section="requests" onclick="showSection('requests', this)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+                <span data-i18n="admin.clinic_requests">Clinic Requests</span>
+                <span class="nav-badge" id="requestsBadge">0</span>
+            </a>
+            <a class="nav-item" data-section="users" onclick="showSection('users', this)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span data-i18n="admin.system_users">System Users</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            <div class="admin-info" id="adminInfo">
+                <div class="admin-avatar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <div>
+                    <div class="admin-name" id="adminName">Admin</div>
+                    <div class="admin-email" id="adminEmail">—</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()" title="Logout">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span data-i18n="admin.logout">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <div class="main-wrapper">
+
+        <!-- Top Bar -->
+        <header class="topbar">
+            <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="topbar-title" id="topbarTitle" data-i18n="admin.dashboard">Dashboard</div>
+            <div class="topbar-right">
+                <button class="lang-btn" onclick="toggleLang()">
+                    <span id="langBtnText">العربية</span>
+                </button>
+                <button class="topbar-logout" onclick="handleLogout()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span data-i18n="admin.logout">Logout</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+
+            <!-- ═══ SECTION: DASHBOARD ═══ -->
+            <section id="section-dashboard" class="admin-section active">
+                <div class="section-heading">
+                    <h1 data-i18n="admin.epidemic_situation">Epidemic Situation</h1>
+                    <p class="section-sub">Ministry of Health — Real-time Overview</p>
+                </div>
+
+                <!-- Disease Severity Cards -->
+                <div class="cards-grid" id="diseaseCardsGrid">
+                    <!-- Injected by JS -->
+                    <div class="disease-card critical">
+                        <div class="disease-card-icon">🦠</div>
+                        <div class="disease-card-body">
+                            <h3>Cholera</h3>
+                            <div class="severity-pill critical">CRITICAL</div>
+                        </div>
+                        <div class="disease-card-stats">
+                            <div class="stat"><span class="stat-num" id="chol-cases">1,245</span><span
+                                    class="stat-label">Cases</span></div>
+                            <div class="stat"><span class="stat-num">3</span><span class="stat-label">Areas</span></div>
+                        </div>
+                    </div>
+                    <div class="disease-card high">
+                        <div class="disease-card-icon">🤒</div>
+                        <div class="disease-card-body">
+                            <h3>Typhoid</h3>
+                            <div class="severity-pill high">HIGH</div>
+                        </div>
+                        <div class="disease-card-stats">
+                            <div class="stat"><span class="stat-num">850</span><span class="stat-label">Cases</span>
+                            </div>
+                            <div class="stat"><span class="stat-num">2</span><span class="stat-label">Areas</span></div>
+                        </div>
+                    </div>
+                    <div class="disease-card moderate">
+                        <div class="disease-card-icon">🦟</div>
+                        <div class="disease-card-body">
+                            <h3>Dengue</h3>
+                            <div class="severity-pill moderate">MODERATE</div>
+                        </div>
+                        <div class="disease-card-stats">
+                            <div class="stat"><span class="stat-num">420</span><span class="stat-label">Cases</span>
+                            </div>
+                            <div class="stat"><span class="stat-num">2</span><span class="stat-label">Areas</span></div>
+                        </div>
+                    </div>
+                    <div class="disease-card stable">
+                        <div class="disease-card-icon">🩺</div>
+                        <div class="disease-card-body">
+                            <h3>Malaria</h3>
+                            <div class="severity-pill stable">STABLE</div>
+                        </div>
+                        <div class="disease-card-stats">
+                            <div class="stat"><span class="stat-num">320</span><span class="stat-label">Cases</span>
+                            </div>
+                            <div class="stat"><span class="stat-num">2</span><span class="stat-label">Areas</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Epidemic Areas Table -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2 data-i18n="admin.epidemic_areas">Epidemic Areas</h2>
+                        <span class="table-sub">Ranked by severity (case count)</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="admin.rank">#</th>
+                                    <th data-i18n="admin.location">Location</th>
+                                    <th>Top Disease</th>
+                                    <th data-i18n="admin.cases">Cases</th>
+                                    <th data-i18n="admin.severity">Severity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="epicAreasTableBody">
+                                <tr>
+                                    <td>1</td>
+                                    <td>Khartoum North</td>
+                                    <td>Cholera</td>
+                                    <td>487</td>
+                                    <td><span class="severity-pill critical">CRITICAL</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Omdurman</td>
+                                    <td>Typhoid</td>
+                                    <td>312</td>
+                                    <td><span class="severity-pill high">HIGH</span></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Jabarona</td>
+                                    <td>Cholera</td>
+                                    <td>198</td>
+                                    <td><span class="severity-pill high">HIGH</span></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Bahri</td>
+                                    <td>Dengue</td>
+                                    <td>145</td>
+                                    <td><span class="severity-pill moderate">MODERATE</span></td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Haj Yousif</td>
+                                    <td>Malaria</td>
+                                    <td>89</td>
+                                    <td><span class="severity-pill stable">STABLE</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ SECTION: DEPLOYED CLINICS ═══ -->
+            <section id="section-deployed" class="admin-section">
+                <div class="section-heading">
+                    <h1 data-i18n="admin.deployed_clinics">Deployed Clinics</h1>
+                    <p class="section-sub">All active clinics — MOH & Organization operated</p>
+                </div>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2>Active Deployments</h2>
+                        <span class="table-sub" id="deployedCount">Loading...</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table" id="deployedTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="admin.clinic_name">Clinic Name</th>
+                                    <th data-i18n="admin.location">Location</th>
+                                    <th data-i18n="admin.capacity">Capacity</th>
+                                    <th data-i18n="admin.diseases_treated">Diseases</th>
+                                    <th data-i18n="admin.schedule">Schedule</th>
+                                    <th data-i18n="admin.operating_party">Operating Party</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deployedTableBody">
+                                <tr id="deployedLoadingRow">
+                                    <td colspan="7" style="text-align:center;color:#7F8C8D;padding:24px;">Loading
+                                        deployed clinics...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ SECTION: CLINIC REQUESTS ═══ -->
+            <section id="section-requests" class="admin-section">
+                <div class="section-heading">
+                    <h1 data-i18n="admin.clinic_requests">Clinic Requests</h1>
+                    <p class="section-sub">Review and approve organization clinic assignment requests</p>
+                </div>
+                <div class="requests-list" id="requestsList">
+                    <!-- Dynamically loaded from Supabase by loadClinicRequests() -->
+                    <div style="text-align:center;color:#7F8C8D;padding:48px 24px;">
+                        Loading clinic requests...
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ SECTION: SYSTEM USERS ═══ -->
+            <section id="section-users" class="admin-section">
+                <div class="section-heading">
+                    <h1 data-i18n="admin.system_users">System Users</h1>
+                    <p class="section-sub">All registered users in the WASIL platform</p>
+                </div>
+
+                <!-- Tabs -->
+                <div class="users-tabs">
+                    <button class="users-tab active" onclick="switchUsersTab('orgs', this)"
+                        data-i18n="admin.organizations">Organizations</button>
+                    <button class="users-tab" onclick="switchUsersTab('community', this)"
+                        data-i18n="admin.community_users">Community Users</button>
+                </div>
+
+                <!-- Organizations Tab -->
+                <div id="tab-orgs" class="users-tab-content active">
+                    <div class="table-card">
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="admin.org_name">Organization</th>
+                                        <th data-i18n="admin.user_phone">Phone</th>
+                                        <th data-i18n="admin.user_email">Email</th>
+                                        <th data-i18n="admin.approved_count">Approved</th>
+                                        <th data-i18n="admin.rejected_count">Rejected</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orgsTableBody">
+                                    <tr id="orgsLoadingRow">
+                                        <td colspan="5" style="text-align:center;color:#7F8C8D;padding:24px;">Loading
+                                            organizations...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Community Users Tab -->
+                <div id="tab-community" class="users-tab-content">
+                    <div class="table-card">
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="admin.user_name">Name</th>
+                                        <th data-i18n="admin.user_phone">Phone</th>
+                                        <th data-i18n="admin.user_email">Email</th>
+                                        <th data-i18n="admin.user_location">Location</th>
+                                        <th data-i18n="admin.reported_disease">Reported Disease</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="communityTableBody">
+                                    <tr id="communityLoadingRow">
+                                        <td colspan="5" style="text-align:center;color:#7F8C8D;padding:24px;">Loading
+                                            community users...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="admin-toast" id="adminToast"></div>
+
+    <script src="../Js files/wasil-i18n.js"></script>
+    <script src="../Js files/wasil-admin.js"></script>
+</body>
+
+</html>

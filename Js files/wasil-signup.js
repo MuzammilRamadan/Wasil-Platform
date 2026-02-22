@@ -192,21 +192,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // === PHONE NUMBER FORMATTING (Community simple input) ===
+    // === PHONE NUMBER FORMATTING (Community – Sudan Format) ===
+    // Sudan format: 09X XXX XXXX (10 digits starting with 09)
+    phoneInput.setAttribute('placeholder', '091 234 5678');
+    phoneInput.setAttribute('maxlength', '12'); // 10 digits + 2 spaces
     phoneInput.addEventListener('input', function (e) {
         let value = this.value.replace(/\D/g, '');
-
-        // Format as: (XXX) XXX-XXXX
-        if (value.length > 0) {
-            if (value.length <= 3) {
-                value = `(${value}`;
-            } else if (value.length <= 6) {
-                value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
-            } else {
-                value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
-            }
+        // Limit to 10 digits
+        if (value.length > 10) value = value.slice(0, 10);
+        // Format as: 09X XXX XXXX
+        if (value.length >= 6) {
+            value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
+        } else if (value.length >= 3) {
+            value = value.slice(0, 3) + ' ' + value.slice(3);
         }
-
         this.value = value;
     });
 
@@ -228,26 +227,35 @@ document.addEventListener('DOMContentLoaded', function () {
             const num = phoneIntlInput.value.trim().replace(/\D/g, '');
             phone = code + num;
         } else {
-            phone = phoneInput.value.trim();
+            // Normalize Sudan phone: strip spaces, convert 09X → +249 9X
+            const digits = phoneInput.value.replace(/\D/g, '');
+            phone = '+249' + digits.slice(1); // strip leading 0, prepend +249
         }
 
         // Validation
         if (!nameValue || nameValue.length < 2) {
-            showNotification(accountType === 'organization' ? 'Please enter the organization name' : 'Please enter your full name', 'error');
+            showNotification(accountType === 'organization' ? 'Please enter the organization name / أدخل اسم المنظمة' : 'Please enter your full name / أدخل اسمك الكامل', 'error');
             fullNameInput.focus();
             return;
         }
 
         if (!isValidEmail(email)) {
-            showNotification('Please enter a valid email address', 'error');
+            showNotification('Please enter a valid email address / أدخل بريدًا إلكترونيًا صحيحًا', 'error');
             emailInput.focus();
             return;
         }
 
-        if (accountType === 'organization') {
+        if (accountType === 'community') {
+            const digits = phoneInput.value.replace(/\D/g, '');
+            if (!digits.startsWith('09') || digits.length !== 10) {
+                showNotification('Phone must be Sudan format: 09X XXX XXXX / يجب أن يكون رقم سوداني: 09XXXXXXXX', 'error');
+                phoneInput.focus();
+                return;
+            }
+        } else if (accountType === 'organization') {
             const num = phoneIntlInput.value.trim().replace(/\D/g, '');
             if (!num || num.length < 7) {
-                showNotification('Please enter a valid phone number', 'error');
+                showNotification('Please enter a valid phone number / أدخل رقم هاتف صحيح', 'error');
                 phoneIntlInput.focus();
                 return;
             }
@@ -302,7 +310,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         .insert({
                             id: data.user.id,
                             org_name: nameValue,
-                            phone: phone
+                            phone: phone,
+                            email: email
                         });
 
                     if (profileError) {
@@ -317,7 +326,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         .insert({
                             id: data.user.id,
                             full_name: nameValue,
-                            phone: phone
+                            phone: phone,   // stored as +249XXXXXXXXX
+                            email: email
                         });
 
                     if (profileError) {
@@ -328,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
-            showNotification('Account created! Please check your email.', 'success');
+            showNotification('Account created! Please check your email. / تم إنشاء الحساب! تحقق من بريدك.', 'success');
 
             // Redirect to login after short delay
             setTimeout(() => {
@@ -424,7 +434,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function isValidPhone(phone) {
         const digitsOnly = phone.replace(/\D/g, '');
-        return digitsOnly.length >= 10;
+        // Sudan format: starts with 09, exactly 10 digits
+        return digitsOnly.startsWith('09') && digitsOnly.length === 10;
     }
 
     console.log('Wasil Sign Up Page Initialized ✓');

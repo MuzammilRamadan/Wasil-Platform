@@ -366,19 +366,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Insert into Supabase
+            // Fetch org name from organization_profiles
+            let orgName = user.email; // fallback
+            try {
+                const { data: orgProfile } = await supabase
+                    .from('organization_profiles')
+                    .select('org_name')
+                    .eq('id', user.id)
+                    .single();
+                if (orgProfile && orgProfile.org_name) {
+                    orgName = orgProfile.org_name;
+                }
+            } catch (e) { /* use fallback */ }
+
+            // Build diseases array from supplies text (split by comma)
+            const diseasesArray = supplies
+                .split(',')
+                .map(s => s.trim())
+                .filter(s => s.length > 0);
+
+            // Insert into clinic_requests (what the admin panel reads)
             const { error } = await supabase
-                .from('assignments')
+                .from('clinic_requests')
                 .insert({
-                    target_areas: checkedAreas,
-                    supplies: supplies,
-                    deployment_date: deployDate,
                     org_id: user.id,
+                    org_name: orgName,
+                    target_area: checkedAreas.join(', '),
+                    diseases: diseasesArray.length > 0 ? diseasesArray : [supplies.trim()],
+                    schedule: deployDate,
                     status: 'pending'
                 });
 
             if (error) {
-                console.error('Error assigning clinic:', error);
+                console.error('Error submitting clinic request:', error);
                 alert('Failed to submit request: ' + error.message);
                 return;
             }

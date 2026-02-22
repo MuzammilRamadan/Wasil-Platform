@@ -1,39 +1,42 @@
 // ============================================
-// WASIL LOGIN PAGE - INTERACTIVE FEATURES
+// WASIL LOGIN PAGE - ROLE-BASED AUTH
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    // === SHOW ROLE BANNER ===
+    const role = localStorage.getItem('wasil_role') || 'community';
+    const roleBannerMap = {
+        admin: { key: 'login.role_admin', color: '#1a7a4a' },
+        organization: { key: 'login.role_org', color: '#F39C12' },
+        community: { key: 'login.role_community', color: '#4A90E2' }
+    };
+    const bannerConfig = roleBannerMap[role] || roleBannerMap.community;
+    const banner = document.createElement('div');
+    banner.style.cssText = `background:${bannerConfig.color};color:#fff;text-align:center;padding:8px 16px;font-size:0.82rem;font-weight:600;font-family:'Cairo','Inter',sans-serif;`;
+    banner.setAttribute('data-i18n', bannerConfig.key);
+    banner.textContent = bannerConfig.key;
+    document.body.insertBefore(banner, document.body.firstChild);
+
     // === PASSWORD TOGGLE ===
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('password');
-    const eyeOpen = document.getElementById('eyeOpen');
+    const eyeOpen = document.getElementById('eyeOpen') || document.getElementById('fingerup');
     const eyeClosed = document.getElementById('eyeClosed');
     const eyeSlash = document.getElementById('eyeSlash');
-
     let passwordVisible = false;
 
-    togglePassword.addEventListener('click', function () {
-        passwordVisible = !passwordVisible;
-
-        if (passwordVisible) {
-            passwordInput.type = 'text';
-            eyeOpen.style.display = 'none';
-            eyeClosed.style.display = 'block';
-            eyeSlash.style.display = 'block';
-        } else {
-            passwordInput.type = 'password';
-            eyeOpen.style.display = 'block';
-            eyeClosed.style.display = 'none';
-            eyeSlash.style.display = 'none';
-        }
-
-        // Add subtle animation
-        togglePassword.style.transform = 'translateY(-50%) scale(0.9)';
-        setTimeout(() => {
-            togglePassword.style.transform = 'translateY(-50%) scale(1)';
-        }, 100);
-    });
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function () {
+            passwordVisible = !passwordVisible;
+            passwordInput.type = passwordVisible ? 'text' : 'password';
+            if (eyeOpen) eyeOpen.style.display = passwordVisible ? 'none' : 'block';
+            if (eyeClosed) eyeClosed.style.display = passwordVisible ? 'block' : 'none';
+            if (eyeSlash) eyeSlash.style.display = passwordVisible ? 'block' : 'none';
+            togglePassword.style.transform = 'translateY(-50%) scale(0.9)';
+            setTimeout(() => { togglePassword.style.transform = 'translateY(-50%) scale(1)'; }, 100);
+        });
+    }
 
     // === FORM SUBMISSION ===
     const loginForm = document.getElementById('loginForm');
@@ -46,10 +49,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const emailPhone = document.getElementById('emailPhone').value.trim();
         const password = document.getElementById('password').value;
+        const selectedRole = localStorage.getItem('wasil_role') || 'community';
 
-        // Basic validation
         if (!emailPhone || !password) {
-            showNotification('Please fill in all fields', 'error');
+            showNotification('Please fill in all fields / يرجى ملء جميع الحقول', 'error');
             return;
         }
 
@@ -59,21 +62,45 @@ document.addEventListener('DOMContentLoaded', function () {
         buttonLoader.style.display = 'inline-flex';
 
         try {
-            // DEMO MODE BYPASS
-            if (emailPhone === 'demo@wasil.com' && password === 'demo123') {
-                handleSuccessfulLogin({ fullName: 'Demo User', email: 'demo@wasil.com', user_metadata: { role: 'community' } });
+            // ── ADMIN LOGIN ──
+            if (selectedRole === 'admin') {
+                await handleAdminLogin(emailPhone, password);
                 return;
             }
 
+            // ── COMMUNITY / ORG LOGIN ──
+            let loginEmail = emailPhone;
+
+            // If input looks like a Sudan phone number, look up the email
+            if (isSudanPhone(emailPhone)) {
+                const normalizedPhone = normalizeSudanPhone(emailPhone);
+                const { data: profile, error: profileErr } = await supabase
+                    .from('community_profiles')
+                    .select('email')
+                    .eq('phone', normalizedPhone)
+                    .single();
+
+                if (profileErr || !profile) {
+                    throw new Error('Phone number not found. / رقم الهاتف غير موجود.');
+                }
+                loginEmail = profile.email;
+            }
+
             const { data, error } = await supabase.auth.signInWithPassword({
-                email: emailPhone,
+                email: loginEmail,
                 password: password
             });
 
             if (error) throw error;
 
             if (data.user) {
-                handleSuccessfulLogin(data.user);
+                // Validate role matches
+                const userRole = data.user.user_metadata?.role || 'community';
+                if (selectedRole !== userRole) {
+                    await supabase.auth.signOut();
+                    throw new Error('Access denied. Please use the correct role. / الوصول مرفوض.');
+                }
+                await handleSuccessfulLogin(data.user);
             }
 
         } catch (error) {
@@ -85,24 +112,60 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    async function handleSuccessfulLogin(user) {
-        showNotification('Login successful! Redirecting...', 'success');
+    async function handleAdminLogin(emailPhone, password) {
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: emailPhone,
+                password: password
+            });
 
-        // Extract metadata or fallback
+            if (error) throw error;
+
+            // Verify the user exists in admin_profiles table
+            const { data: adminProfile, error: adminErr } = await supabase
+                .from('admin_profiles')
+                .select('id, full_name')
+                .eq('id', data.user.id)
+                .single();
+
+            if (adminErr || !adminProfile) {
+                await supabase.auth.signOut();
+                throw new Error('Access denied. Admin credentials required. / الوصول مرفوض. بيانات المدير مطلوبة.');
+            }
+
+            localStorage.setItem('wasil_user', JSON.stringify({
+                id: data.user.id,
+                email: data.user.email,
+                fullName: adminProfile.full_name || 'Admin',
+                role: 'admin'
+            }));
+            localStorage.setItem('wasil_role', 'admin');
+
+            showNotification('Welcome, Admin! / مرحباً، جاري التحويل...', 'success');
+            setTimeout(() => { window.location.href = 'wasil-admin.html'; }, 1000);
+
+        } catch (err) {
+            showNotification(err.message || 'Admin login failed', 'error');
+            const sb = document.querySelector('.signin-button');
+            sb.disabled = false;
+            sb.querySelector('.button-text').style.display = 'inline';
+            sb.querySelector('.button-loader').style.display = 'none';
+        }
+    }
+
+    async function handleSuccessfulLogin(user) {
+        showNotification('Login successful! / تم تسجيل الدخول!', 'success');
+
         const metadata = user.user_metadata || {};
         const role = metadata.role || 'community';
         let fullName = metadata.full_name || user.email.split('@')[0];
         let phone = user.phone || metadata.phone || '';
 
-        // Fetch profile from the correct table
         try {
             if (role === 'organization') {
                 const { data: orgProfile } = await supabase
                     .from('organization_profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
-
+                    .select('*').eq('id', user.id).single();
                 if (orgProfile) {
                     fullName = orgProfile.org_name || fullName;
                     phone = orgProfile.phone || phone;
@@ -110,10 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 const { data: commProfile } = await supabase
                     .from('community_profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
-
+                    .select('*').eq('id', user.id).single();
                 if (commProfile) {
                     fullName = commProfile.full_name || fullName;
                     phone = commProfile.phone || phone;
@@ -123,260 +183,96 @@ document.addEventListener('DOMContentLoaded', function () {
             console.warn('Could not fetch profile:', profileError.message);
         }
 
-        // Save session info
-        localStorage.setItem('wasil_user', JSON.stringify({
-            id: user.id,
-            email: user.email,
-            fullName: fullName,
-            phone: phone
-        }));
-
-        // IMPORTANT: Set logic role for home page
+        localStorage.setItem('wasil_user', JSON.stringify({ id: user.id, email: user.email, fullName, phone }));
         localStorage.setItem('wasil_role', role);
 
-        setTimeout(() => {
-            window.location.href = 'wasil-home.html';
-        }, 1000);
+        setTimeout(() => { window.location.href = 'wasil-home.html'; }, 1000);
+    }
+
+    // === Sudan Phone Helpers ===
+    function isSudanPhone(input) {
+        const cleaned = input.replace(/[\s\-]/g, '');
+        return /^(09\d{8}|\+2499\d{8}|002499\d{8})$/.test(cleaned);
+    }
+
+    function normalizeSudanPhone(input) {
+        const cleaned = input.replace(/[\s\-]/g, '');
+        if (cleaned.startsWith('09')) return '+249' + cleaned.slice(1);
+        if (cleaned.startsWith('00249')) return '+' + cleaned.slice(2);
+        return cleaned;
     }
 
     // === INPUT ANIMATIONS ===
-    const inputFields = document.querySelectorAll('.input-field');
-
-    inputFields.forEach(input => {
-        // Add focus animation
-        input.addEventListener('focus', function () {
-            this.parentElement.style.transform = 'scale(1.01)';
-        });
-
-        input.addEventListener('blur', function () {
-            this.parentElement.style.transform = 'scale(1)';
-        });
-
-        // Real-time validation feedback
+    document.querySelectorAll('.input-field').forEach(input => {
+        input.addEventListener('focus', function () { this.parentElement.style.transform = 'scale(1.01)'; });
+        input.addEventListener('blur', function () { this.parentElement.style.transform = 'scale(1)'; });
         input.addEventListener('input', function () {
-            if (this.value.length > 0) {
-                this.classList.add('has-value');
-            } else {
-                this.classList.remove('has-value');
-            }
+            this.classList.toggle('has-value', this.value.length > 0);
         });
     });
 
     // === FORGOT PASSWORD LINK ===
     const forgotPasswordLink = document.querySelector('.forgot-password');
-
-    forgotPasswordLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        window.location.href = 'Wasil-forgotpassword.html';
-    });
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.href = 'Wasil-forgotpassword.html';
+        });
+    }
 
     // === SIGN UP LINK ===
     const signupLink = document.querySelector('.signup-link');
-
-    signupLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        window.location.href = 'wasil-signup.html';
-    });
-
-    // === NOTIFICATION SYSTEM ===
-    function showNotification(message, type = 'info') {
-        // Remove existing notification if any
-        const existingNotification = document.querySelector('.notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
-
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.textContent = message;
-
-        // Add styles
-        Object.assign(notification.style, {
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            padding: '16px 24px',
-            borderRadius: '12px',
-            color: '#fff',
-            fontSize: '14px',
-            fontWeight: '500',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
-            zIndex: '10000',
-            animation: 'slideInRight 0.3s ease-out',
-            maxWidth: '300px',
-            wordWrap: 'break-word'
+    if (signupLink) {
+        signupLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.href = 'wasil-signup.html';
         });
-
-        // Set background color based on type
-        const colors = {
-            success: '#2ECC71',
-            error: '#E74C3C',
-            info: '#4A90E2',
-            warning: '#F39C12'
-        };
-        notification.style.background = colors[type] || colors.info;
-
-        // Add animation keyframes if not already added
-        if (!document.querySelector('#notification-styles')) {
-            const style = document.createElement('style');
-            style.id = 'notification-styles';
-            style.textContent = `
-                @keyframes slideInRight {
-                    from {
-                        transform: translateX(400px);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                }
-                @keyframes slideOutRight {
-                    from {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                    to {
-                        transform: translateX(400px);
-                        opacity: 0;
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        // Add to DOM
-        document.body.appendChild(notification);
-
-        // Auto remove after 3 seconds
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.3s ease-in';
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, 3000);
     }
 
-    // === KEYBOARD SHORTCUTS ===
-    document.addEventListener('keydown', function (e) {
-        // Submit on Enter when in input fields
-        if (e.key === 'Enter' && (e.target.id === 'emailPhone' || e.target.id === 'password')) {
-            loginForm.dispatchEvent(new Event('submit'));
-        }
-    });
+    // === LANG SWITCHER ===
+    const langBtn = document.createElement('button');
+    langBtn.style.cssText = 'position:fixed;top:50px;left:18px;z-index:10001;background:#fff;color:#4A90E2;border:none;border-radius:8px;padding:6px 16px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.08);font-family:Cairo,Inter,sans-serif;';
+    langBtn.textContent = localStorage.getItem('wasil_lang') === 'ar' ? 'English' : 'العربية';
+    langBtn.onclick = function () {
+        const newLang = localStorage.getItem('wasil_lang') === 'ar' ? 'en' : 'ar';
+        localStorage.setItem('wasil_lang', newLang);
+        if (typeof applyLanguage === 'function') applyLanguage();
+        langBtn.textContent = newLang === 'ar' ? 'English' : 'العربية';
+    };
+    document.body.appendChild(langBtn);
 
-    // === SMOOTH SCROLLING (for mobile) ===
-    window.addEventListener('resize', function () {
-        // Adjust viewport for mobile keyboards
-        const viewport = document.querySelector('meta[name=viewport]');
-        if (viewport) {
-            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-        }
-    });
+    // Apply translations on load
+    if (typeof applyLanguage === 'function') applyLanguage();
 
-    // === LANGUAGE SWITCHING LOGIC ===
-    function setLanguage(lang) {
-        // Arabic translations
-        const ar = {
-            logo: 'واصل',
-            tagline: 'معك في كل مكان',
-            emailLabel: 'رقم الهاتف او البريد الالكتروني',
-            emailPlaceholder: 'أدخل رقم الهاتف أو البريد الالكتروني',
-            passwordLabel: 'كلمة السر',
-            passwordPlaceholder: 'أدخل كلمة السر',
-            signIn: 'تسجيل الدخول',
-            forgot: 'نسيت كلمة السر؟',
-            demo: '<strong style="color: #4A90E2;">تجربة دخول:</strong> demo@wasil.com / demo123',
-            signup: 'ليس لديك حساب؟',
-            signupLink: 'إنشاء حساب'
-        };
-        // English translations
-        const en = {
-            logo: 'WASIL',
-            tagline: 'With you everywhere',
-            emailLabel: 'Email or Phone Number',
-            emailPlaceholder: 'Enter your email or phone number',
-            passwordLabel: 'Password',
-            passwordPlaceholder: 'Enter your password',
-            signIn: 'Sign In',
-            forgot: 'Forgot Password?',
-            demo: '<strong style="color: #4A90E2;">Demo Login:</strong> demo@wasil.com / demo123',
-            signup: "Don't have an account?",
-            signupLink: 'Sign Up'
-        };
-        const t = lang === 'ar' ? ar : en;
-        // Update text content
-        document.querySelector('.logo').textContent = t.logo;
-        document.querySelector('.tagline').textContent = t.tagline;
-        document.querySelector('label[for="emailPhone"]').textContent = t.emailLabel;
-        document.getElementById('emailPhone').placeholder = t.emailPlaceholder;
-        document.querySelector('label[for="password"]').textContent = t.passwordLabel;
-        document.getElementById('password').placeholder = t.passwordPlaceholder;
-        document.querySelector('.button-text').textContent = t.signIn;
-        document.querySelector('.forgot-password').textContent = t.forgot;
-        document.querySelector('.demo-info p').innerHTML = t.demo;
-        document.querySelector('.signup-section p').innerHTML = `${t.signup} <a href="wasil-signup.html" class="signup-link">${t.signupLink}</a>`;
-        // Direction
-        document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
-        document.documentElement.lang = lang;
-    }
-
-    function addLangSwitchButton() {
-        let btn = document.createElement('button');
-        btn.className = 'lang-switch-btn';
-        btn.style.position = 'fixed';
-        btn.style.top = '18px';
-        btn.style.left = '18px';
-        btn.style.zIndex = '10001';
-        btn.style.background = '#fff';
-        btn.style.color = '#4A90E2';
-        btn.style.border = 'none';
-        btn.style.borderRadius = '8px';
-        btn.style.padding = '6px 16px';
-        btn.style.fontWeight = '600';
-        btn.style.cursor = 'pointer';
-        btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-        btn.textContent = localStorage.getItem('wasil_lang') === 'ar' ? 'English' : 'العربية';
-        btn.onclick = function () {
-            const newLang = localStorage.getItem('wasil_lang') === 'ar' ? 'en' : 'ar';
-            localStorage.setItem('wasil_lang', newLang);
-            setLanguage(newLang);
-            btn.textContent = newLang === 'ar' ? 'English' : 'العربية';
-        };
-        document.body.appendChild(btn);
-    }
-
-    // On load, set language
-    const lang = localStorage.getItem('wasil_lang') || 'en';
-    setLanguage(lang);
-    addLangSwitchButton();
-
-    console.log('Wasil Login Page Initialized ✓');
+    console.log('Wasil Login Page Initialized ✓ Role:', role);
 });
 
-// === UTILITY FUNCTIONS ===
-
-// Email validation
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-// Phone validation
-function isValidPhone(phone) {
-    const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
-    return phoneRegex.test(phone);
-}
-
-// Password strength checker
-function checkPasswordStrength(password) {
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-    if (/\d/.test(password)) strength++;
-    if (/[^a-zA-Z\d]/.test(password)) strength++;
-
-    const levels = ['weak', 'fair', 'good', 'strong'];
-    return levels[strength] || 'weak';
+// === SHARED NOTIFICATION SYSTEM ===
+function showNotification(message, type = 'info') {
+    const existing = document.querySelector('.wasil-notif');
+    if (existing) existing.remove();
+    const n = document.createElement('div');
+    n.className = 'wasil-notif';
+    n.textContent = message;
+    const colors = { success: '#2ECC71', error: '#E74C3C', info: '#4A90E2', warning: '#F39C12' };
+    Object.assign(n.style, {
+        position: 'fixed', top: '20px', right: '20px',
+        padding: '14px 22px', borderRadius: '12px', color: '#fff',
+        fontSize: '14px', fontWeight: '500', fontFamily: "'Cairo','Inter',sans-serif",
+        boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: '10000',
+        maxWidth: '320px', wordWrap: 'break-word',
+        background: colors[type] || colors.info,
+        animation: 'slideInRight 0.3s ease-out'
+    });
+    if (!document.querySelector('#wasil-notif-styles')) {
+        const s = document.createElement('style');
+        s.id = 'wasil-notif-styles';
+        s.textContent = `@keyframes slideInRight{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes slideOutRight{from{transform:translateX(0);opacity:1}to{transform:translateX(400px);opacity:0}}`;
+        document.head.appendChild(s);
+    }
+    document.body.appendChild(n);
+    setTimeout(() => {
+        n.style.animation = 'slideOutRight 0.3s ease-in';
+        setTimeout(() => n.remove(), 300);
+    }, 3500);
 }

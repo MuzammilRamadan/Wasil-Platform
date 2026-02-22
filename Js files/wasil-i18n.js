@@ -15,6 +15,8 @@ const WASIL_TRANSLATIONS = {
     "role.community_desc": { en: "Report cases, find nearby clinics, and access health instructions.", ar: "الإبلاغ عن الحالات، البحث عن العيادات القريبة، والوصول للتعليمات الصحية." },
     "role.organization": { en: "Organization", ar: "منظمة" },
     "role.organization_desc": { en: "Assign clinics, provide services, and manage epidemic response.", ar: "تعيين العيادات، تقديم الخدمات، وإدارة الاستجابة للأوبئة." },
+    "role.admin": { en: "System Admin", ar: "مدير النظام" },
+    "role.admin_desc": { en: "Ministry of Health: manage epidemic response, review clinic requests, and monitor all users.", ar: "وزارة الصحة: إدارة الاستجابة للأوبئة، مراجعة طلبات العيادات، ومراقبة المستخدمين." },
 
     // ── Login Page ──
     "login.logo": { en: "WASIL", ar: "واصل" },
@@ -144,6 +146,62 @@ const WASIL_TRANSLATIONS = {
     "nav-home": { en: "Home", ar: "الرئيسية" },
     "nav-services": { en: "Services", ar: "الخدمات" },
     "nav-clinic": { en: "Assign Clinic", ar: "تعيين عيادة" },
+    "nav-logout": { en: "Logout", ar: "تسجيل الخروج" },
+
+    // ── Login Page – Role Banner ──
+    "login.role_admin": { en: "Ministry of Health – Admin Login", ar: "وزارة الصحة – تسجيل دخول المدير" },
+    "login.role_org": { en: "Organization Login", ar: "تسجيل دخول المنظمة" },
+    "login.role_community": { en: "Community Member Login", ar: "تسجيل دخول عضو المجتمع" },
+
+    // ── Admin Page ──
+    "admin.title": { en: "Ministry of Health", ar: "وزارة الصحة" },
+    "admin.subtitle": { en: "WASIL System Admin", ar: "مدير نظام واصل" },
+    "admin.dashboard": { en: "Dashboard", ar: "لوحة التحكم" },
+    "admin.deployed_clinics": { en: "Deployed Clinics", ar: "العيادات المنتشرة" },
+    "admin.clinic_requests": { en: "Clinic Requests", ar: "طلبات العيادات" },
+    "admin.system_users": { en: "System Users", ar: "مستخدمو النظام" },
+    "admin.logout": { en: "Logout", ar: "تسجيل الخروج" },
+
+    // Admin – Dashboard
+    "admin.epidemic_situation": { en: "Epidemic Situation", ar: "الوضع الوبائي" },
+    "admin.registered_diseases": { en: "Registered Diseases", ar: "الأمراض المسجلة" },
+    "admin.epidemic_areas": { en: "Epidemic Areas", ar: "المناطق الوبائية" },
+    "admin.total_cases": { en: "Total Cases", ar: "إجمالي الحالات" },
+    "admin.severity": { en: "Severity", ar: "الخطورة" },
+    "admin.location": { en: "Location", ar: "الموقع" },
+    "admin.cases": { en: "Cases", ar: "الحالات" },
+    "admin.rank": { en: "Rank", ar: "الترتيب" },
+
+    // Admin – Deployed Clinics
+    "admin.clinic_name": { en: "Clinic Name", ar: "اسم العيادة" },
+    "admin.capacity": { en: "Capacity", ar: "الطاقة الاستيعابية" },
+    "admin.diseases_treated": { en: "Diseases Treated", ar: "الأمراض المعالجة" },
+    "admin.schedule": { en: "Schedule", ar: "الجدول الزمني" },
+    "admin.operating_party": { en: "Operating Party", ar: "الجهة المشغلة" },
+    "admin.deployed_by_moh": { en: "MOH", ar: "وزارة الصحة" },
+    "admin.status_active": { en: "Active", ar: "نشط" },
+    "admin.status_pending": { en: "Pending", ar: "قيد الانتظار" },
+
+    // Admin – Clinic Requests
+    "admin.pending_requests": { en: "Pending Requests", ar: "الطلبات المعلقة" },
+    "admin.org_name": { en: "Organization", ar: "المنظمة" },
+    "admin.requested_area": { en: "Target Area", ar: "المنطقة المستهدفة" },
+    "admin.btn_approve": { en: "Approve", ar: "موافقة" },
+    "admin.btn_reject": { en: "Reject", ar: "رفض" },
+    "admin.date_requested": { en: "Date", ar: "التاريخ" },
+    "admin.no_requests": { en: "No pending requests", ar: "لا توجد طلبات معلقة" },
+
+    // Admin – System Users
+    "admin.organizations": { en: "Organizations", ar: "المنظمات" },
+    "admin.community_users": { en: "Community Users", ar: "مستخدمو المجتمع" },
+    "admin.contact": { en: "Contact", ar: "التواصل" },
+    "admin.approved_count": { en: "Approved", ar: "تمت الموافقة" },
+    "admin.rejected_count": { en: "Rejected", ar: "تم الرفض" },
+    "admin.reported_disease": { en: "Reported Disease", ar: "المرض المبلغ عنه" },
+    "admin.user_name": { en: "Name", ar: "الاسم" },
+    "admin.user_phone": { en: "Phone", ar: "الهاتف" },
+    "admin.user_email": { en: "Email", ar: "البريد الإلكتروني" },
+    "admin.user_location": { en: "Location", ar: "الموقع" },
 };
 
 
@@ -156,12 +214,8 @@ function applyLanguage() {
     document.documentElement.setAttribute('dir', isArabic ? 'rtl' : 'ltr');
     document.documentElement.setAttribute('lang', lang);
 
-    // Set font family
-    if (isArabic) {
-        document.body.style.fontFamily = "'Cairo', 'Inter', sans-serif";
-    } else {
-        document.body.style.fontFamily = "'Inter', -apple-system, sans-serif";
-    }
+    // Cairo font on ALL pages (Cairo supports both Arabic & Latin scripts)
+    document.body.style.fontFamily = "'Cairo', 'Inter', -apple-system, sans-serif";
 
     // Translate text content
     var textElements = document.querySelectorAll('[data-i18n]');

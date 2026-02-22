@@ -17,9 +17,34 @@
 
 <body>
     <div class="role-container">
+        <!-- Back to Language -->
+        <a href="wasil-language.html" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </a>
         <h1 class="role-title" data-i18n="role.title">How will you use WASIL?</h1>
 
         <div class="role-cards">
+            <!-- System Admin Card — placed first (on top) -->
+            <div class="role-card" id="card-admin">
+                <div class="role-icon admin-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7L12 2z"></path>
+                        <path d="M9 12l2 2 4-4"></path>
+                    </svg>
+                </div>
+                <h2 class="role-card-title" data-i18n="role.admin">System Admin</h2>
+                <p class="role-card-desc" data-i18n="role.admin_desc">Manage the epidemic response system, review clinic
+                    requests, and monitor all users.</p>
+                <div class="role-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+
             <!-- Community Member Card -->
             <div class="role-card" id="card-community">
                 <div class="role-icon community-icon">
