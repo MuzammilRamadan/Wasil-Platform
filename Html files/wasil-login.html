@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Wasil Mobile Clinic - Login to access your healthcare services">
+    <title>Wasil - Login</title>
+    <link rel="stylesheet" href="../Css files/wasil-login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="login-card">
+            <!-- Wave Background -->
+            <div class="wave-background">
+                <svg viewBox="0 0 500 300" preserveAspectRatio="none">
+                    <path d="M0,100 Q125,50 250,100 T500,100 L500,0 L0,0 Z" fill="url(#gradient1)"></path>
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#50C9C3;stop-opacity:0.3" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="medical-icon">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                        <rect x="16" y="8" width="8" height="24" rx="2" fill="#50C9C3" />
+                        <rect x="8" y="16" width="24" height="8" rx="2" fill="#50C9C3" />
+                    </svg>
+                </div>
+                <h1 class="logo" data-i18n="login.logo">WASIL</h1>
+                <p class="tagline" data-i18n="login.tagline">With you everywhere</p>
+            </div>
+
+            <!-- Login Form -->
+            <form class="login-form" id="loginForm">
+                <div class="input-group">
+                    <label for="emailPhone" class="input-label" data-i18n="login.email_label">Phone Number or
+                        Email</label>
+                    <input type="text" id="emailPhone" class="input-field" placeholder="Enter phone or email"
+                        data-i18n-placeholder="login.email_ph" required autocomplete="username">
+                </div>
+
+                <div class="input-group">
+                    <label for="password" class="input-label" data-i18n="login.pass_label">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" class="input-field" placeholder="Enter your password"
+                            data-i18n-placeholder="login.pass_ph" required autocomplete="current-password">
+                        <button type="button" class="toggle-password" id="togglePassword"
+                            aria-label="Toggle password visibility">
+                            <svg class="finger-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path id="fingerup"
+                                    d="M12 5C7 5 2.73 8.11 1 12.5C2.73 16.89 7 20 12 20C17 20 21.27 16.89 23 12.5C21.27 8.11 17 5 12 5ZM12 17.5C9.24 17.5 7 15.26 7 12.5C7 9.74 9.24 7.5 12 7.5C14.76 7.5 17 9.74 17 12.5C17 15.26 14.76 17.5 12 17.5ZM12 9.5C10.34 9.5 9 10.84 9 12.5C9 14.16 10.34 15.5 12 15.5C13.66 15.5 15 14.16 15 12.5C15 10.84 13.66 9.5 12 9.5Z"
+                                    fill="currentColor" />
+                                <path id="eyeClosed"
+                                    d="M12 6.5C7 6.5 2.73 9.61 1 14C2.73 18.39 7 21.5 12 21.5C17 21.5 21.27 18.39 23 14C21.27 9.61 17 6.5 12 6.5ZM12 19C9.24 19 7 16.76 7 14C7 11.24 9.24 9 12 9C14.76 9 17 11.24 17 14C17 16.76 14.76 19 12 19ZM12 11C10.34 11 9 12.34 9 14C9 15.66 10.34 17 12 17C13.66 17 15 15.66 15 14C15 12.34 13.66 11 12 11Z"
+                                    fill="currentColor" style="display:none" />
+                                <line id="eyeSlash" x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" style="display:none" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="signin-button">
+                    <span class="button-text" data-i18n="login.signin">Sign In</span>
+                    <span class="button-loader" style="display: none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none"
+                                opacity="0.25" />
+                            <path d="M12 2 A10 10 0 0 1 22 12" stroke="currentColor" stroke-width="3" fill="none"
+                                stroke-linecap="round" />
+                        </svg>
+                    </span>
+                </button>
+
+                <a href="Wasil-forgotpassword.html" class="forgot-password" data-i18n="login.forgot">Forgot
+                    Password?</a>
+            </form>
+
+            <!-- Heartbeat Pattern -->
+            <div class="heartbeat-pattern">
+                <svg viewBox="0 0 400 50" preserveAspectRatio="none">
+                    <path d="M0,25 L80,25 L100,15 L110,35 L120,10 L130,40 L140,25 L400,25" stroke="#E8F4F8"
+                        stroke-width="1.5" fill="none" opacity="0.4" />
+                </svg>
+            </div>
+
+            <!-- Demo Credentials Info -->
+            <div class="demo-info">
+                <p style="font-size: 13px; color: #7F8C8D; text-align: center; margin: 0;">
+                    <strong style="color: #4A90E2;" data-i18n="login.demo">Demo Login:</strong> demo@wasil.com / demo123
+                </p>
+            </div>
+
+            <!-- Sign Up Link -->
+            <div class="signup-section">
+                <p><span data-i18n="login.no_account">Don't have an account?</span> <a href="wasil-signup.html"
+                        class="signup-link" data-i18n="login.signup_link">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase SDK (must be first) -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../Js files/supabase-config.js"></script>
+    <!-- App JavaScript -->
+    <script src="../Js files/wasil-i18n.js"></script>
+    <script src="../Js files/wasil-login.js"></script>
+</body>
+
+</html>

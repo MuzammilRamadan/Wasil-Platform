@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Wasil Mobile Clinic - Create your account to access healthcare services">
+    <title>Wasil - Sign Up</title>
+    <link rel="stylesheet" href="../Css files/wasil-signup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="signup-card">
+            <!-- Wave Background -->
+            <div class="wave-background">
+                <svg viewBox="0 0 500 300" preserveAspectRatio="none">
+                    <path d="M0,100 Q125,50 250,100 T500,100 L500,0 L0,0 Z" fill="url(#gradient1)"></path>
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#50C9C3;stop-opacity:0.3" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="medical-icon">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                        <rect x="16" y="8" width="8" height="24" rx="2" fill="#50C9C3" />
+                        <rect x="8" y="16" width="24" height="8" rx="2" fill="#50C9C3" />
+                    </svg>
+                </div>
+                <h1 class="logo" data-i18n="signup.logo">WASIL</h1>
+                <p class="tagline" data-i18n="signup.tagline">Create Your Account</p>
+            </div>
+
+            <!-- Account Type Toggle -->
+            <div class="account-type-toggle" id="accountTypeToggle">
+                <button type="button" class="toggle-btn active" id="btnCommunity" data-type="community">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                    </svg>
+                    <span data-i18n="signup.type_community">Community Member</span>
+                </button>
+                <button type="button" class="toggle-btn" id="btnOrganization" data-type="organization">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                        <line x1="9" y1="6" x2="15" y2="6"></line>
+                        <line x1="9" y1="10" x2="15" y2="10"></line>
+                        <line x1="9" y1="14" x2="15" y2="14"></line>
+                    </svg>
+                    <span data-i18n="signup.type_org">Organization</span>
+                </button>
+            </div>
+
+            <!-- Sign Up Form -->
+            <form class="signup-form" id="signupForm">
+                <div class="input-group">
+                    <label for="fullName" class="input-label" id="nameLabel" data-i18n="signup.name_label">Full
+                        Name</label>
+                    <input type="text" id="fullName" class="input-field" placeholder="Enter your full name"
+                        data-i18n-placeholder="signup.name_ph" required autocomplete="name">
+                </div>
+
+                <div class="input-group">
+                    <label for="email" class="input-label" data-i18n="signup.email_label">Email Address</label>
+                    <input type="email" id="email" class="input-field" placeholder="Enter your email"
+                        data-i18n-placeholder="signup.email_ph" required autocomplete="email">
+                </div>
+
+                <!-- Phone Group: simple for community, international for org -->
+                <div class="input-group" id="phoneGroup">
+                    <label for="phone" class="input-label" data-i18n="signup.phone_label">Phone Number</label>
+                    <!-- Simple phone (community) -->
+                    <input type="tel" id="phone" class="input-field" placeholder="Enter your phone number"
+                        data-i18n-placeholder="signup.phone_ph" required autocomplete="tel">
+                    <!-- International phone (organization, hidden by default) -->
+                    <div class="phone-intl-wrapper" id="phoneIntlWrapper" style="display: none;">
+                        <select class="country-code-select" id="countryCode">
+                            <option value="+249">🇸🇩 +249</option>
+                            <option value="+966">🇸🇦 +966</option>
+                            <option value="+971">🇦🇪 +971</option>
+                            <option value="+20">🇪🇬 +20</option>
+                            <option value="+962">🇯🇴 +962</option>
+                            <option value="+964">🇮🇶 +964</option>
+                            <option value="+968">🇴🇲 +968</option>
+                            <option value="+974">🇶🇦 +974</option>
+                            <option value="+965">🇰🇼 +965</option>
+                            <option value="+973">🇧🇭 +973</option>
+                            <option value="+218">🇱🇾 +218</option>
+                            <option value="+216">🇹🇳 +216</option>
+                            <option value="+213">🇩🇿 +213</option>
+                            <option value="+212">🇲🇦 +212</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+90">🇹🇷 +90</option>
+                        </select>
+                        <input type="tel" id="phoneIntl" class="input-field phone-intl-input" placeholder="Phone number"
+                            data-i18n-placeholder="signup.phone_intl_ph">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="password" class="input-label" data-i18n="signup.pass_label">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" class="input-field" placeholder="Create a password"
+                            data-i18n-placeholder="signup.pass_ph" required autocomplete="new-password">
+                        <button type="button" class="toggle-password" id="togglePassword"
+                            aria-label="Toggle password visibility">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path id="eyeOpen"
+                                    d="M12 5C7 5 2.73 8.11 1 12.5C2.73 16.89 7 20 12 20C17 20 21.27 16.89 23 12.5C21.27 8.11 17 5 12 5ZM12 17.5C9.24 17.5 7 15.26 7 12.5C7 9.74 9.24 7.5 12 7.5C14.76 7.5 17 9.74 17 12.5C17 15.26 14.76 17.5 12 17.5ZM12 9.5C10.34 9.5 9 10.84 9 12.5C9 14.16 10.34 15.5 12 15.5C13.66 15.5 15 14.16 15 12.5C15 10.84 13.66 9.5 12 9.5Z"
+                                    fill="currentColor" />
+                                <path id="eyeClosed"
+                                    d="M12 6.5C7 6.5 2.73 9.61 1 14C2.73 18.39 7 21.5 12 21.5C17 21.5 21.27 18.39 23 14C21.27 9.61 17 6.5 12 6.5ZM12 19C9.24 19 7 16.76 7 14C7 11.24 9.24 9 12 9C14.76 9 17 11.24 17 14C17 16.76 14.76 19 12 19ZM12 11C10.34 11 9 12.34 9 14C9 15.66 10.34 17 12 17C13.66 17 15 15.66 15 14C15 12.34 13.66 11 12 11Z"
+                                    fill="currentColor" style="display:none" />
+                                <line id="eyeSlash" x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" style="display:none" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <p class="strength-text" id="strengthText"></p>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="confirmPassword" class="input-label" data-i18n="signup.confirm_label">Confirm
+                        Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="confirmPassword" class="input-field"
+                            placeholder="Confirm your password" data-i18n-placeholder="signup.confirm_ph" required
+                            autocomplete="new-password">
+                        <button type="button" class="toggle-password" id="toggleConfirmPassword"
+                            aria-label="Toggle confirm password visibility">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path class="eye-open-confirm"
+                                    d="M12 5C7 5 2.73 8.11 1 12.5C2.73 16.89 7 20 12 20C17 20 21.27 16.89 23 12.5C21.27 8.11 17 5 12 5ZM12 17.5C9.24 17.5 7 15.26 7 12.5C7 9.74 9.24 7.5 12 7.5C14.76 7.5 17 9.74 17 12.5C17 15.26 14.76 17.5 12 17.5ZM12 9.5C10.34 9.5 9 10.84 9 12.5C9 14.16 10.34 15.5 12 15.5C13.66 15.5 15 15.66 15 12.5C15 10.84 13.66 9.5 12 9.5Z"
+                                    fill="currentColor" />
+                                <line class="eye-slash-confirm" x1="4" y1="4" x2="20" y2="20" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" style="display:none" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="termsCheckbox" required>
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-text"><span data-i18n="signup.terms">I agree to the</span> <a href="#"
+                                class="link" data-i18n="signup.terms_link">Terms & Conditions</a> <span
+                                data-i18n="signup.privacy_and">and</span>
+                            <a href="#" class="link" data-i18n="signup.privacy_link">Privacy Policy</a></span>
+                    </label>
+                </div>
+
+                <button type="submit" class="signup-button">
+                    <span class="button-text" data-i18n="signup.create">Create Account</span>
+                    <span class="button-loader" style="display: none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none"
+                                opacity="0.25" />
+                            <path d="M12 2 A10 10 0 0 1 22 12" stroke="currentColor" stroke-width="3" fill="none"
+                                stroke-linecap="round" />
+                        </svg>
+                    </span>
+                </button>
+            </form>
+
+            <!-- Heartbeat Pattern -->
+            <div class="heartbeat-pattern">
+                <svg viewBox="0 0 400 50" preserveAspectRatio="none">
+                    <path d="M0,25 L80,25 L100,15 L110,35 L120,10 L130,40 L140,25 L400,25" stroke="#E8F4F8"
+                        stroke-width="1.5" fill="none" opacity="0.4" />
+                </svg>
+            </div>
+
+            <!-- Login Link -->
+            <div class="login-section">
+                <p><span data-i18n="signup.has_account">Already have an account?</span> <a href="wasil-login.html"
+                        class="login-link" data-i18n="signup.signin_link">Sign In</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase SDK (must be first) -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../Js files/supabase-config.js"></script>
+    <!-- App JavaScript -->
+    <script src="../Js files/wasil-i18n.js"></script>
+    <script src="../Js files/wasil-signup.js"></script>
+</body>
+
+</html>

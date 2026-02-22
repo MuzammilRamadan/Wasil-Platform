@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description"
+        content="WASIL - Electronic Health Platform for epidemic response and mobile clinic management in Sudan">
+    <title>WASIL | Electronic Health Platform</title>
+    <link rel="stylesheet" href="../Css files/wasil-home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../Js files/supabase-config.js"></script>
+</head>
+
+<body>
+
+    <!-- Success Toast -->
+    <div class="toast" id="successToast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span>Request submitted successfully!</span>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="user-info">
+            <p style="text-transform: uppercase; font-size: 0.65rem; letter-spacing: 2px; color: var(--primary); font-weight: 800;"
+                data-i18n="app-name">WASIL</p>
+            <h2 style="font-size: 0.9rem;" data-i18n="app-slogan">ELECTRONIC HEALTH PLATFORM</h2>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn" id="notificationBtn" aria-label="Notifications">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span class="notification-badge" id="headerNotifBadge" style="display:none;">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main id="mainContent">
+
+        <!-- ═══════════ VIEW: HOME ═══════════ -->
+        <div id="view-home" class="view-section active">
+
+            <!-- Hero Card -->
+            <div class="hero-card">
+                <h3 data-i18n="hero-title">Outbreak Response</h3>
+                <p data-i18n="hero-desc">Access mobile clinics, report symptoms, request services, or manage epidemic
+                    response operations.</p>
+
+                <div class="hero-actions">
+                    <!-- Community buttons -->
+                    <button class="hero-btn" data-role="community" onclick="location.href='wasil-report-case.html'">
+                        Report Case
+                    </button>
+                    <button class="hero-btn outline" data-role="community" id="btnNearbyClinics">
+                        Nearby Clinics
+                    </button>
+                    <!-- Organization button -->
+                    <button class="hero-btn" data-role="organization" id="btnAssignClinic">
+                        Assign Clinic
+                    </button>
+                </div>
+
+                <svg class="hero-pattern" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="0.5" stroke-opacity="0.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M7 12h10M12 7v10"></path>
+                </svg>
+            </div>
+
+            <!-- Outbreak Status Section -->
+            <div class="section-header">
+                <span class="section-title" data-i18n="sec-outbreak">Outbreak Status</span>
+            </div>
+
+            <div class="outbreak-status" onclick="location.href='wasil-dashboard.html'">
+                <div class="status-content">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <h4 style="margin:0;" data-i18n="area-khartoum">Khartoum North</h4>
+                        <span class="status-badge" data-i18n="risk-high">HIGH RISK</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--alert); font-weight: 600;" data-i18n="cases-khartoum">
+                        1,245 Reported Cases</p>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--alert)" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"></path>
+                </svg>
+            </div>
+
+            <div class="outbreak-status" onclick="location.href='wasil-dashboard.html'"
+                style="border-left-color: var(--warning);">
+                <div class="status-content">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <h4 style="margin:0;" data-i18n="area-omdurman">Omdurman</h4>
+                        <span class="status-badge" style="color: var(--warning); background: rgba(245, 158, 11, 0.08);"
+                            data-i18n="risk-moderate">MODERATE</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--warning); font-weight: 600;" data-i18n="cases-omdurman">
+                        850 Reported Cases</p>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"></path>
+                </svg>
+            </div>
+
+            <div class="outbreak-status" onclick="location.href='wasil-dashboard.html'"
+                style="border-left-color: var(--success);">
+                <div class="status-content">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <h4 style="margin:0;">Bahri</h4>
+                        <span class="status-badge"
+                            style="color: var(--success); background: rgba(16, 185, 129, 0.08);">LOW</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--success); font-weight: 600;">320 Reported Cases</p>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"></path>
+                </svg>
+            </div>
+
+            <!-- Common Diseases Section -->
+            <div class="section-header" style="margin-top: 1.25rem;">
+                <span class="section-title" data-i18n="sec-diseases">Common Diseases</span>
+            </div>
+
+            <div class="disease-guide-list">
+                <div class="disease-item">
+                    <div class="disease-header">
+                        <h4 data-i18n="dis-cholera">Cholera</h4>
+                        <span class="risk-dot high"></span>
+                    </div>
+                    <p class="disease-symptoms" data-i18n="sym-cholera">Watery diarrhea, vomiting, dehydration, leg
+                        cramps.</p>
+                </div>
+                <div class="disease-item">
+                    <div class="disease-header">
+                        <h4 data-i18n="dis-typhoid">Typhoid</h4>
+                        <span class="risk-dot moderate"></span>
+                    </div>
+                    <p class="disease-symptoms" data-i18n="sym-typhoid">Prolonged fever, headache, nausea, loss of
+                        appetite.</p>
+                </div>
+                <div class="disease-item">
+                    <div class="disease-header">
+                        <h4 data-i18n="dis-dengue">Dengue Fever</h4>
+                        <span class="risk-dot moderate"></span>
+                    </div>
+                    <p class="disease-symptoms" data-i18n="sym-dengue">High fever, rash, joint pain, eye pain.</p>
+                </div>
+                <div class="disease-item">
+                    <div class="disease-header">
+                        <h4 data-i18n="dis-malaria">Malaria</h4>
+                        <span class="risk-dot stable"></span>
+                    </div>
+                    <p class="disease-symptoms" data-i18n="sym-malaria">Fever, chills, sweats, headache, fatigue.</p>
+                </div>
+            </div>
+
+            <!-- Community: Health Instructions -->
+            <div data-role="community" style="margin-top: 1.5rem;">
+                <div class="section-header">
+                    <span class="section-title" data-i18n="sec-health-inst">Health Instructions</span>
+                </div>
+                <div class="health-instructions-list">
+                    <div class="health-inst-item">
+                        <div class="health-inst-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                        </div>
+                        <div class="health-inst-content">
+                            <h4 data-i18n="inst-wash-title">Wash Hands Frequently</h4>
+                            <p data-i18n="inst-wash-desc">Use soap and water for at least 20 seconds, especially before
+                                eating and after using the restroom.</p>
+                        </div>
+                    </div>
+                    <div class="health-inst-item">
+                        <div class="health-inst-icon" style="background: rgba(6, 182, 212, 0.08); color: #06B6D4;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="health-inst-content">
+                            <h4 data-i18n="inst-water-title">Drink Clean Water</h4>
+                            <p data-i18n="inst-water-desc">Always boil or filter water before drinking. Avoid untreated
+                                or stagnant water sources.</p>
+                        </div>
+                    </div>
+                    <div class="health-inst-item">
+                        <div class="health-inst-icon" style="background: rgba(245, 158, 11, 0.08); color: #F59E0B;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <div class="health-inst-content">
+                            <h4 data-i18n="inst-symptoms-title">Report Symptoms Early</h4>
+                            <p data-i18n="inst-symptoms-desc">If you experience fever, diarrhea, or vomiting, report to
+                                the nearest clinic immediately.</p>
+                        </div>
+                    </div>
+                    <div class="health-inst-item">
+                        <div class="health-inst-icon" style="background: rgba(16, 185, 129, 0.08); color: #10B981;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <div class="health-inst-content">
+                            <h4 data-i18n="inst-vaccine-title">Stay Vaccinated</h4>
+                            <p data-i18n="inst-vaccine-desc">Ensure you and your family are up to date with recommended
+                                vaccinations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════ VIEW: NEARBY CLINICS (Community) ═══════════ -->
+        <div id="view-clinics" class="view-section" style="display: none;">
+            <button class="back-btn" id="btnBackFromClinics">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Back to Home
+            </button>
+
+            <div class="section-header">
+                <span class="section-title">Nearby Clinics</span>
+            </div>
+
+            <div class="clinics-list" id="clinicsList">
+                <!-- Clinic 1 -->
+                <div class="clinic-card">
+                    <span class="clinic-number">CLINIC #1</span>
+                    <h4>Omdurman Clinic</h4>
+                    <div class="clinic-details">
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span class="detail-label">Location:</span>
+                            <span class="detail-value">Omdurman, Block 12, Main Street</span>
+                        </div>
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span class="detail-label">Capacity:</span>
+                            <span class="detail-value">200 patients / day</span>
+                        </div>
+                    </div>
+                    <div class="clinic-vaccines">
+                        <span class="vaccine-tag">Cholera</span>
+                        <span class="vaccine-tag">Typhoid</span>
+                        <span class="vaccine-tag">Oral Rehydration</span>
+                    </div>
+                </div>
+
+                <!-- Clinic 2 -->
+                <div class="clinic-card">
+                    <span class="clinic-number">CLINIC #2</span>
+                    <h4>40th Street Clinic</h4>
+                    <div class="clinic-details">
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span class="detail-label">Location:</span>
+                            <span class="detail-value">Khartoum North, 40th Street</span>
+                        </div>
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span class="detail-label">Capacity:</span>
+                            <span class="detail-value">150 patients / day</span>
+                        </div>
+                    </div>
+                    <div class="clinic-vaccines">
+                        <span class="vaccine-tag">Cholera</span>
+                        <span class="vaccine-tag">Malaria Treatment</span>
+                    </div>
+                </div>
+
+                <!-- Clinic 3 -->
+                <div class="clinic-card">
+                    <span class="clinic-number">CLINIC #3</span>
+                    <h4>Jabarona Clinic</h4>
+                    <div class="clinic-details">
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span class="detail-label">Location:</span>
+                            <span class="detail-value">Jabarona, South Sector</span>
+                        </div>
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span class="detail-label">Capacity:</span>
+                            <span class="detail-value">100 patients / day</span>
+                        </div>
+                    </div>
+                    <div class="clinic-vaccines">
+                        <span class="vaccine-tag">Typhoid</span>
+                        <span class="vaccine-tag">Dengue</span>
+                        <span class="vaccine-tag">First Aid</span>
+                    </div>
+                </div>
+
+                <!-- Clinic 4 -->
+                <div class="clinic-card">
+                    <span class="clinic-number">CLINIC #4</span>
+                    <h4>Bahri Central Clinic</h4>
+                    <div class="clinic-details">
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span class="detail-label">Location:</span>
+                            <span class="detail-value">Bahri, Industrial Area</span>
+                        </div>
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span class="detail-label">Capacity:</span>
+                            <span class="detail-value">180 patients / day</span>
+                        </div>
+                    </div>
+                    <div class="clinic-vaccines">
+                        <span class="vaccine-tag">Cholera</span>
+                        <span class="vaccine-tag">Typhoid</span>
+                        <span class="vaccine-tag">Malaria</span>
+                        <span class="vaccine-tag">Polio</span>
+                    </div>
+                </div>
+
+                <!-- Clinic 5 -->
+                <div class="clinic-card">
+                    <span class="clinic-number">CLINIC #5</span>
+                    <h4>Haj Yousif Clinic</h4>
+                    <div class="clinic-details">
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span class="detail-label">Location:</span>
+                            <span class="detail-value">Haj Yousif, East Block</span>
+                        </div>
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span class="detail-label">Capacity:</span>
+                            <span class="detail-value">120 patients / day</span>
+                        </div>
+                    </div>
+                    <div class="clinic-vaccines">
+                        <span class="vaccine-tag">Cholera</span>
+                        <span class="vaccine-tag">Measles</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════ VIEW: SERVICES (Community) ═══════════ -->
+        <div id="view-services" class="view-section" style="display: none;">
+            <div class="section-header">
+                <span class="section-title" id="servicesViewTitle" data-i18n="sec-services-view">Medical Services</span>
+            </div>
+
+            <div class="services-grid" id="communityServicesGrid">
+                <!-- Vaccination -->
+                <div class="service-card" id="svc-vaccination">
+                    <div class="service-icon" style="background: rgba(37, 99, 235, 0.08); color: #2563EB;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18.5 2.5L21.5 5.5"></path>
+                            <path d="M15 6l3 3"></path>
+                            <path d="M16.5 4.5l-9.2 9.2a2 2 0 0 0-.5 1.3V18h3a2 2 0 0 0 1.3-.5l9.2-9.2"></path>
+                            <path d="M6 18L2 22"></path>
+                        </svg>
+                    </div>
+                    <h4>Vaccination</h4>
+                    <span>Find Vaccine Centers</span>
+                </div>
+
+                <!-- Rapid Ambulance -->
+                <div class="service-card" id="svc-ambulance">
+                    <div class="service-icon" style="background: rgba(239, 68, 68, 0.08); color: #EF4444;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="1" y="6" width="22" height="12" rx="2" ry="2"></rect>
+                            <line x1="6" y1="12" x2="18" y2="12"></line>
+                            <line x1="12" y1="6" x2="12" y2="18"></line>
+                        </svg>
+                    </div>
+                    <h4>Rapid Ambulance</h4>
+                    <span>Emergency Transport</span>
+                </div>
+
+                <!-- Medical Consult -->
+                <div class="service-card" id="svc-consult">
+                    <div class="service-icon" style="background: rgba(139, 92, 246, 0.08); color: #8B5CF6;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                        </svg>
+                    </div>
+                    <h4>Medical Consult</h4>
+                    <span>Talk to a Doctor</span>
+                </div>
+
+                <!-- Water & Sanitation -->
+                <div class="service-card" id="svc-water">
+                    <div class="service-icon" style="background: rgba(6, 182, 212, 0.08); color: #06B6D4;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                        </svg>
+                    </div>
+                    <h4>Water & Sanitation</h4>
+                    <span>Report Issues</span>
+                </div>
+
+                <!-- Nutrition Support -->
+                <div class="service-card" id="svc-nutrition">
+                    <div class="service-icon" style="background: rgba(16, 185, 129, 0.08); color: #10B981;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h4>Nutrition Support</h4>
+                    <span>Aid Programs</span>
+                </div>
+
+                <!-- Mental Health -->
+                <div class="service-card" id="svc-mental">
+                    <div class="service-icon" style="background: rgba(245, 158, 11, 0.08); color: #F59E0B;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                        </svg>
+                    </div>
+                    <h4>Mental Health</h4>
+                    <span>Counseling & Aid</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════ VIEW: ORG DASHBOARD (Organization) ═══════════ -->
+        <div id="view-org-dashboard" class="view-section" style="display: none;">
+            <button class="back-btn" id="btnBackFromDashboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Back to Home
+            </button>
+
+            <div class="dashboard-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                Epidemic Dashboard
+            </div>
+
+            <!-- Disease Severity Cards -->
+            <div class="section-header">
+                <span class="section-title">Disease Severity</span>
+            </div>
+
+            <div class="severity-grid">
+                <div class="severity-card">
+                    <h5>Cholera</h5>
+                    <div class="severity-level high">CRITICAL</div>
+                    <div class="case-count">1,245</div>
+                    <div class="case-label">reported cases</div>
+                </div>
+                <div class="severity-card moderate">
+                    <h5>Typhoid</h5>
+                    <div class="severity-level moderate">HIGH</div>
+                    <div class="case-count">850</div>
+                    <div class="case-label">reported cases</div>
+                </div>
+                <div class="severity-card moderate">
+                    <h5>Dengue</h5>
+                    <div class="severity-level moderate">MODERATE</div>
+                    <div class="case-count">420</div>
+                    <div class="case-label">reported cases</div>
+                </div>
+                <div class="severity-card low">
+                    <h5>Malaria</h5>
+                    <div class="severity-level low">STABLE</div>
+                    <div class="case-count">320</div>
+                    <div class="case-label">reported cases</div>
+                </div>
+            </div>
+
+            <!-- Reported Cases (Prioritized) -->
+            <div class="reported-cases-section">
+                <div class="section-header">
+                    <span class="section-title">Reported Cases</span>
+                    <span class="see-all" style="font-size: 0.72rem; color: var(--text-light);">Prioritized</span>
+                </div>
+
+                <div class="cases-list">
+                    <div class="case-item">
+                        <div class="case-info">
+                            <h5>Khartoum North — Cholera</h5>
+                            <p>Block 7, Residential Area</p>
+                        </div>
+                        <div class="case-meta">
+                            <span class="case-count-badge">487</span>
+                            <span class="case-severity-tag critical">Critical</span>
+                        </div>
+                    </div>
+                    <div class="case-item">
+                        <div class="case-info">
+                            <h5>Omdurman — Typhoid</h5>
+                            <p>Market District, Dense Population</p>
+                        </div>
+                        <div class="case-meta">
+                            <span class="case-count-badge">312</span>
+                            <span class="case-severity-tag critical">Critical</span>
+                        </div>
+                    </div>
+                    <div class="case-item">
+                        <div class="case-info">
+                            <h5>Jabarona — Cholera</h5>
+                            <p>South Sector, Camp Area</p>
+                        </div>
+                        <div class="case-meta">
+                            <span class="case-count-badge">198</span>
+                            <span class="case-severity-tag high">High</span>
+                        </div>
+                    </div>
+                    <div class="case-item">
+                        <div class="case-info">
+                            <h5>Bahri — Dengue Fever</h5>
+                            <p>Industrial Zone, Worker Camps</p>
+                        </div>
+                        <div class="case-meta">
+                            <span class="case-count-badge">145</span>
+                            <span class="case-severity-tag high">High</span>
+                        </div>
+                    </div>
+                    <div class="case-item">
+                        <div class="case-info">
+                            <h5>Haj Yousif — Malaria</h5>
+                            <p>East Block, Near Drainage</p>
+                        </div>
+                        <div class="case-meta">
+                            <span class="case-count-badge">89</span>
+                            <span class="case-severity-tag moderate">Moderate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Clinic Assignation Button -->
+            <button class="request-assign-btn" id="btnRequestAssignation">
+                Request Clinic Assignation
+            </button>
+        </div>
+
+        <!-- ═══════════ VIEW: REQUESTED SERVICES (Organization) ═══════════ -->
+        <div id="view-requested-services" class="view-section" style="display: none;">
+            <div class="section-header">
+                <span class="section-title">Requested Services</span>
+                <span class="see-all" style="font-size: 0.72rem; color: var(--text-light);">Community Requests</span>
+            </div>
+
+            <div class="service-requests-list" id="serviceRequestsList">
+                <div class="service-request-item">
+                    <div class="request-icon" style="background: rgba(239, 68, 68, 0.08); color: #EF4444;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="1" y="6" width="22" height="12" rx="2" ry="2"></rect>
+                            <line x1="6" y1="12" x2="18" y2="12"></line>
+                            <line x1="12" y1="6" x2="12" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="request-content">
+                        <h5>Rapid Ambulance Requested</h5>
+                        <p>Khartoum North, Block 7 — Emergency case, suspected cholera dehydration</p>
+                        <span class="request-time">2 minutes ago</span>
+                    </div>
+                    <span class="new-badge">NEW</span>
+                </div>
+
+                <div class="service-request-item">
+                    <div class="request-icon" style="background: rgba(37, 99, 235, 0.08); color: #2563EB;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18.5 2.5L21.5 5.5"></path>
+                            <path d="M15 6l3 3"></path>
+                            <path d="M16.5 4.5l-9.2 9.2a2 2 0 0 0-.5 1.3V18h3a2 2 0 0 0 1.3-.5l9.2-9.2"></path>
+                        </svg>
+                    </div>
+                    <div class="request-content">
+                        <h5>Vaccination Request</h5>
+                        <p>Omdurman, Market Area — Family of 6 requesting cholera vaccination</p>
+                        <span class="request-time">15 minutes ago</span>
+                    </div>
+                    <span class="new-badge">NEW</span>
+                </div>
+
+                <div class="service-request-item">
+                    <div class="request-icon" style="background: rgba(139, 92, 246, 0.08); color: #8B5CF6;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                        </svg>
+                    </div>
+                    <div class="request-content">
+                        <h5>Medical Consultation</h5>
+                        <p>Bahri, Industrial Area — Persistent fever and stomach pain, 3 patients</p>
+                        <span class="request-time">32 minutes ago</span>
+                    </div>
+                </div>
+
+                <div class="service-request-item">
+                    <div class="request-icon" style="background: rgba(6, 182, 212, 0.08); color: #06B6D4;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="request-content">
+                        <h5>Water & Sanitation Report</h5>
+                        <p>Jabarona, South Camp — Contaminated water source affecting 50+ families</p>
+                        <span class="request-time">1 hour ago</span>
+                    </div>
+                </div>
+
+                <div class="service-request-item">
+                    <div class="request-icon" style="background: rgba(16, 185, 129, 0.08); color: #10B981;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="request-content">
+                        <h5>Nutrition Support Request</h5>
+                        <p>Haj Yousif — 12 children showing signs of malnutrition in camp</p>
+                        <span class="request-time">2 hours ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════ VIEW: ASSIGNED CLINICS (Organization) ═══════════ -->
+        <div id="view-assigned-clinics" class="view-section" style="display: none;">
+            <div class="section-header">
+                <span class="section-title">Assigned Clinics</span>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Active Clinics</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">750</div>
+                    <div class="stat-label">Patients Served</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Areas Covered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Staff Deployed</div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <span class="section-title" style="font-size: 0.95rem;">Deployment History</span>
+            </div>
+
+            <div class="assigned-clinics-list">
+                <div class="assigned-clinic-item">
+                    <div class="assigned-info">
+                        <h5>Omdurman Mobile Clinic</h5>
+                        <p>Deployed: Feb 10, 2026 — Cholera Response</p>
+                    </div>
+                    <span class="assigned-status active">Active</span>
+                </div>
+                <div class="assigned-clinic-item">
+                    <div class="assigned-info">
+                        <h5>Khartoum North Unit</h5>
+                        <p>Deployed: Feb 08, 2026 — Typhoid + Cholera</p>
+                    </div>
+                    <span class="assigned-status active">Active</span>
+                </div>
+                <div class="assigned-clinic-item">
+                    <div class="assigned-info">
+                        <h5>Jabarona Field Clinic</h5>
+                        <p>Deployed: Feb 05, 2026 — General Health</p>
+                    </div>
+                    <span class="assigned-status pending">Pending</span>
+                </div>
+                <div class="assigned-clinic-item">
+                    <div class="assigned-info">
+                        <h5>Bahri Emergency Clinic</h5>
+                        <p>Deployed: Jan 28, 2026 — Dengue Response</p>
+                    </div>
+                    <span class="assigned-status completed">Completed</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ═══════════ ASSIGNATION MODAL ═══════════ -->
+    <div class="modal-overlay" id="assignationModal">
+        <div class="modal-content">
+            <div class="modal-handle"></div>
+            <h3 class="modal-title">Request Clinic Assignation</h3>
+
+            <form id="assignationForm">
+                <!-- Target Area -->
+                <div class="form-group">
+                    <label class="form-label">Clinic Target Area</label>
+                    <p style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.6rem;">Select areas
+                        affected by epidemic</p>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="area-khartoum-n" name="target_areas" value="Khartoum North">
+                            <label for="area-khartoum-n">Khartoum North</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="area-omdurman" name="target_areas" value="Omdurman">
+                            <label for="area-omdurman">Omdurman</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="area-bahri" name="target_areas" value="Bahri">
+                            <label for="area-bahri">Bahri</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="area-jabarona" name="target_areas" value="Jabarona">
+                            <label for="area-jabarona">Jabarona</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="area-hajyousif" name="target_areas" value="Haj Yousif">
+                            <label for="area-hajyousif">Haj Yousif</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="area-sharg-alneel" name="target_areas" value="Sharg Al-Neel">
+                            <label for="area-sharg-alneel">Sharg Al-Neel</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supplies & Vaccines -->
+                <div class="form-group">
+                    <label class="form-label">Supplies & Offerings</label>
+                    <textarea class="form-textarea" id="suppliesField"
+                        placeholder="List what your organization will provide (e.g., Cholera vaccines, ORS packets, IV fluids, medical staff, testing kits...)"></textarea>
+                </div>
+
+                <!-- Deployment Date -->
+                <div class="form-group">
+                    <label class="form-label">Deployment Date</label>
+                    <input type="date" class="form-input" id="deploymentDate">
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="submit-assign-btn">Request Assignation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════ BOTTOM NAVIGATION ═══════════ -->
+    <nav class="bottom-nav" id="bottomNav">
+        <!-- Home -->
+        <a href="#home" class="nav-item active" data-target="view-home" id="navHomeBtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span data-i18n="nav-home">Home</span>
+        </a>
+
+        <!-- Community: Services | Organization: Requested Services -->
+        <a href="#services" class="nav-item" data-target="view-services" id="navServicesBtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+            <span id="navServicesLabel" data-i18n="nav-services">Services</span>
+        </a>
+
+        <!-- Organization: Assigned Clinics -->
+        <a href="#assigned" class="nav-item" data-target="view-assigned-clinics" data-role="organization"
+            id="navAssignedBtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span>Assigned Clinics</span>
+        </a>
+    </nav>
+
+    <script src="../Js files/wasil-i18n.js"></script>
+    <script src="../Js files/supabase-config.js"></script>
+    <script src="../Js files/wasil-home.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = JSON.parse(localStorage.getItem('wasil_user') || '{}');
+            const demoMode = sessionStorage.getItem('demo_mode');
+
+            if (!user.email && !demoMode) {
+                window.location.href = 'wasil-login.html';
+                return;
+            }
+        });
+    </script>
+</body>
+
+</html>
