@@ -281,6 +281,53 @@ function showToast(message, type = 'success') {
 }
 
 // ══════════════════════════════════════════════
+// ── REMOVE USER — delete from Supabase ──
+// ══════════════════════════════════════════════
+async function removeUser(userId, tableName, btn) {
+    const userName = btn.closest('tr').querySelector('td')?.textContent || 'this user';
+    const confirmed = confirm(`Are you sure you want to remove ${userName}?\nهل أنت متأكد من حذف هذا المستخدم؟`);
+    if (!confirmed) return;
+
+    if (!window.supabase) {
+        showToast('Supabase not initialized.', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+        // Delete from the profile table
+        const { error } = await window.supabase
+            .from(tableName)
+            .delete()
+            .eq('id', userId);
+
+        if (error) throw error;
+
+        // Also try to delete from the generic profiles table
+        await window.supabase.from('profiles').delete().eq('id', userId);
+
+        // Remove the row from the table with animation
+        const row = btn.closest('tr');
+        if (row) {
+            row.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(20px)';
+            setTimeout(() => row.remove(), 400);
+        }
+
+        showToast('User removed successfully! / تم حذف المستخدم بنجاح!', 'success');
+
+    } catch (err) {
+        console.error('removeUser error:', err);
+        btn.disabled = false;
+        btn.textContent = 'Remove';
+        showToast('Failed to remove user: ' + err.message, 'error');
+    }
+}
+
+// ══════════════════════════════════════════════
 // ── SYSTEM USERS — load from Supabase ──
 // ══════════════════════════════════════════════
 async function loadSystemUsers() {
@@ -296,7 +343,7 @@ async function loadSystemUsers() {
         const orgsBody = document.getElementById('orgsTableBody');
         if (orgsBody) {
             if (orgErr || !orgs || orgs.length === 0) {
-                orgsBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#7F8C8D;padding:32px;">
+                orgsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#7F8C8D;padding:32px;">
                     No registered organizations found.
                 </td></tr>`;
             } else {
@@ -322,6 +369,10 @@ async function loadSystemUsers() {
                         <td>${org.email || '—'}</td>
                         <td><span class="count-badge green">${approved}</span></td>
                         <td><span class="count-badge red">${rejected}</span></td>
+                        <td><button class="btn-remove" onclick="removeUser('${org.id}','organization_profiles',this)" title="Remove user">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            Remove
+                        </button></td>
                     </tr>`;
                 }).join('');
             }
@@ -329,7 +380,7 @@ async function loadSystemUsers() {
     } catch (err) {
         console.error('loadSystemUsers (orgs) error:', err);
         const orgsBody = document.getElementById('orgsTableBody');
-        if (orgsBody) orgsBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#E74C3C;padding:24px;">Failed to load: ${err.message}</td></tr>`;
+        if (orgsBody) orgsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#E74C3C;padding:24px;">Failed to load: ${err.message}</td></tr>`;
     }
 
     // ── Community Users ──
@@ -357,9 +408,13 @@ async function loadSystemUsers() {
                         <td>${u.email || '—'}</td>
                         <td>${u.location || '—'}</td>
                         <td>—</td>
+                        <td><button class="btn-remove" onclick="removeUser('${u.id}','profiles',this)" title="Remove user">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            Remove
+                        </button></td>
                     </tr>`).join('');
                 } else {
-                    communityBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#7F8C8D;padding:32px;">
+                    communityBody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#7F8C8D;padding:32px;">
                         No registered community users found.
                     </td></tr>`;
                 }
@@ -371,13 +426,17 @@ async function loadSystemUsers() {
                     <td>${u.email || '—'}</td>
                     <td>${u.location || '—'}</td>
                     <td>${u.reported_disease ? `<span class="tag">${u.reported_disease}</span>` : '—'}</td>
+                    <td><button class="btn-remove" onclick="removeUser('${u.id}','community_profiles',this)" title="Remove user">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        Remove
+                    </button></td>
                 </tr>`).join('');
             }
         }
     } catch (err) {
         console.error('loadSystemUsers (community) error:', err);
         const communityBody = document.getElementById('communityTableBody');
-        if (communityBody) communityBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#E74C3C;padding:24px;">Failed to load: ${err.message}</td></tr>`;
+        if (communityBody) communityBody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#E74C3C;padding:24px;">Failed to load: ${err.message}</td></tr>`;
     }
 }
 

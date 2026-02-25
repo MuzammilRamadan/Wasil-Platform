@@ -45,33 +45,48 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!listContainer) return;
 
         const { data: clinics, error } = await supabase
-            .from('clinics')
+            .from('clinic_requests')
             .select('*')
-            .eq('status', 'active');
+            .eq('status', 'approved')
+            .order('created_at', { ascending: false });
 
         if (error) {
             console.error('Error fetching clinics:', error);
+            listContainer.innerHTML = `<div class="empty-state">
+                <p>Failed to load clinics.</p>
+            </div>`;
             return;
         }
 
         if (clinics && clinics.length > 0) {
-            listContainer.innerHTML = ''; // Clear static content
+            listContainer.innerHTML = ''; // Clear loading content
             clinics.forEach((clinic, index) => {
-                const vaccines = clinic.vaccines ? clinic.vaccines.map(v => `<span class="vaccine-tag">${v}</span>`).join('') : '';
+                const diseasesArray = Array.isArray(clinic.diseases) ? clinic.diseases : (clinic.diseases ? [clinic.diseases] : []);
+                const vaccines = diseasesArray.map(v => `<span class="vaccine-tag">${v}</span>`).join('');
+                const clinicName = clinic.clinic_name || `${clinic.org_name || 'Organization'} Clinic`;
+
                 const html = `
                 <div class="clinic-card">
                     <span class="clinic-number">CLINIC #${index + 1}</span>
-                    <h4>${clinic.name}</h4>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                        <h4 style="margin: 0; padding-right: 10px;">${clinicName}</h4>
+                        <span class="clinic-org-badge">${clinic.org_name || 'Admin'}</span>
+                    </div>
                     <div class="clinic-details">
                         <div class="clinic-detail-row">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                             <span class="detail-label">Location:</span>
-                            <span class="detail-value">${clinic.location}</span>
+                            <span class="detail-value">${clinic.target_area || 'Various'}</span>
                         </div>
                         <div class="clinic-detail-row">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
                             <span class="detail-label">Capacity:</span>
-                            <span class="detail-value">${clinic.capacity}</span>
+                            <span class="detail-value">${clinic.capacity ? clinic.capacity + ' patients / day' : 'Not specified'}</span>
+                        </div>
+                        <div class="clinic-detail-row">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <span class="detail-label">Schedule:</span>
+                            <span class="detail-value clinic-schedule">${clinic.schedule || 'Regular hours'}</span>
                         </div>
                     </div>
                     <div class="clinic-vaccines">
@@ -80,6 +95,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>`;
                 listContainer.insertAdjacentHTML('beforeend', html);
             });
+        } else {
+            listContainer.innerHTML = `<div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <h4>No Deployed Clinics</h4>
+                <p>There are currently no active mobile clinics deployed by the Ministry of Health.</p>
+            </div>`;
         }
     }
 
@@ -187,7 +211,91 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Function: Fetch Assigned Clinics (Organization) ──
     async function fetchAssignedClinics() {
-        // Fetch from assignments table
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const listContainer = document.getElementById('assignedClinicsList');
+        if (!listContainer) return;
+
+        const { data: myRequests, error } = await supabase
+            .from('clinic_requests')
+            .select('*')
+            .eq('org_id', user.id)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching org clinic requests:', error);
+            listContainer.innerHTML = `<div class="empty-state"><p>Error loading requests.</p></div>`;
+            return;
+        }
+
+        // Calculate stats
+        let active = 0;
+        let pending = 0;
+        let rejected = 0;
+        let areas = new Set();
+
+        myRequests?.forEach(req => {
+            if (req.status === 'approved') active++;
+            if (req.status === 'pending') pending++;
+            if (req.status === 'rejected') rejected++;
+            if (req.target_area) {
+                req.target_area.split(',').forEach(a => areas.add(a.trim()));
+            }
+        });
+
+        // Update stats UI
+        const activeEl = document.getElementById('orgStatActive');
+        const pendingEl = document.getElementById('orgStatPending');
+        const areasEl = document.getElementById('orgStatAreas');
+        const rejectedEl = document.getElementById('orgStatRejected');
+
+        if (activeEl) activeEl.textContent = active;
+        if (pendingEl) pendingEl.textContent = pending;
+        if (areasEl) areasEl.textContent = areas.size;
+        if (rejectedEl) rejectedEl.textContent = rejected;
+
+        if (myRequests && myRequests.length > 0) {
+            listContainer.innerHTML = '';
+            myRequests.forEach(req => {
+                const clinicName = req.clinic_name || `${req.target_area || 'Clinic'} Assignment`;
+                const displayDate = req.created_at ? new Date(req.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown date';
+                const diseasesOverview = Array.isArray(req.diseases) ? req.diseases.join(', ') : (req.diseases || 'General Medical');
+
+                let statusClass = '';
+                let statusText = 'Pending';
+
+                if (req.status === 'approved') {
+                    statusClass = 'active';
+                    statusText = 'Active';
+                } else if (req.status === 'rejected') {
+                    statusClass = 'rejected';
+                    statusText = 'Rejected';
+                } else {
+                    statusClass = 'pending';
+                    statusText = 'Pending';
+                }
+
+                const html = `
+                <div class="assigned-clinic-item">
+                    <div class="assigned-info">
+                        <h5>${clinicName}</h5>
+                        <p>Requested: ${displayDate} — ${diseasesOverview}</p>
+                    </div>
+                    <span class="assigned-status ${statusClass}">${statusText}</span>
+                </div>`;
+                listContainer.insertAdjacentHTML('beforeend', html);
+            });
+        } else {
+            listContainer.innerHTML = `<div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <h4>No Requests Yet</h4>
+                <p>You haven't submitted any clinic deployment requests.</p>
+            </div>`;
+        }
     }
 
     // ── 2. Role-Based Element Visibility ──

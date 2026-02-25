@@ -266,6 +266,30 @@ CREATE POLICY "Admins can read all profiles"
 ALTER PUBLICATION supabase_realtime ADD TABLE service_requests;
 
 -- ═══════════════════════════════════════════
+-- 11. ADMIN DELETE POLICIES (user removal)
+-- ═══════════════════════════════════════════
+-- Allow admins to delete organization profiles
+CREATE POLICY "Admins can delete org profiles"
+    ON organization_profiles FOR DELETE
+    USING (
+        EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid())
+    );
+
+-- Allow admins to delete community profiles
+CREATE POLICY "Admins can delete community profiles"
+    ON community_profiles FOR DELETE
+    USING (
+        EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid())
+    );
+
+-- Allow admins to delete from generic profiles
+CREATE POLICY "Admins can delete profiles"
+    ON profiles FOR DELETE
+    USING (
+        EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid())
+    );
+
+-- ═══════════════════════════════════════════
 -- DONE! All tables and RLS policies are set up.
 -- ═══════════════════════════════════════════
 -- NEXT STEP: Create your admin user.
