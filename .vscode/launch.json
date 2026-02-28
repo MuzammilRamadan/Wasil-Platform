@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Open wasil-landing.html",
-            "file": "c:\\Users\\Administrator\\Desktop\\The final wasil\\Html files\\wasil-splash.html"
+            "file": "c:\\Users\\Administrator\\Desktop\\The final wasil\\index.html"
         }
     ]
 }
