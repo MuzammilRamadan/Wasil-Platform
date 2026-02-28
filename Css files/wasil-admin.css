@@ -965,4 +965,8 @@ body {
     [dir="rtl"] .sidebar-overlay.active {
         display: block;
     }
+
+    [dir="rtl"] .main-wrapper {
+        margin-right: 0;
+    }
 }

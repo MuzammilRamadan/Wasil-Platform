@@ -183,7 +183,7 @@
         }
 
         .disease-emoji {
-            font-size: 1.4rem;
+            display: none;
         }
 
         /* Severity Options */
@@ -452,33 +452,73 @@
                 <div class="disease-grid">
                     <label class="disease-option">
                         <input type="radio" name="disease" value="Cholera" required>
-                        <div class="disease-card"><span class="disease-emoji">🦠</span><span
-                                data-i18n="dis.cholera">Cholera</span></div>
+                        <div class="disease-card">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" class="disease-icon" style="color:var(--critical);margin-bottom:4px;">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 2v3M12 19v3M2 12H5M19 12h3"></path>
+                                <path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path>
+                            </svg>
+                            <span data-i18n="dis.cholera">Cholera</span>
+                        </div>
                     </label>
                     <label class="disease-option">
                         <input type="radio" name="disease" value="Typhoid">
-                        <div class="disease-card"><span class="disease-emoji">🤒</span><span
-                                data-i18n="dis.typhoid">Typhoid</span></div>
+                        <div class="disease-card">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" class="disease-icon" style="color:var(--high);margin-bottom:4px;">
+                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
+                            </svg>
+                            <span data-i18n="dis.typhoid">Typhoid</span>
+                        </div>
                     </label>
                     <label class="disease-option">
                         <input type="radio" name="disease" value="Dengue Fever">
-                        <div class="disease-card"><span class="disease-emoji">🦟</span><span
-                                data-i18n="dis.dengue">Dengue</span></div>
+                        <div class="disease-card">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" class="disease-icon" style="color:var(--moderate);margin-bottom:4px;">
+                                <path
+                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                </path>
+                            </svg>
+                            <span data-i18n="dis.dengue">Dengue</span>
+                        </div>
                     </label>
                     <label class="disease-option">
                         <input type="radio" name="disease" value="Malaria">
-                        <div class="disease-card"><span class="disease-emoji">🩺</span><span
-                                data-i18n="dis.malaria">Malaria</span></div>
+                        <div class="disease-card">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" class="disease-icon" style="color:var(--stable);margin-bottom:4px;">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                <path d="M9 12l2 2 4-4"></path>
+                            </svg>
+                            <span data-i18n="dis.malaria">Malaria</span>
+                        </div>
                     </label>
                     <label class="disease-option">
                         <input type="radio" name="disease" value="Unknown">
-                        <div class="disease-card"><span class="disease-emoji">❓</span><span
-                                data-i18n="dis.unknown">Unknown</span></div>
+                        <div class="disease-card">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" class="disease-icon"
+                                style="color:var(--text-light);margin-bottom:4px;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            <span data-i18n="dis.unknown">Unknown</span>
+                        </div>
                     </label>
                     <label class="disease-option">
                         <input type="radio" name="disease" value="__other__">
-                        <div class="disease-card"><span class="disease-emoji">📝</span><span
-                                data-i18n="dis.other">Other</span></div>
+                        <div class="disease-card">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" class="disease-icon"
+                                style="color:var(--text-light);margin-bottom:4px;">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            <span data-i18n="dis.other">Other</span>
+                        </div>
                     </label>
                 </div>
                 <div id="otherDiseaseGroup" style="display:none;margin-top:12px;">
