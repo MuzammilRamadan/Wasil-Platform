@@ -594,6 +594,40 @@
 
     </main>
 
+    <!-- ═══════════ SERVICE REQUEST MODAL ═══════════ -->
+    <div class="modal-overlay" id="serviceRequestModal">
+        <div class="modal-content">
+            <div class="modal-handle"></div>
+            <h3 class="modal-title" data-i18n="home.request_service">Request Service</h3>
+
+            <form id="serviceRequestForm">
+                <input type="hidden" id="serviceTypeHidden">
+
+                <div class="form-group">
+                    <label class="form-label" data-i18n="home.service_type">Service Type</label>
+                    <div class="form-input" id="serviceTypeDisplay"
+                        style="background:#f8fafc; font-weight:600; color:var(--primary); border-color:#e2e8f0;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-i18n="home.your_location">Your Location</label>
+                    <p style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.6rem;"
+                        data-i18n="home.location_desc">Enter your area or exact address</p>
+                    <input type="text" class="form-input" id="serviceLocationInput" placeholder="e.g. Omdurman, Block 7"
+                        data-i18n-placeholder="home.location_ph" required>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="button" id="cancelServiceBtn"
+                        style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--white); color:var(--text); cursor:pointer; font-weight:600; font-family:inherit; transition:all 0.2s;"
+                        data-i18n="home.cancel">Cancel</button>
+                    <button type="submit" class="submit-assign-btn" id="confirmServiceBtn" style="flex:2; margin-top:0;"
+                        data-i18n="home.confirm_request">Confirm Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ═══════════ ASSIGNATION MODAL ═══════════ -->
     <div class="modal-overlay" id="assignationModal">
         <div class="modal-content">

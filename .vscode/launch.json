@@ -7,7 +7,7 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Open wasil-splash.html",
+            "name": "Open wasil-landing.html",
             "file": "c:\\Users\\Administrator\\Desktop\\The final wasil\\Html files\\wasil-splash.html"
         }
     ]

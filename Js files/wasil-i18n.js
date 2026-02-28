@@ -202,6 +202,50 @@ const WASIL_TRANSLATIONS = {
     "admin.user_phone": { en: "Phone", ar: "الهاتف" },
     "admin.user_email": { en: "Email", ar: "البريد الإلكتروني" },
     "admin.user_location": { en: "Location", ar: "الموقع" },
+
+    // ── NEW: Service Request Modal (Home) ──
+    "home.request_service": { en: "Request Service", ar: "طلب خدمة" },
+    "home.service_type": { en: "Service Type", ar: "نوع الخدمة" },
+    "home.your_location": { en: "Your Location", ar: "موقعك" },
+    "home.location_desc": { en: "Enter your area or exact address", ar: "أدخل منطقتك أو عنوانك الدقيق" },
+    "home.location_ph": { en: "e.g. Omdurman, Block 7", ar: "مثل أم درمان، المربع ٧" },
+    "home.cancel": { en: "Cancel", ar: "إلغاء" },
+    "home.confirm_request": { en: "Confirm Request", ar: "تأكيد الطلب" },
+    "home.requesting": { en: "Requesting...", ar: "جاري الطلب..." },
+
+    // ── NEW: Report Case Page ──
+    "report.title": { en: "Report a Case", ar: "الإبلاغ عن حالة" },
+    "report.back": { en: "Back", ar: "رجوع" },
+    "report.success": { en: "Case reported successfully!", ar: "تم الإبلاغ عن الحالة بنجاح!" },
+    "report.info": { en: "Your report helps health authorities deploy mobile clinics faster. All reports are confidential.", ar: "بلاغك يساعد السلطات الصحية في نشر العيادات المتنقلة بشكل أسرع. جميع البلاغات سرية." },
+    "report.sec_disease": { en: "Suspected Disease", ar: "المرض المشتبه به" },
+    "dis.unknown": { en: "Unknown", ar: "غير معروف" },
+    "dis.other": { en: "Other", ar: "أخرى" },
+    "report.other_disease_ph": { en: "Enter disease name...", ar: "أدخل اسم المرض..." },
+    "report.sec_severity": { en: "Severity Level", ar: "مستوى الخطورة" },
+    "sev.critical": { en: "Critical", ar: "حرج" },
+    "sev.critical_desc": { en: "Life-threatening", ar: "يهدد الحياة" },
+    "sev.high": { en: "High", ar: "مرتفع" },
+    "sev.high_desc": { en: "Spreading fast", ar: "سريع الانتشار" },
+    "sev.moderate": { en: "Moderate", ar: "متوسط" },
+    "sev.moderate_desc": { en: "Manageable", ar: "يمكن السيطرة عليه" },
+    "sev.low": { en: "Low", ar: "منخفض" },
+    "sev.low_desc": { en: "Isolated case", ar: "حالة معزولة" },
+    "report.sec_location": { en: "Your Location", ar: "موقعك" },
+    "report.area": { en: "Area / Neighborhood", ar: "المنطقة / الحي" },
+    "report.select_area": { en: "Select your area...", ar: "اختر منطقتك..." },
+    "report.other_area": { en: "Other area...", ar: "منطقة أخرى..." },
+    "report.location_specify": { en: "Specify Location", ar: "حدد الموقع" },
+    "report.location_ph": { en: "Enter your area or address...", ar: "أدخل منطقتك أو عنوانك..." },
+    "report.specific_address": { en: "Specific Address / Block", ar: "العنوان الدقيق / المربع" },
+    "report.specific_address_ph": { en: "e.g. Block 7, near the school...", ar: "مثل المربع ٧، بالقرب من المدرسة..." },
+    "report.optional": { en: "Optional", ar: "اختياري" },
+    "report.sec_desc": { en: "Description", ar: "الوصف" },
+    "report.symptoms": { en: "Symptoms & Details", ar: "الأعراض والتفاصيل" },
+    "report.symptoms_ph": { en: "Describe symptoms, number of people affected, any relevant details...", ar: "صف الأعراض، عدد الأشخاص المتأثرين، وأي تفاصيل ذات صلة..." },
+    // ── NEW: Dashboard Placeholder ──
+    "dashboard.coming_soon": { en: "Detailed statistics coming soon.", ar: "الإحصائيات التفصيلية قريباً." },
+    "dashboard.back_home": { en: "Back to Home", ar: "العودة للرئيسية" }
 };
 
 

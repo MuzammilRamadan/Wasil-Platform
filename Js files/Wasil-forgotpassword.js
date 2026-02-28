@@ -35,19 +35,30 @@ document.addEventListener('DOMContentLoaded', function () {
         buttonText.style.display = 'none';
         buttonLoader.style.display = 'inline-flex';
 
-        // Simulate API call to send verification code
-        setTimeout(() => {
-            // Verify email exists in demo system or allow any email for demo
+        try {
+            if (window.supabase) {
+                // Determine the redirect URL (where Supabase redirects after the link is clicked)
+                const redirectTo = window.location.origin + window.location.pathname;
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: redirectTo
+                });
+                if (error) throw error;
+            }
+
             userEmail = email;
             document.getElementById('sentEmail').textContent = email;
+            showNotification('Password reset link sent to your email!', 'success');
 
-            showNotification('Verification code sent to your email!', 'success');
+            // Move to step 2 (check-email confirmation)
+            setTimeout(() => { goToStep(2); }, 1000);
 
-            // Move to step 2
-            setTimeout(() => {
-                goToStep(2);
-            }, 1000);
-        }, 1500);
+        } catch (error) {
+            console.error('Reset email error:', error);
+            showNotification(error.message || 'Failed to send reset email. Please try again.', 'error');
+            submitButton.disabled = false;
+            buttonText.style.display = 'inline';
+            buttonLoader.style.display = 'none';
+        }
     });
 
     // === STEP 2: CODE VERIFICATION ===
@@ -244,15 +255,11 @@ document.addEventListener('DOMContentLoaded', function () {
         buttonText.style.display = 'none';
         buttonLoader.style.display = 'inline-flex';
 
-        // Simulate API call to reset password
-        setTimeout(() => {
-            // Update user password in local storage
-            const storedUsers = JSON.parse(localStorage.getItem('wasil_users') || '[]');
-            const userIndex = storedUsers.findIndex(u => u.email === userEmail);
-
-            if (userIndex !== -1) {
-                storedUsers[userIndex].password = newPassword;
-                localStorage.setItem('wasil_users', JSON.stringify(storedUsers));
+        try {
+            if (window.supabase) {
+                // This works when user arrives from the magic link (session is active)
+                const { error } = await supabase.auth.updateUser({ password: newPassword });
+                if (error) throw error;
             }
 
             showNotification('Password reset successfully!', 'success');
@@ -261,7 +268,14 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 window.location.href = 'wasil-login.html';
             }, 2000);
-        }, 2000);
+
+        } catch (err) {
+            console.error('Password reset error:', err);
+            showNotification(err.message || 'Failed to reset password. Please try again.', 'error');
+            submitButton.disabled = false;
+            buttonText.style.display = 'inline';
+            buttonLoader.style.display = 'none';
+        }
     });
 
     // === STEP NAVIGATION ===

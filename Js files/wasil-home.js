@@ -7,19 +7,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── 0. Session Check ──
     async function checkSession() {
-        // demo mode bypass
-        if (sessionStorage.getItem('demo_mode')) return;
-
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-            window.location.href = 'wasil-login.html';
-        } else {
-            // Check if profile role matches local role (security check)
-            // const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
-            // if (profile && profile.role !== localStorage.getItem('wasil_role')) {
-            //     localStorage.setItem('wasil_role', profile.role);
-            //     window.location.reload();
-            // }
+            // Also allow locally-stored user (for fallback login flow)
+            const localUser = localStorage.getItem('wasil_user');
+            if (!localUser) {
+                window.location.href = 'wasil-login.html';
+            }
         }
     }
     checkSession();
@@ -549,7 +543,6 @@ document.addEventListener('DOMContentLoaded', function () {
             // Community users can "request" a service
             if (!isOrg) {
                 const serviceName = title.textContent;
-                console.log('Requesting service:', serviceName);
 
                 const { data: { user } } = await supabase.auth.getUser();
                 if (!user) {
@@ -557,21 +550,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                // Insert request
-                const { error } = await supabase
-                    .from('service_requests')
-                    .insert({
-                        service_type: serviceName,
-                        location: 'Unknown Location', // In real app, get geolocation
-                        requester_id: user.id,
-                        status: 'pending'
-                    });
+                // Show modal for service location
+                const modal = document.getElementById('serviceRequestModal');
+                const display = document.getElementById('serviceTypeDisplay');
+                const hiddenInput = document.getElementById('serviceTypeHidden');
 
-                if (error) {
-                    console.error('Error requesting service:', error);
-                    showToast('Failed to send request');
-                } else {
-                    showToast(`${serviceName} request sent!`);
+                if (modal && display && hiddenInput) {
+                    display.textContent = serviceName; // Display in modal
+                    hiddenInput.value = serviceName; // Hidden value for DB insert
+                    modal.classList.add('active');
                 }
             }
         });
@@ -609,6 +596,57 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeModal();
+            const srm = document.getElementById('serviceRequestModal');
+            if (srm) srm.classList.remove('active');
         }
     });
+
+    // ── Handle Service Request Form Submission ──
+    const serviceRequestForm = document.getElementById('serviceRequestForm');
+    const serviceRequestModal = document.getElementById('serviceRequestModal');
+
+    if (serviceRequestForm) {
+        serviceRequestForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('confirmServiceBtn');
+            const origText = submitBtn.textContent;
+            submitBtn.textContent = '...';
+            submitBtn.disabled = true;
+
+            const serviceName = document.getElementById('serviceTypeHidden').value;
+            const locationValue = document.getElementById('serviceLocationInput').value.trim();
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error('Not logged in');
+
+                const { error } = await supabase
+                    .from('service_requests')
+                    .insert({
+                        service_type: serviceName,
+                        location: locationValue,
+                        requester_id: user.id,
+                        status: 'pending'
+                    });
+
+                if (error) throw error;
+
+                serviceRequestModal.classList.remove('active');
+                serviceRequestForm.reset();
+                showToast(`${serviceName} request sent!`);
+            } catch (err) {
+                console.error('Error requesting service:', err);
+                showToast('Failed to send request');
+            } finally {
+                submitBtn.textContent = origText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('cancelServiceBtn')?.addEventListener('click', () => {
+            serviceRequestModal.classList.remove('active');
+            serviceRequestForm.reset();
+        });
+    }
+
 });

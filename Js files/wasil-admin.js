@@ -67,6 +67,73 @@ async function handleLogout() {
 }
 
 // ══════════════════════════════════════════════
+// ── DASHBOARD STATS — live from Supabase cases ──
+// ══════════════════════════════════════════════
+async function loadDashboardStats() {
+    if (!window.supabase) return;
+
+    try {
+        const { data: cases, error } = await window.supabase
+            .from('cases')
+            .select('disease, severity, location');
+
+        if (error || !cases || cases.length === 0) return;
+
+        // Count per disease (case-insensitive match)
+        const count = (keyword) =>
+            cases.filter(c => c.disease && c.disease.toLowerCase().includes(keyword)).length;
+
+        const chol = count('cholera');
+        const typh = count('typhoid');
+        const deng = count('dengue');
+        const mala = count('malaria');
+
+        // Update cholera card stat (already has id)
+        const cholEl = document.getElementById('chol-cases');
+        if (cholEl && chol > 0) cholEl.textContent = chol.toLocaleString();
+
+        // Update other stats via querySelectorAll on the stat-num spans in each card
+        const allStatNums = document.querySelectorAll('.disease-card-stats .stat-num');
+        const cardValues = [chol, typh, deng, mala];
+        document.querySelectorAll('.disease-card').forEach((card, i) => {
+            const nums = card.querySelectorAll('.stat-num');
+            if (nums[0] && cardValues[i] > 0) nums[0].textContent = cardValues[i].toLocaleString();
+        });
+
+        // Build area aggregate from cases
+        const areaMap = {};
+        cases.forEach(c => {
+            if (!c.location) return;
+            const key = c.location;
+            if (!areaMap[key]) areaMap[key] = { count: 0, disease: c.disease };
+            areaMap[key].count++;
+        });
+
+        // Sort by count and update table
+        const sortedAreas = Object.entries(areaMap)
+            .sort(([, a], [, b]) => b.count - a.count)
+            .slice(0, 5);
+
+        const tbody = document.getElementById('epicAreasTableBody');
+        if (tbody && sortedAreas.length > 0) {
+            const sevClass = (n) => n > 100 ? 'critical' : n > 30 ? 'high' : n > 10 ? 'moderate' : 'stable';
+            const sevLabel = (n) => n > 100 ? 'CRITICAL' : n > 30 ? 'HIGH' : n > 10 ? 'MODERATE' : 'STABLE';
+            tbody.innerHTML = sortedAreas.map(([loc, info], i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${loc}</td>
+                    <td>${info.disease || '—'}</td>
+                    <td>${info.count}</td>
+                    <td><span class="severity-pill ${sevClass(info.count)}">${sevLabel(info.count)}</span></td>
+                </tr>`).join('');
+        }
+
+    } catch (err) {
+        console.error('loadDashboardStats error:', err);
+    }
+}
+
+// ══════════════════════════════════════════════
 // ── DEPLOYED CLINICS — load approved requests ──
 // ══════════════════════════════════════════════
 async function loadDeployedClinics() {
@@ -454,6 +521,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updateRequestsBadge();
 
     // Load all Supabase data
+    loadDashboardStats();
     loadDeployedClinics();
     loadClinicRequests();
     loadSystemUsers();

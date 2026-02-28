@@ -4,212 +4,700 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wasil - Report Case</title>
-    <link rel="stylesheet" href="../Css files/wasil-home.css">
+    <meta name="description"
+        content="WASIL - Report an epidemic case in your area to help health authorities respond faster.">
+    <title>WASIL | Report a Case</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <!-- Supabase SDK -->
-
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../Js files/supabase-config.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563EB;
+            --teal: #0E7490;
+            --bg: #F1F5F9;
+            --white: #FFFFFF;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --border: #E2E8F0;
+            --radius: 14px;
+            --radius-sm: 8px;
+            --critical: #EF4444;
+            --high: #F59E0B;
+            --moderate: #3B82F6;
+            --low: #10B981;
+            --success: #10B981;
+            --error: #EF4444;
+        }
+
         body {
-            background: var(--bg-page);
-            padding: 20px;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
             min-height: 100vh;
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 32px;
         }
 
-        .report-card {
+        /* Header */
+        .page-header {
             background: var(--white);
-            border-radius: var(--radius-2xl);
-            padding: 24px;
-            box-shadow: var(--shadow-md);
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 0.9rem;
-        }
-
-        .form-input,
-        .form-select,
-        .form-textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #E2E8F0;
-            border-radius: var(--radius-lg);
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .btn-submit {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: var(--radius-xl);
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .header-row {
             display: flex;
             align-items: center;
-            margin-bottom: 24px;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
-        .back-link {
-            text-decoration: none;
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
             color: var(--text-light);
             display: flex;
             align-items: center;
             gap: 6px;
             font-size: 0.9rem;
             font-weight: 500;
+            padding: 6px 8px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .back-btn:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page-header h1 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* Main */
+        .report-main {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        /* Info Banner */
+        .info-banner {
+            background: rgba(37, 99, 235, 0.06);
+            border: 1px solid rgba(37, 99, 235, 0.15);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .info-banner svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .info-banner p {
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: #1D4ED8;
+        }
+
+        /* Form Sections */
+        .form-section {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .optional-badge {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--text-light);
+            background: var(--bg);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        /* Disease Grid */
+        .disease-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .disease-option input {
+            display: none;
+        }
+
+        .disease-card {
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .disease-option input:checked+.disease-card {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.06);
+            color: var(--primary);
+        }
+
+        .disease-emoji {
+            font-size: 1.4rem;
+        }
+
+        /* Severity Options */
+        .severity-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .severity-option input {
+            display: none;
+        }
+
+        .sev-card {
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sev-card span {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .sev-card small {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .sev-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-bottom: 4px;
+        }
+
+        .severity-option.critical .sev-dot {
+            background: var(--critical);
+        }
+
+        .severity-option.high .sev-dot {
+            background: var(--high);
+        }
+
+        .severity-option.moderate .sev-dot {
+            background: var(--moderate);
+        }
+
+        .severity-option.low .sev-dot {
+            background: var(--low);
+        }
+
+        .severity-option.critical input:checked+.sev-card {
+            border-color: var(--critical);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .severity-option.high input:checked+.sev-card {
+            border-color: var(--high);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .severity-option.moderate input:checked+.sev-card {
+            border-color: var(--moderate);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .severity-option.low input:checked+.sev-card {
+            border-color: var(--low);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: var(--text);
+            background: var(--white);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .char-count {
+            display: block;
+            text-align: right;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #0E7490, #2563EB);
+            color: white;
+            border: none;
+            padding: 15px 24px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: inherit;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+            margin-top: 6px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(37, 99, 235, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spin-icon {
+            animation: spin 0.9s linear infinite;
+        }
+
+        /* Toast */
+        .wasil-toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1E293B;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 50px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .wasil-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Notification */
+        .wasil-notif {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.88rem;
+            font-weight: 600;
+            z-index: 10000;
+            max-width: 300px;
+            animation: slideIn 0.3s ease;
+            font-family: inherit;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(200%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="report-card">
-        <div class="header-row">
-            <a href="wasil-home.html" class="back-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-                Cancel
-            </a>
-            <h2 style="flex: 1; text-align: center; margin: 0; padding-right: 60px;">Report Case</h2>
+    <!-- Header -->
+    <header class="page-header">
+        <button class="back-btn" onclick="history.back()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span data-i18n="report.back">Back</span>
+        </button>
+        <h1 data-i18n="report.title">Report a Case</h1>
+        <div style="width:64px;"></div>
+    </header>
+
+    <!-- Toast -->
+    <div class="wasil-toast" id="toastMsg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span data-i18n="report.success">Case reported successfully!</span>
+    </div>
+
+    <main class="report-main">
+
+        <!-- Info Banner -->
+        <div class="info-banner">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p data-i18n="report.info">Your report helps health authorities deploy mobile clinics faster. All reports
+                are confidential.</p>
         </div>
 
-        <form id="reportForm">
-            <div class="form-group">
-                <label class="form-label">Disease Suspected</label>
-                <select class="form-select" id="disease" required>
-                    <option value="">Select Disease</option>
-                    <option value="Cholera">Cholera</option>
-                    <option value="Typhoid">Typhoid</option>
-                    <option value="Dengue Fever">Dengue Fever</option>
-                    <option value="Malaria">Malaria</option>
-                    <option value="Unknown">Unknown / Other</option>
-                </select>
+        <form id="reportForm" novalidate>
+
+            <!-- Disease -->
+            <div class="form-section">
+                <h2 class="section-title" data-i18n="report.sec_disease">Suspected Disease</h2>
+                <div class="disease-grid">
+                    <label class="disease-option">
+                        <input type="radio" name="disease" value="Cholera" required>
+                        <div class="disease-card"><span class="disease-emoji">🦠</span><span
+                                data-i18n="dis.cholera">Cholera</span></div>
+                    </label>
+                    <label class="disease-option">
+                        <input type="radio" name="disease" value="Typhoid">
+                        <div class="disease-card"><span class="disease-emoji">🤒</span><span
+                                data-i18n="dis.typhoid">Typhoid</span></div>
+                    </label>
+                    <label class="disease-option">
+                        <input type="radio" name="disease" value="Dengue Fever">
+                        <div class="disease-card"><span class="disease-emoji">🦟</span><span
+                                data-i18n="dis.dengue">Dengue</span></div>
+                    </label>
+                    <label class="disease-option">
+                        <input type="radio" name="disease" value="Malaria">
+                        <div class="disease-card"><span class="disease-emoji">🩺</span><span
+                                data-i18n="dis.malaria">Malaria</span></div>
+                    </label>
+                    <label class="disease-option">
+                        <input type="radio" name="disease" value="Unknown">
+                        <div class="disease-card"><span class="disease-emoji">❓</span><span
+                                data-i18n="dis.unknown">Unknown</span></div>
+                    </label>
+                    <label class="disease-option">
+                        <input type="radio" name="disease" value="__other__">
+                        <div class="disease-card"><span class="disease-emoji">📝</span><span
+                                data-i18n="dis.other">Other</span></div>
+                    </label>
+                </div>
+                <div id="otherDiseaseGroup" style="display:none;margin-top:12px;">
+                    <input type="text" id="otherDisease" class="form-input" placeholder="Enter disease name..."
+                        data-i18n-placeholder="report.other_disease_ph">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Severity</label>
-                <select class="form-select" id="severity" required>
-                    <option value="low">Low (Mild Symptoms)</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="high">High (Needs Attention)</option>
-                    <option value="critical">Critical (Immediate Help)</option>
-                </select>
+            <!-- Severity -->
+            <div class="form-section">
+                <h2 class="section-title" data-i18n="report.sec_severity">Severity Level</h2>
+                <div class="severity-options">
+                    <label class="severity-option critical">
+                        <input type="radio" name="severity" value="critical" required>
+                        <div class="sev-card"><span class="sev-dot"></span><span
+                                data-i18n="sev.critical">Critical</span><small
+                                data-i18n="sev.critical_desc">Life-threatening</small></div>
+                    </label>
+                    <label class="severity-option high">
+                        <input type="radio" name="severity" value="high">
+                        <div class="sev-card"><span class="sev-dot"></span><span data-i18n="sev.high">High</span><small
+                                data-i18n="sev.high_desc">Spreading
+                                fast</small></div>
+                    </label>
+                    <label class="severity-option moderate">
+                        <input type="radio" name="severity" value="moderate">
+                        <div class="sev-card"><span class="sev-dot"></span><span
+                                data-i18n="sev.moderate">Moderate</span><small
+                                data-i18n="sev.moderate_desc">Manageable</small></div>
+                    </label>
+                    <label class="severity-option low">
+                        <input type="radio" name="severity" value="low">
+                        <div class="sev-card"><span class="sev-dot"></span><span data-i18n="sev.low">Low</span><small
+                                data-i18n="sev.low_desc">Isolated case</small>
+                        </div>
+                    </label>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Location</label>
-                <input type="text" class="form-input" id="location" placeholder="e.g. Omdurman, Block 12..." required>
+            <!-- Location -->
+            <div class="form-section">
+                <h2 class="section-title" data-i18n="report.sec_location">Your Location</h2>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="report.area">Area / Neighborhood</label>
+                    <select id="locationArea" class="form-input" required>
+                        <option value="" disabled selected data-i18n="report.select_area">Select your area...</option>
+                        <option value="Khartoum North">Khartoum North</option>
+                        <option value="Omdurman">Omdurman</option>
+                        <option value="Bahri">Bahri</option>
+                        <option value="Jabarona">Jabarona</option>
+                        <option value="Haj Yousif">Haj Yousif</option>
+                        <option value="Sharg Al-Neel">Sharg Al-Neel</option>
+                        <option value="Khartoum Center">Khartoum Center</option>
+                        <option value="Soba">Soba</option>
+                        <option value="__other__" data-i18n="report.other_area">Other area...</option>
+                    </select>
+                </div>
+                <div id="otherLocationGroup" style="display:none;margin-top:12px;">
+                    <label class="form-label" data-i18n="report.location_specify">Specify Location</label>
+                    <input type="text" id="otherLocation" class="form-input" placeholder="Enter your area or address..."
+                        data-i18n-placeholder="report.location_ph">
+                </div>
+                <!-- Specific address text input -->
+                <div class="form-group" style="margin-top:12px;margin-bottom:0;">
+                    <label class="form-label"><span data-i18n="report.specific_address">Specific Address / Block</span>
+                        <span style="color:var(--text-light);font-weight:400;"
+                            data-i18n="report.optional">(optional)</span></label>
+                    <input type="text" id="specificAddress" class="form-input"
+                        placeholder="e.g. Block 7, near the school..."
+                        data-i18n-placeholder="report.specific_address_ph">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Description / Symptoms</label>
-                <textarea class="form-textarea" id="description" rows="4"
-                    placeholder="Describe symptoms and situation..."></textarea>
+            <!-- Description -->
+            <div class="form-section">
+                <h2 class="section-title"><span data-i18n="report.sec_desc">Description</span> <span
+                        class="optional-badge" data-i18n="report.optional">Optional</span></h2>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" data-i18n="report.symptoms">Symptoms & Details</label>
+                    <textarea id="description" class="form-input form-textarea" maxlength="300"
+                        placeholder="Describe symptoms, number of people affected, any relevant details..."
+                        data-i18n-placeholder="report.symptoms_ph"></textarea>
+                    <span class="char-count" id="charCount">0 / 300</span>
+                </div>
             </div>
 
-            <div class="form-group">
-                <button type="submit" class="btn-submit" id="submitBtn">Submit Report</button>
-            </div>
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <span class="button-text" data-i18n="report.submit">Submit Report</span>
+                <span class="button-loader" style="display:none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        class="spin-icon">
+                        <path
+                            d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+                        </path>
+                    </svg>
+                    <span data-i18n="report.submitting">Submitting...</span>
+                </span>
+            </button>
+
         </form>
-    </div>
+    </main>
 
-    <!-- Toast Notification (Reusing style from home) -->
-    <div id="toast"
-        style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #333; color: white; padding: 12px 24px; border-radius: 50px; opacity: 0; transition: all 0.3s;">
-        Report Submitted!
-    </div>
-
-    <!-- Supabase SDK -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="../Js files/supabase-config.js"></script>
-
+    <script src="../Js files/wasil-i18n.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
-            // Check session
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                window.location.href = 'wasil-login.html';
-                return;
+
+            // ── AUTH CHECK ──
+            if (window.supabase) {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session && !sessionStorage.getItem('demo_mode')) {
+                    window.location.href = 'wasil-login.html';
+                    return;
+                }
             }
 
+            // ── DISEASE "Other" toggle ──
+            document.querySelectorAll('input[name="disease"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    document.getElementById('otherDiseaseGroup').style.display =
+                        this.value === '__other__' ? 'block' : 'none';
+                });
+            });
+
+            // ── LOCATION "Other" toggle ──
+            document.getElementById('locationArea').addEventListener('change', function () {
+                document.getElementById('otherLocationGroup').style.display =
+                    this.value === '__other__' ? 'block' : 'none';
+            });
+
+            // ── CHARACTER COUNT ──
+            const descriptionField = document.getElementById('description');
+            const charCount = document.getElementById('charCount');
+            descriptionField.addEventListener('input', function () {
+                charCount.textContent = `${this.value.length} / 300`;
+                charCount.style.color = this.value.length > 270 ? '#EF4444' : 'var(--text-light)';
+            });
+
+            // ── FORM SUBMISSION ──
             const form = document.getElementById('reportForm');
             const submitBtn = document.getElementById('submitBtn');
 
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting...';
 
-                const disease = document.getElementById('disease').value;
-                const severity = document.getElementById('severity').value;
-                const location = document.getElementById('location').value;
-                const description = document.getElementById('description').value;
+                // Get values
+                const diseaseRadio = document.querySelector('input[name="disease"]:checked');
+                const severityRadio = document.querySelector('input[name="severity"]:checked');
+                const locationArea = document.getElementById('locationArea').value;
+                const otherDisease = document.getElementById('otherDisease').value.trim();
+                const otherLocation = document.getElementById('otherLocation').value.trim();
+                const specificAddress = document.getElementById('specificAddress').value.trim();
+                const description = document.getElementById('description').value.trim();
+
+                // Validation
+                if (!diseaseRadio) {
+                    showNotification('Please select a suspected disease.', 'error');
+                    return;
+                }
+                if (!severityRadio) {
+                    showNotification('Please select a severity level.', 'error');
+                    return;
+                }
+                if (!locationArea) {
+                    showNotification('Please select your area.', 'error');
+                    return;
+                }
+
+                let disease = diseaseRadio.value === '__other__' ? (otherDisease || 'Other') : diseaseRadio.value;
+                let location = locationArea === '__other__' ? (otherLocation || 'Other area') : locationArea;
+                if (specificAddress) location += `, ${specificAddress}`;
+
+                // Loading state
+                const btnText = submitBtn.querySelector('.button-text');
+                const btnLoader = submitBtn.querySelector('.button-loader');
+                submitBtn.disabled = true;
+                btnText.style.display = 'none';
+                btnLoader.style.display = 'inline-flex';
 
                 try {
-                    const { error } = await supabase
-                        .from('cases')
-                        .insert({
-                            disease,
-                            severity,
-                            location,
-                            description,
-                            reporter_id: session.user.id
-                        });
+                    if (window.supabase) {
+                        const { data: { user } } = await supabase.auth.getUser();
+                        const { error } = await supabase
+                            .from('cases')
+                            .insert({
+                                disease,
+                                severity: severityRadio.value,
+                                location,
+                                description: description || null,
+                                reporter_id: user ? user.id : null
+                            });
 
-                    if (error) throw error;
+                        if (error) throw error;
+                    }
 
-                    showToast();
+                    // Show success
+                    const toast = document.getElementById('toastMsg');
+                    toast.classList.add('show');
                     setTimeout(() => {
                         window.location.href = 'wasil-home.html';
-                    }, 1500);
+                    }, 1600);
 
-                } catch (error) {
-                    console.error('Error reporting case:', error);
-                    alert('Error: ' + error.message);
+                } catch (err) {
+                    console.error('Report error:', err);
+                    showNotification('Failed to submit: ' + (err.message || 'Unknown error'), 'error');
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit Report';
+                    btnText.style.display = 'inline';
+                    btnLoader.style.display = 'none';
                 }
             });
 
-            function showToast() {
-                const toast = document.getElementById('toast');
-                toast.style.transform = 'translateX(-50%) translateY(0)';
-                toast.style.opacity = '1';
+            function showNotification(msg, type) {
+                const existing = document.querySelector('.wasil-notif');
+                if (existing) existing.remove();
+                const n = document.createElement('div');
+                n.className = 'wasil-notif';
+                n.textContent = msg;
+                n.style.background = type === 'error' ? '#EF4444' : '#10B981';
+                document.body.appendChild(n);
+                setTimeout(() => n.remove(), 3000);
             }
         });
     </script>
