@@ -37,6 +37,8 @@ function showSection(name, clickedEl) {
 
     if (window.innerWidth <= 900) {
         document.getElementById('sidebar').classList.remove('open');
+        var overlay = document.getElementById('sidebarOverlay');
+        if (overlay) overlay.classList.remove('active');
     }
 }
 
@@ -530,13 +532,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Close sidebar on outside click (mobile)
     document.addEventListener('click', function (e) {
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.querySelector('.menu-toggle');
+        var sidebar = document.getElementById('sidebar');
+        var toggleBtn = document.querySelector('.menu-toggle');
+        var overlay = document.getElementById('sidebarOverlay');
         if (window.innerWidth <= 900 &&
             sidebar.classList.contains('open') &&
             !sidebar.contains(e.target) &&
             !toggleBtn.contains(e.target)) {
             sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
         }
     });
 
