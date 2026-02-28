@@ -133,14 +133,18 @@ const WASIL_TRANSLATIONS = {
 
     // Services View
     "sec-services-view": { en: "Medical Services", ar: "الخدمات الطبية" },
-    "svc-symptom": { en: "Symptom", ar: "فحص" },
-    "svc-screening": { en: "Screening", ar: "الأعراض" },
-    "svc-vaccination": { en: "Vaccination", ar: "مراكز" },
-    "svc-centers": { en: "Centers", ar: "التطعيم" },
-    "svc-rapid": { en: "Rapid", ar: "فحص" },
-    "svc-testing": { en: "Testing", ar: "سريع" },
-    "svc-request": { en: "Request", ar: "طلب" },
-    "svc-ambulance": { en: "Ambulance", ar: "إسعاف" },
+    "svc.vaccination": { en: "Vaccination", ar: "التطعيم" },
+    "svc.vaccination_sub": { en: "Find Vaccine Centers", ar: "ابحث عن مراكز التطعيم" },
+    "svc.ambulance": { en: "Rapid Ambulance", ar: "إسعاف سريع" },
+    "svc.ambulance_sub": { en: "Emergency Transport", ar: "نقل طارئ" },
+    "svc.consult": { en: "Medical Consult", ar: "استشارة طبية" },
+    "svc.consult_sub": { en: "Talk to a Doctor", ar: "تحدث مع طبيب" },
+    "svc.water": { en: "Water & Sanitation", ar: "المياه والصرف الصحي" },
+    "svc.water_sub": { en: "Report Issues", ar: "أبلغ عن مشكلة" },
+    "svc.nutrition": { en: "Nutrition Support", ar: "دعم التغذية" },
+    "svc.nutrition_sub": { en: "Aid Programs", ar: "برامج المساعدة" },
+    "svc.mental": { en: "Mental Health", ar: "الصحة النفسية" },
+    "svc.mental_sub": { en: "Counseling & Aid", ar: "إرشاد ودعم" },
 
     // Navigation
     "nav-home": { en: "Home", ar: "الرئيسية" },

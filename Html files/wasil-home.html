@@ -39,13 +39,13 @@
         <div class="header-actions">
             <button class="icon-btn logout-btn" id="logoutBtn" aria-label="Logout" title="Logout"
                 onclick="handleLogout()"
-                style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:10px;background:rgba(231,76,60,0.08);color:#E74C3C;border:1px solid rgba(231,76,60,0.2);font-size:0.78rem;font-weight:600;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:rgba(231,76,60,0.08);color:#E74C3C;border:1px solid rgba(231,76,60,0.2);font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
                     <line x1="21" y1="12" x2="9" y2="12"></line>
                 </svg>
-                <span data-i18n="nav-logout">Logout</span>
+                <span class="logout-label" data-i18n="nav-logout" style="display:inline;">Logout</span>
             </button>
         </div>
     </header>
@@ -63,14 +63,17 @@
 
                 <div class="hero-actions">
                     <!-- Community buttons -->
-                    <button class="hero-btn" data-role="community" onclick="location.href='wasil-report-case.html'">
+                    <button class="hero-btn" data-role="community" onclick="location.href='wasil-report-case.html'"
+                        data-i18n="btn-report">
                         Report Case
                     </button>
-                    <button class="hero-btn outline" data-role="community" id="btnNearbyClinics">
+                    <button class="hero-btn outline" data-role="community" id="btnNearbyClinics"
+                        data-i18n="btn-clinics">
                         Nearby Clinics
                     </button>
                     <!-- Organization button -->
-                    <button class="hero-btn" data-role="organization" id="btnAssignClinic">
+                    <button class="hero-btn" data-role="organization" id="btnAssignClinic"
+                        data-i18n="btn-assign-clinic">
                         Assign Clinic
                     </button>
                 </div>
@@ -241,11 +244,11 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
-                Back to Home
+                <span data-i18n="report.back">Back</span>
             </button>
 
             <div class="section-header">
-                <span class="section-title">Nearby Clinics</span>
+                <span class="section-title" data-i18n="btn-clinics">Nearby Clinics</span>
             </div>
 
             <div class="clinics-list" id="clinicsList">
@@ -275,8 +278,8 @@
                             <path d="M6 18L2 22"></path>
                         </svg>
                     </div>
-                    <h4>Vaccination</h4>
-                    <span>Find Vaccine Centers</span>
+                    <h4 data-i18n="svc.vaccination">Vaccination</h4>
+                    <span data-i18n="svc.vaccination_sub">Find Vaccine Centers</span>
                 </div>
 
                 <!-- Rapid Ambulance -->
@@ -289,8 +292,8 @@
                             <line x1="12" y1="6" x2="12" y2="18"></line>
                         </svg>
                     </div>
-                    <h4>Rapid Ambulance</h4>
-                    <span>Emergency Transport</span>
+                    <h4 data-i18n="svc.ambulance">Rapid Ambulance</h4>
+                    <span data-i18n="svc.ambulance_sub">Emergency Transport</span>
                 </div>
 
                 <!-- Medical Consult -->
@@ -301,8 +304,8 @@
                             <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
                         </svg>
                     </div>
-                    <h4>Medical Consult</h4>
-                    <span>Talk to a Doctor</span>
+                    <h4 data-i18n="svc.consult">Medical Consult</h4>
+                    <span data-i18n="svc.consult_sub">Talk to a Doctor</span>
                 </div>
 
                 <!-- Water & Sanitation -->
@@ -313,8 +316,8 @@
                             <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
                         </svg>
                     </div>
-                    <h4>Water & Sanitation</h4>
-                    <span>Report Issues</span>
+                    <h4 data-i18n="svc.water">Water &amp; Sanitation</h4>
+                    <span data-i18n="svc.water_sub">Report Issues</span>
                 </div>
 
                 <!-- Nutrition Support -->
@@ -327,8 +330,8 @@
                             </path>
                         </svg>
                     </div>
-                    <h4>Nutrition Support</h4>
-                    <span>Aid Programs</span>
+                    <h4 data-i18n="svc.nutrition">Nutrition Support</h4>
+                    <span data-i18n="svc.nutrition_sub">Aid Programs</span>
                 </div>
 
                 <!-- Mental Health -->
@@ -342,8 +345,8 @@
                             <line x1="15" y1="9" x2="15.01" y2="9"></line>
                         </svg>
                     </div>
-                    <h4>Mental Health</h4>
-                    <span>Counseling & Aid</span>
+                    <h4 data-i18n="svc.mental">Mental Health</h4>
+                    <span data-i18n="svc.mental_sub">Counseling &amp; Aid</span>
                 </div>
             </div>
         </div>

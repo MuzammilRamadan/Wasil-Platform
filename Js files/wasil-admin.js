@@ -43,6 +43,8 @@ function showSection(name, clickedEl) {
 // ── TOGGLE SIDEBAR (mobile) ──
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (overlay) overlay.classList.toggle('active');
 }
 
 // ── LANGUAGE TOGGLE ──
