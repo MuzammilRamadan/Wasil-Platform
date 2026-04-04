@@ -564,6 +564,16 @@ main {
     }
 }
 
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ========== NEARBY CLINICS VIEW ========== */
 .clinics-list {
     display: flex;

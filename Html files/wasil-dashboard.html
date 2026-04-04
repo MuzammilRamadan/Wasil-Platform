@@ -3,44 +3,573 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wasil - Outbreak Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="WASIL - Real-time Outbreak Dashboard showing submitted cases by area.">
+    <title>WASIL | Outbreak Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../Js files/supabase-config.js"></script>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        :root {
+            --primary: #2563EB;
+            --teal: #0E7490;
+            --bg: #F1F5F9;
+            --white: #FFFFFF;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --border: #E2E8F0;
+            --radius: 14px;
+            --radius-sm: 8px;
+            --critical: #EF4444;
+            --high: #F59E0B;
+            --moderate: #3B82F6;
+            --low: #10B981;
+            --shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+            padding-bottom: 40px;
+        }
+
+        /* ── Header ── */
+        .page-header {
+            background: linear-gradient(135deg, #1E40AF, #2563EB, #0E7490);
+            padding: 16px 20px 20px;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(37,99,235,0.3);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+
+        .back-btn:hover { background: rgba(255,255,255,0.25); }
+
+        .header-title h1 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+
+        .header-title p {
+            font-size: 0.75rem;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
+
+        .live-badge {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(16,185,129,0.2);
+            border: 1px solid rgba(16,185,129,0.4);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #6EE7B7;
+            letter-spacing: 0.5px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10B981;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%,100% { opacity:1; transform:scale(1); }
+            50%      { opacity:0.5; transform:scale(1.5); }
+        }
+
+        /* Summary Chips */
+        .summary-chips {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .summary-chips::-webkit-scrollbar { display: none; }
+
+        .chip {
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .chip span {
+            font-size: 0.9rem;
+            font-weight: 800;
+            display: block;
+            line-height: 1.1;
+        }
+
+        /* ── Main ── */
+        main { max-width: 580px; margin: 0 auto; padding: 18px 16px; }
+
+        .section-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin: 20px 0 10px;
+        }
+
+        /* Loading */
+        .loader {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background: #F7F9FC
+            padding: 3rem 0;
+            color: var(--text-light);
+            gap: 12px;
         }
 
-        h2 {
-            color: #4A90E2
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(37,99,235,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
         }
 
-        a {
-            text-decoration: none;
-            color: #fff;
-            background: #4A90E2;
-            padding: 10px 20px;
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Area Cards */
+        .area-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--critical);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .area-card:hover {
+            transform: translateX(3px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .area-card.high     { border-left-color: var(--high); }
+        .area-card.moderate { border-left-color: var(--moderate); }
+        .area-card.low      { border-left-color: var(--low); }
+
+        .area-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .area-name { font-size: 1rem; font-weight: 700; color: var(--text); }
+
+        .risk-badge {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            padding: 3px 10px;
             border-radius: 20px;
-            margin-top: 20px
         }
+
+        .risk-badge.critical { background: rgba(239,68,68,0.1);   color: var(--critical); }
+        .risk-badge.high     { background: rgba(245,158,11,0.1);  color: var(--high); }
+        .risk-badge.moderate { background: rgba(59,130,246,0.1);  color: var(--moderate); }
+        .risk-badge.low      { background: rgba(16,185,129,0.1);  color: var(--low); }
+
+        .area-count {
+            font-size: 0.82rem;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .area-count strong { color: var(--text); font-weight: 700; font-size: 1rem; }
+
+        /* Severity bar */
+        .sev-bars { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        .sev-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            color: var(--text-light);
+        }
+
+        .sev-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .sev-dot.critical { background: var(--critical); }
+        .sev-dot.high     { background: var(--high); }
+        .sev-dot.moderate { background: var(--moderate); }
+        .sev-dot.low      { background: var(--low); }
+
+        /* Disease tags */
+        .disease-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .disease-tag {
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 20px;
+            background: rgba(37,99,235,0.06);
+            color: var(--primary);
+        }
+
+        /* Recent Cases Feed */
+        .case-item {
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            animation: fadeIn 0.35s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity:0; transform:translateY(6px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        .case-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .case-body { flex: 1; min-width: 0; }
+
+        .case-body h5 {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .case-body p {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .case-time {
+            font-size: 0.68rem;
+            color: var(--text-light);
+            white-space: nowrap;
+            margin-top: 2px;
+        }
+
+        .sev-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .sev-tag.critical { background: rgba(239,68,68,0.1);  color: var(--critical); }
+        .sev-tag.high     { background: rgba(245,158,11,0.1); color: var(--high); }
+        .sev-tag.moderate { background: rgba(59,130,246,0.1); color: var(--moderate); }
+        .sev-tag.low      { background: rgba(16,185,129,0.1); color: var(--low); }
+
+        /* Empty state */
+        .empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light);
+        }
+
+        .empty svg { margin-bottom: 12px; opacity: 0.4; }
+        .empty h4  { font-size: 0.95rem; margin-bottom: 6px; color: var(--text); }
+        .empty p   { font-size: 0.82rem; }
     </style>
 </head>
 
 <body>
-    <h2 data-i18n="admin.dashboard">Outbreak Dashboard</h2>
-    <p data-i18n="dashboard.coming_soon">Detailed statistics coming soon.</p>
-    <a href="wasil-home.html" data-i18n="dashboard.back_home">Back to Home</a>
 
-    <!-- Supabase SDK & i18n scripts -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="../Js files/supabase-config.js"></script>
+    <!-- Header -->
+    <header class="page-header">
+        <div class="header-top">
+            <a href="wasil-home.html" class="back-btn" aria-label="Back to Home">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </a>
+            <div class="header-title">
+                <h1>Outbreak Dashboard</h1>
+                <p>Cases submitted by community users</p>
+            </div>
+            <div class="live-badge">
+                <span class="live-dot"></span>
+                LIVE
+            </div>
+        </div>
+
+        <!-- Summary chips — filled by JS -->
+        <div class="summary-chips" id="summaryChips">
+            <div class="chip">— <span>Total</span></div>
+            <div class="chip" style="border-color:rgba(239,68,68,0.4);">— <span style="color:#FCA5A5;">Critical</span></div>
+            <div class="chip" style="border-color:rgba(245,158,11,0.4);">— <span style="color:#FCD34D;">High</span></div>
+            <div class="chip" style="border-color:rgba(59,130,246,0.4);">— <span style="color:#93C5FD;">Moderate</span></div>
+            <div class="chip" style="border-color:rgba(16,185,129,0.4);">— <span style="color:#6EE7B7;">Low</span></div>
+        </div>
+    </header>
+
+    <main>
+        <!-- By Area -->
+        <div class="section-label">📍 By Area</div>
+        <div id="areaList">
+            <div class="loader"><div class="spinner"></div><p>Loading outbreak data...</p></div>
+        </div>
+
+        <!-- Recent Cases -->
+        <div class="section-label">🕐 Recent Cases</div>
+        <div id="recentList">
+            <div class="loader"><div class="spinner"></div><p>Loading recent cases...</p></div>
+        </div>
+    </main>
+
     <script src="../Js files/wasil-i18n.js"></script>
-</body>
+    <script>
+    document.addEventListener('DOMContentLoaded', async function () {
 
+        // ── Auth check ──
+        if (window.supabase) {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session && !sessionStorage.getItem('demo_mode')) {
+                window.location.href = 'wasil-login.html';
+                return;
+            }
+        }
+
+        const areaList   = document.getElementById('areaList');
+        const recentList = document.getElementById('recentList');
+        const chipsEl    = document.getElementById('summaryChips');
+
+        // ── Helpers ──
+        function severityOrder(s) {
+            return { critical: 0, high: 1, moderate: 2, low: 3 }[s] ?? 4;
+        }
+
+        function dominantSeverity(counts) {
+            for (const s of ['critical','high','moderate','low']) {
+                if ((counts[s] || 0) > 0) return s;
+            }
+            return 'low';
+        }
+
+        function riskLabel(sev) {
+            return { critical:'HIGH RISK', high:'HIGH', moderate:'MODERATE', low:'LOW' }[sev] || 'LOW';
+        }
+
+        function timeAgo(dateStr) {
+            const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+            if (diff <  60)  return `${diff}s ago`;
+            if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+            return new Date(dateStr).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+        }
+
+        // ── Fetch all cases ──
+        async function loadAll() {
+            const { data: cases, error } = await supabase
+                .from('cases')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error || !cases) {
+                areaList.innerHTML   = `<div class="empty"><p>Failed to load data.</p></div>`;
+                recentList.innerHTML = '';
+                return;
+            }
+
+            if (cases.length === 0) {
+                areaList.innerHTML = `
+                <div class="empty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <h4>No Cases Reported Yet</h4>
+                    <p>Cases submitted by community users will appear here in real time.</p>
+                </div>`;
+                recentList.innerHTML = '';
+                updateChips({}, 0);
+                return;
+            }
+
+            // ── Aggregate by area ──
+            const areaMap = {};
+            const totals  = { critical:0, high:0, moderate:0, low:0 };
+
+            cases.forEach(c => {
+                const area = (c.location || 'Unknown').split(',')[0].trim();
+                if (!areaMap[area]) {
+                    areaMap[area] = { count: 0, severities: { critical:0,high:0,moderate:0,low:0 }, diseases: new Set() };
+                }
+                areaMap[area].count++;
+                const sev = c.severity || 'low';
+                areaMap[area].severities[sev] = (areaMap[area].severities[sev] || 0) + 1;
+                totals[sev] = (totals[sev] || 0) + 1;
+                if (c.disease) areaMap[area].diseases.add(c.disease);
+            });
+
+            updateChips(totals, cases.length);
+            renderAreas(areaMap);
+            renderRecent(cases.slice(0, 20));
+        }
+
+        // ── Update header chips ──
+        function updateChips(totals, total) {
+            chipsEl.innerHTML = `
+                <div class="chip">${total}<span>Total</span></div>
+                <div class="chip" style="border-color:rgba(239,68,68,0.4);">${totals.critical||0}<span style="color:#FCA5A5;">Critical</span></div>
+                <div class="chip" style="border-color:rgba(245,158,11,0.4);">${totals.high||0}<span style="color:#FCD34D;">High</span></div>
+                <div class="chip" style="border-color:rgba(59,130,246,0.4);">${totals.moderate||0}<span style="color:#93C5FD;">Moderate</span></div>
+                <div class="chip" style="border-color:rgba(16,185,129,0.4);">${totals.low||0}<span style="color:#6EE7B7;">Low</span></div>`;
+        }
+
+        // ── Render area cards ──
+        function renderAreas(areaMap) {
+            const sorted = Object.entries(areaMap)
+                .sort((a, b) => {
+                    // Sort first by dominant severity, then by count
+                    const sevA = severityOrder(dominantSeverity(a[1].severities));
+                    const sevB = severityOrder(dominantSeverity(b[1].severities));
+                    if (sevA !== sevB) return sevA - sevB;
+                    return b[1].count - a[1].count;
+                });
+
+            areaList.innerHTML = '';
+            sorted.forEach(([area, info]) => {
+                const dom    = dominantSeverity(info.severities);
+                const label  = riskLabel(dom);
+                const diseases = [...info.diseases].map(d =>
+                    `<span class="disease-tag">${d}</span>`).join('');
+
+                const sevBars = ['critical','high','moderate','low'].map(s => {
+                    const n = info.severities[s] || 0;
+                    if (n === 0) return '';
+                    return `<span class="sev-bar-item"><span class="sev-dot ${s}"></span>${n} ${s}</span>`;
+                }).join('');
+
+                areaList.insertAdjacentHTML('beforeend', `
+                <div class="area-card ${dom === 'critical' ? '' : dom}">
+                    <div class="area-top">
+                        <span class="area-name">${area}</span>
+                        <span class="risk-badge ${dom}">${label}</span>
+                    </div>
+                    <p class="area-count"><strong>${info.count}</strong> reported case${info.count !== 1 ? 's' : ''}</p>
+                    <div class="sev-bars">${sevBars}</div>
+                    ${info.diseases.size > 0 ? `<div class="disease-tags">${diseases}</div>` : ''}
+                </div>`);
+            });
+        }
+
+        // ── Render recent cases feed ──
+        function renderRecent(cases) {
+            recentList.innerHTML = '';
+            cases.forEach(c => prependCase(c, false));
+        }
+
+        function prependCase(c, isNew) {
+            const sev  = c.severity || 'low';
+            const dotColors = { critical:'#EF4444', high:'#F59E0B', moderate:'#3B82F6', low:'#10B981' };
+            const area = (c.location || 'Unknown').split(',')[0].trim();
+            const addr = c.location && c.location.includes(',') ? c.location.slice(c.location.indexOf(',')+1).trim() : '';
+
+            const html = `
+            <div class="case-item">
+                <span class="sev-dot ${sev}" style="background:${dotColors[sev]};margin-top:4px;"></span>
+                <div class="case-body">
+                    <h5>${area}${c.disease ? ' — ' + c.disease : ''}</h5>
+                    <p>${addr || c.description || 'No additional details'}</p>
+                    <span class="case-time">${timeAgo(c.created_at)}</span>
+                </div>
+                <span class="sev-tag ${sev}">${sev.toUpperCase()}</span>
+            </div>`;
+
+            if (isNew) {
+                recentList.insertAdjacentHTML('afterbegin', html);
+            } else {
+                recentList.insertAdjacentHTML('beforeend', html);
+            }
+        }
+
+        // ── Initial load ──
+        await loadAll();
+
+        // ── Real-time subscription ──
+        supabase.channel('dashboard:cases')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'cases' }, payload => {
+                // Reload area cards with fresh aggregation
+                loadAll();
+            })
+            .subscribe();
+    });
+    </script>
+
+</body>
 </html>

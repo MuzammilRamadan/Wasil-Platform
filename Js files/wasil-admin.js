@@ -512,6 +512,149 @@ async function loadSystemUsers() {
 }
 
 // ══════════════════════════════════════════════
+// ── OUTBREAK DASHBOARD — real-time from cases ──
+// ══════════════════════════════════════════════
+async function loadOutbreakDashboard() {
+    if (!window.supabase) return;
+
+    const areaEl  = document.getElementById('adminAreaList');
+    const tbody   = document.getElementById('adminCasesTableBody');
+    const chipsEl = document.getElementById('adminOutbreakChips');
+    const countEl = document.getElementById('recentCasesCount');
+    if (!areaEl || !tbody) return;
+
+    try {
+        const { data: cases, error } = await window.supabase
+            .from('cases')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error || !cases || cases.length === 0) {
+            areaEl.innerHTML = '<p style="text-align:center;padding:32px;color:#94A3B8;">No cases submitted yet.</p>';
+            tbody.innerHTML  = '<tr><td colspan="5" style="text-align:center;padding:24px;color:#94A3B8;">No cases yet.</td></tr>';
+            if (chipsEl) chipsEl.innerHTML = '';
+            return;
+        }
+
+        // Aggregate by area
+        const areaMap = {};
+        const totals  = { critical:0, high:0, moderate:0, low:0 };
+
+        cases.forEach(c => {
+            const area = (c.location || 'Unknown').split(',')[0].trim();
+            if (!areaMap[area]) areaMap[area] = { count:0, sevs:{critical:0,high:0,moderate:0,low:0}, diseases:new Set() };
+            areaMap[area].count++;
+            const sev = c.severity || 'low';
+            areaMap[area].sevs[sev] = (areaMap[area].sevs[sev]||0) + 1;
+            totals[sev] = (totals[sev]||0) + 1;
+            if (c.disease) areaMap[area].diseases.add(c.disease);
+        });
+
+        const sevOrder = s => ({critical:0,high:1,moderate:2,low:3}[s]??4);
+        function dominant(sevs) {
+            for (const s of ['critical','high','moderate','low']) if (sevs[s]>0) return s;
+            return 'low';
+        }
+        const riskColor = { critical:'#EF4444', high:'#F59E0B', moderate:'#3B82F6', low:'#10B981' };
+        const riskLabel = { critical:'HIGH RISK', high:'HIGH', moderate:'MODERATE', low:'LOW' };
+        const riskBg    = { critical:'rgba(239,68,68,0.08)', high:'rgba(245,158,11,0.08)', moderate:'rgba(59,130,246,0.08)', low:'rgba(16,185,129,0.08)' };
+
+        // Chips
+        if (chipsEl) {
+            chipsEl.innerHTML = [
+                `<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#1e293b;">${cases.length} Total Cases</span>`,
+                `<span style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#EF4444;">${totals.critical} Critical</span>`,
+                `<span style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#F59E0B;">${totals.high} High</span>`,
+                `<span style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#3B82F6;">${totals.moderate} Moderate</span>`,
+                `<span style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#10B981;">${totals.low} Low</span>`,
+                `<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:600;color:#64748B;">${Object.keys(areaMap).length} Areas</span>`
+            ].join('');
+        }
+
+        // Area cards
+        const sorted = Object.entries(areaMap).sort((a,b) => {
+            const da = sevOrder(dominant(a[1].sevs)), db = sevOrder(dominant(b[1].sevs));
+            return da !== db ? da-db : b[1].count-a[1].count;
+        });
+
+        areaEl.innerHTML = '';
+        sorted.forEach(([area, info]) => {
+            const dom   = dominant(info.sevs);
+            const color = riskColor[dom];
+            const bars  = ['critical','high','moderate','low']
+                .filter(s => info.sevs[s]>0)
+                .map(s => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;color:#64748B;margin-right:8px;"><span style="width:8px;height:8px;border-radius:50%;background:${riskColor[s]};display:inline-block;"></span>${info.sevs[s]} ${s}</span>`)
+                .join('');
+            const tags  = [...info.diseases].map(d =>
+                `<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:12px;padding:2px 8px;font-size:0.68rem;font-weight:600;color:#475569;">${d}</span>`).join(' ');
+
+            areaEl.insertAdjacentHTML('beforeend', `
+            <div style="border-left:4px solid ${color};background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                    <span style="font-weight:700;font-size:0.95rem;color:#1e293b;">${area}</span>
+                    <span style="background:${riskBg[dom]};color:${color};border-radius:20px;padding:3px 10px;font-size:0.65rem;font-weight:800;letter-spacing:0.5px;">${riskLabel[dom]}</span>
+                </div>
+                <p style="font-size:0.82rem;color:#64748B;margin-bottom:6px;"><strong style="color:#1e293b;font-size:0.95rem;">${info.count}</strong> case${info.count!==1?'s':''}</p>
+                <div style="margin-bottom:6px;">${bars}</div>
+                ${info.diseases.size>0?`<div style="display:flex;flex-wrap:wrap;gap:4px;">${tags}</div>`:''}
+            </div>`);
+        });
+
+        // Cases table
+        if (countEl) countEl.textContent = `${cases.length} cases total`;
+        const sevPill = s => {
+            const cls = s==='critical'?'critical':s==='high'?'high':s==='moderate'?'moderate':'stable';
+            return `<span class="severity-pill ${cls}">${(s||'low').toUpperCase()}</span>`;
+        };
+        function timeAgo(d) {
+            const diff = Math.floor((Date.now()-new Date(d))/1000);
+            if (diff<60)    return diff+'s ago';
+            if (diff<3600)  return Math.floor(diff/60)+'m ago';
+            if (diff<86400) return Math.floor(diff/3600)+'h ago';
+            return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+        }
+
+        tbody.innerHTML = cases.slice(0,30).map(c => `
+            <tr>
+                <td>${c.location||'—'}</td>
+                <td>${c.disease||'—'}</td>
+                <td>${sevPill(c.severity||'low')}</td>
+                <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(c.description||'').replace(/"/g,'&quot;')}">${c.description||'—'}</td>
+                <td style="white-space:nowrap;">${timeAgo(c.created_at)}</td>
+            </tr>`).join('');
+
+        // Also update the main Dashboard's epidemic areas table
+        const epicTbody = document.getElementById('epicAreasTableBody');
+        if (epicTbody && sorted.length > 0) {
+            epicTbody.innerHTML = sorted.slice(0,5).map(([loc,info],i) => {
+                const dom = dominant(info.sevs);
+                const topDisease = [...info.diseases][0] || '—';
+                return `<tr>
+                    <td>${i+1}</td><td>${loc}</td><td>${topDisease}</td>
+                    <td>${info.count}</td><td>${sevPill(dom)}</td>
+                </tr>`;
+            }).join('');
+        }
+
+    } catch (err) {
+        console.error('loadOutbreakDashboard error:', err);
+        if (areaEl) areaEl.innerHTML = '<p style="color:#EF4444;padding:20px;">Failed to load outbreak data.</p>';
+    }
+
+    // Realtime subscription (only once)
+    if (!window._outbreakSubActive) {
+        window._outbreakSubActive = true;
+        window.supabase.channel('admin:cases:live')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'cases' }, () => {
+                loadOutbreakDashboard();
+                const b = document.getElementById('outbreakBadge');
+                if (b) { b.style.display = 'inline-block'; setTimeout(() => b.style.display='none', 5000); }
+            })
+            .subscribe();
+    }
+}
+
+// ══════════════════════════════════════════════
 // ── INIT ──
 // ══════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function () {
@@ -529,6 +672,7 @@ document.addEventListener('DOMContentLoaded', function () {
     loadDeployedClinics();
     loadClinicRequests();
     loadSystemUsers();
+    loadOutbreakDashboard();
 
     // Close sidebar on outside click (mobile)
     document.addEventListener('click', function (e) {

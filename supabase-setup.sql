@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS clinic_requests (
     schedule TEXT,
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
     created_at TIMESTAMPTZ DEFAULT now(),
-    org_id UUID REFERENCES auth.users(id)
+    org_id UUID REFERENCES auth.users(id) ON DELETE CASCADE
 );
 
 ALTER TABLE clinic_requests ENABLE ROW LEVEL SECURITY;
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS cases (
     disease TEXT,
     severity TEXT CHECK (severity IN ('critical', 'high', 'moderate', 'low')),
     description TEXT,
-    reporter_id UUID REFERENCES auth.users(id),
+    reporter_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -189,7 +189,7 @@ CREATE TABLE IF NOT EXISTS service_requests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     service_type TEXT,
     location TEXT,
-    requester_id UUID REFERENCES auth.users(id),
+    requester_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     status TEXT DEFAULT 'pending',
     created_at TIMESTAMPTZ DEFAULT now()
 );
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS assignments (
     target_areas TEXT[],      -- array of area names
     supplies TEXT,
     deployment_date DATE,
-    org_id UUID REFERENCES auth.users(id),
+    org_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     status TEXT DEFAULT 'pending',
     created_at TIMESTAMPTZ DEFAULT now()
 );
@@ -264,6 +264,11 @@ CREATE POLICY "Admins can read all profiles"
 -- 10. ENABLE REALTIME for service_requests
 -- ═══════════════════════════════════════════
 ALTER PUBLICATION supabase_realtime ADD TABLE service_requests;
+ALTER PUBLICATION supabase_realtime ADD TABLE cases;
+
+-- Add notes column to service_requests (stores contact info, vaccine type, case type)
+-- Run this if the table already exists:
+-- ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS notes TEXT;
 
 -- ═══════════════════════════════════════════
 -- 11. ADMIN DELETE POLICIES (user removal)

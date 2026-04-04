@@ -71,6 +71,13 @@
                 </svg>
                 <span data-i18n="admin.system_users">System Users</span>
             </a>
+            <a class="nav-item" data-section="outbreak" onclick="showSection('outbreak', this)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                </svg>
+                <span>Outbreak Dashboard</span>
+                <span class="nav-badge" id="outbreakBadge" style="display:none;">!</span>
+            </a>
         </nav>
 
         <!-- Sidebar Footer -->
@@ -385,6 +392,60 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ SECTION: OUTBREAK DASHBOARD ═══ -->
+            <section id="section-outbreak" class="admin-section">
+                <div class="section-heading">
+                    <h1>Outbreak Dashboard</h1>
+                    <p class="section-sub" style="display:flex;align-items:center;gap:6px;">
+                        Real-time community-reported cases
+                        <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:20px;padding:2px 8px;font-size:0.72rem;font-weight:700;color:#10B981;">
+                            <span id="outbreakLiveDot" style="width:6px;height:6px;border-radius:50%;background:#10B981;animation:pulse-dot 1.5s infinite;"></span>
+                            LIVE
+                        </span>
+                    </p>
+                </div>
+
+                <!-- Summary chips -->
+                <div id="adminOutbreakChips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+                    <!-- Filled by JS -->
+                </div>
+
+                <!-- By Area -->
+                <div class="table-card" style="margin-bottom:16px;">
+                    <div class="table-header">
+                        <h2>&#128205; Cases by Area</h2>
+                        <span class="table-sub">Sorted by severity &amp; count</span>
+                    </div>
+                    <div id="adminAreaList" style="padding:0 16px 16px;">
+                        <div style="text-align:center;padding:32px;color:var(--text-muted,#94A3B8);">Loading outbreak data...</div>
+                    </div>
+                </div>
+
+                <!-- Recent Cases -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2>&#128336; Recent Reported Cases</h2>
+                        <span class="table-sub" id="recentCasesCount">—</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Location</th>
+                                    <th>Disease</th>
+                                    <th>Severity</th>
+                                    <th>Description</th>
+                                    <th>Reported</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminCasesTableBody">
+                                <tr><td colspan="5" style="text-align:center;color:#94A3B8;padding:24px;">Loading cases...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>

@@ -88,51 +88,18 @@
             <!-- Outbreak Status Section -->
             <div class="section-header">
                 <span class="section-title" data-i18n="sec-outbreak">Outbreak Status</span>
+                <span style="font-size:0.72rem;color:var(--text-light);display:flex;align-items:center;gap:4px;">
+                    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;animation:pulse-dot 1.5s infinite;"></span>
+                    Live
+                </span>
             </div>
 
-            <div class="outbreak-status" onclick="location.href='wasil-dashboard.html'">
-                <div class="status-content">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                        <h4 style="margin:0;" data-i18n="area-khartoum">Khartoum North</h4>
-                        <span class="status-badge" data-i18n="risk-high">HIGH RISK</span>
-                    </div>
-                    <p style="font-size: 0.78rem; color: var(--alert); font-weight: 600;" data-i18n="cases-khartoum">
-                        1,245 Reported Cases</p>
+            <!-- Dynamic outbreak cards populated from DB -->
+            <div id="outbreakStatusList">
+                <div class="clinics-loading" id="outbreakLoading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading outbreak data...</p>
                 </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--alert)" stroke-width="2">
-                    <path d="M9 18l6-6-6-6"></path>
-                </svg>
-            </div>
-
-            <div class="outbreak-status" onclick="location.href='wasil-dashboard.html'"
-                style="border-left-color: var(--warning);">
-                <div class="status-content">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                        <h4 style="margin:0;" data-i18n="area-omdurman">Omdurman</h4>
-                        <span class="status-badge" style="color: var(--warning); background: rgba(245, 158, 11, 0.08);"
-                            data-i18n="risk-moderate">MODERATE</span>
-                    </div>
-                    <p style="font-size: 0.78rem; color: var(--warning); font-weight: 600;" data-i18n="cases-omdurman">
-                        850 Reported Cases</p>
-                </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2">
-                    <path d="M9 18l6-6-6-6"></path>
-                </svg>
-            </div>
-
-            <div class="outbreak-status" onclick="location.href='wasil-dashboard.html'"
-                style="border-left-color: var(--success);">
-                <div class="status-content">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                        <h4 style="margin:0;">Bahri</h4>
-                        <span class="status-badge"
-                            style="color: var(--success); background: rgba(16, 185, 129, 0.08);">LOW</span>
-                    </div>
-                    <p style="font-size: 0.78rem; color: var(--success); font-weight: 600;">320 Reported Cases</p>
-                </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2">
-                    <path d="M9 18l6-6-6-6"></path>
-                </svg>
             </div>
 
             <!-- Common Diseases Section -->
@@ -257,6 +224,20 @@
                     <div class="loading-spinner"></div>
                     <p>Loading deployed clinics...</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- ═══════════ VIEW: CLINIC DETAIL (Community) ═══════════ -->
+        <div id="view-clinic-detail" class="view-section" style="display: none;">
+            <button class="back-btn" id="btnBackFromClinicDetail">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span data-i18n="report.back">Back to Clinics</span>
+            </button>
+
+            <div id="clinicDetailContent">
+                <!-- Populated dynamically -->
             </div>
         </div>
 
@@ -618,6 +599,51 @@
                         data-i18n="home.location_desc">Enter your area or exact address</p>
                     <input type="text" class="form-input" id="serviceLocationInput" placeholder="e.g. Omdurman, Block 7"
                         data-i18n-placeholder="home.location_ph" required>
+                </div>
+
+                <!-- Contact Information (shown for all services) -->
+                <div class="form-group">
+                    <label class="form-label">Contact Information</label>
+                    <input type="tel" class="form-input" id="serviceMobileInput" placeholder="e.g. +249 91 234 5678">
+                </div>
+
+                <!-- Vaccination-specific fields -->
+                <div id="vaccinationFields" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label">Vaccination Type</label>
+                        <select class="form-input" id="vaccinationTypeInput">
+                            <option value="" disabled selected>Select vaccine type...</option>
+                            <option value="Cholera Vaccine">Cholera Vaccine</option>
+                            <option value="Typhoid Vaccine">Typhoid Vaccine</option>
+                            <option value="Meningitis Vaccine">Meningitis Vaccine</option>
+                            <option value="Yellow Fever Vaccine">Yellow Fever Vaccine</option>
+                            <option value="Hepatitis A Vaccine">Hepatitis A Vaccine</option>
+                            <option value="Polio Vaccine">Polio Vaccine</option>
+                            <option value="Measles Vaccine">Measles Vaccine</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="otherVaccineGroup" style="display:none; margin-top:-6px;">
+                        <input type="text" class="form-input" id="otherVaccineInput"
+                            placeholder="Please specify vaccine type...">
+                    </div>
+                </div>
+
+                <!-- Ambulance-specific fields -->
+                <div id="ambulanceFields" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label">Case Type</label>
+                        <select class="form-input" id="ambulanceCaseTypeInput">
+                            <option value="" disabled selected>Select case type...</option>
+                            <option value="Suspected Epidemic Disease">Suspected Epidemic Disease</option>
+                            <option value="Severe Dehydration">Severe Dehydration (Cholera/Diarrhea)</option>
+                            <option value="High Fever">High Fever / Convulsions</option>
+                            <option value="Trauma / Injury">Trauma / Injury</option>
+                            <option value="Pregnancy Emergency">Pregnancy Emergency</option>
+                            <option value="Respiratory Distress">Respiratory Distress</option>
+                            <option value="Other Emergency">Other Emergency</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
