@@ -46,7 +46,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 html {
@@ -56,7 +56,7 @@ html {
 }
 
 body {
-    font-family: var(--font-en);
+    font-family: 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--navy);
     color: var(--white);
     overflow-x: hidden;
@@ -805,6 +805,7 @@ button {
     transform: scale(0.97);
 }
 
+
 /* === FOOTER === */
 .landing-footer {
     background: var(--navy);
@@ -840,17 +841,36 @@ button {
 
 .footer-links {
     display: flex;
-    gap: 2rem;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.5rem;
+    justify-content: flex-end;
+    max-width: 500px;
 }
 
 .footer-links a {
     font-size: 0.85rem;
     color: var(--gray-400);
     transition: color 0.2s;
+    position: relative;
+}
+
+.footer-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--teal-light);
+    transition: width 0.2s ease;
 }
 
 .footer-links a:hover {
     color: var(--teal-light);
+}
+
+.footer-links a:hover::after {
+    width: 100%;
 }
 
 .footer-bottom {

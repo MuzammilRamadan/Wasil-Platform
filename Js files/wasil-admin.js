@@ -71,66 +71,83 @@ async function handleLogout() {
 }
 
 // ══════════════════════════════════════════════
+// ── SEVERITY FROM CASE COUNT (platform-wide rule) ──
+// 1–10 → low | 11–30 → moderate | 31–60 → high | 61+ → critical
+// ══════════════════════════════════════════════
+function computeSeverityFromCount(count) {
+    if (count >= 61) return 'critical';
+    if (count >= 31) return 'high';
+    if (count >= 11) return 'moderate';
+    return 'low';
+}
+
+// ══════════════════════════════════════════════
 // ── DASHBOARD STATS — live from Supabase cases ──
 // ══════════════════════════════════════════════
 async function loadDashboardStats() {
     if (!window.supabase) return;
 
     try {
+        const { data: activeDiseases, error: dErr } = await window.supabase
+            .from('diseases')
+            .select('*')
+            .eq('is_active', true)
+            .order('created_at', { ascending: true });
+
         const { data: cases, error } = await window.supabase
             .from('cases')
             .select('disease, severity, location');
 
-        if (error || !cases || cases.length === 0) return;
+        if (error) throw error;
 
-        // Count per disease (case-insensitive match)
-        const count = (keyword) =>
-            cases.filter(c => c.disease && c.disease.toLowerCase().includes(keyword)).length;
+        const diseaseList = (activeDiseases && activeDiseases.length > 0) ? activeDiseases : [
+            { name: 'Cholera', default_severity: 'critical' },
+            { name: 'Typhoid', default_severity: 'high' },
+            { name: 'Dengue Fever', default_severity: 'moderate' },
+            { name: 'Malaria', default_severity: 'low' }
+        ];
 
-        const chol = count('cholera');
-        const typh = count('typhoid');
-        const deng = count('dengue');
-        const mala = count('malaria');
+        const grid = document.getElementById('diseaseCardsGrid');
+        if (grid) {
+            grid.innerHTML = diseaseList.map(disease => {
+                const count = cases ? cases.filter(c => c.disease && c.disease.toLowerCase() === disease.name.toLowerCase()).length : 0;
 
-        // Update cholera card stat (already has id)
-        const cholEl = document.getElementById('chol-cases');
-        if (cholEl && chol > 0) cholEl.textContent = chol.toLocaleString();
+                // Severity derived from case count
+                const sev = computeSeverityFromCount(count);
+                const sevClass = sev === 'critical' ? 'critical' : sev === 'high' ? 'high' : sev === 'low' ? 'stable' : 'moderate';
+                const sevLabel = (sev === 'low' ? 'stable' : sev).toUpperCase();
 
-        // Update other stats via querySelectorAll on the stat-num spans in each card
-        const allStatNums = document.querySelectorAll('.disease-card-stats .stat-num');
-        const cardValues = [chol, typh, deng, mala];
-        document.querySelectorAll('.disease-card').forEach((card, i) => {
-            const nums = card.querySelectorAll('.stat-num');
-            if (nums[0] && cardValues[i] > 0) nums[0].textContent = cardValues[i].toLocaleString();
-        });
+                let iconPath = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>'; // Generic
+                const lname = disease.name.toLowerCase();
+                if (lname.includes('cholera')) iconPath = '<circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12H5M19 12h3"></path><path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path>';
+                else if (lname.includes('typhoid')) iconPath = '<path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>';
+                else if (lname.includes('dengue')) iconPath = '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>';
+                else if (lname.includes('malaria')) iconPath = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path>';
+                else iconPath = '<circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line>';
 
-        // Build area aggregate from cases
-        const areaMap = {};
-        cases.forEach(c => {
-            if (!c.location) return;
-            const key = c.location;
-            if (!areaMap[key]) areaMap[key] = { count: 0, disease: c.disease };
-            areaMap[key].count++;
-        });
-
-        // Sort by count and update table
-        const sortedAreas = Object.entries(areaMap)
-            .sort(([, a], [, b]) => b.count - a.count)
-            .slice(0, 5);
-
-        const tbody = document.getElementById('epicAreasTableBody');
-        if (tbody && sortedAreas.length > 0) {
-            const sevClass = (n) => n > 100 ? 'critical' : n > 30 ? 'high' : n > 10 ? 'moderate' : 'stable';
-            const sevLabel = (n) => n > 100 ? 'CRITICAL' : n > 30 ? 'HIGH' : n > 10 ? 'MODERATE' : 'STABLE';
-            tbody.innerHTML = sortedAreas.map(([loc, info], i) => `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td>${loc}</td>
-                    <td>${info.disease || '—'}</td>
-                    <td>${info.count}</td>
-                    <td><span class="severity-pill ${sevClass(info.count)}">${sevLabel(info.count)}</span></td>
-                </tr>`).join('');
+                return `
+                <div class="disease-card ${sevClass}">
+                    <div class="disease-card-icon" style="color:var(--${sevClass});">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            ${iconPath}
+                        </svg>
+                    </div>
+                    <div class="disease-card-body">
+                        <h3>${disease.name}</h3>
+                        <div class="severity-pill ${sevClass}">${sevLabel}</div>
+                    </div>
+                    <div class="disease-card-stats">
+                        <div class="stat"><span class="stat-num">${count.toLocaleString()}</span><span class="stat-label">Cases</span></div>
+                        <div class="stat"><span class="stat-num" style="font-size:0.75rem;color:#64748B;">${count===0?'–':count<=10?'1–10':count<=30?'11–30':count<=60?'31–60':'61+'}</span><span class="stat-label">Range</span></div>
+                    </div>
+                </div>`;
+            }).join('');
         }
+
+        if (!cases || cases.length === 0) return;
+
+        // Render interactive area tabs on the Dashboard
+        renderEpicAreasFromCases(cases);
 
     } catch (err) {
         console.error('loadDashboardStats error:', err);
@@ -185,7 +202,7 @@ async function loadDeployedClinics() {
                 <td>${diseases}</td>
                 <td>${c.schedule || '—'}</td>
                 <td>${c.org_name || '—'}</td>
-                <td><span class="severity-pill stable">Active</span></td>
+                <td><span class="severity-pill stable" data-i18n="admin.status_active">t('admin.status_active') || 'Active'</span></td>
             </tr>`;
         }).join('');
 
@@ -256,11 +273,11 @@ async function loadClinicRequests() {
                 <div class="request-actions">
                     <button class="btn-approve" onclick="handleRequest('${req.id}','approve',this)">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span data-i18n="admin.btn_approve">Approve</span>
+                        <span data-i18n="admin.btn_approve" data-i18n="admin.btn_approve">t('admin.btn_approve') || 'Approve'</span>
                     </button>
                     <button class="btn-reject" onclick="handleRequest('${req.id}','reject',this)">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        <span data-i18n="admin.btn_reject">Reject</span>
+                        <span data-i18n="admin.btn_reject" data-i18n="admin.btn_reject">t('admin.btn_reject') || 'Reject'</span>
                     </button>
                 </div>
             </div>`;
@@ -281,9 +298,20 @@ async function handleRequest(requestId, action, btn) {
     try {
         if (window.supabase) {
             const newStatus = action === 'approve' ? 'approved' : 'rejected';
+            const updateProps = { status: newStatus };
+
+            if (action === 'reject') {
+                const reason = prompt("Enter a brief reason for rejecting this clinic request:");
+                if (reason === null) {
+                    card.querySelectorAll('button').forEach(b => b.disabled = false);
+                    return; // user cancelled
+                }
+                updateProps.rejection_reason = reason;
+            }
+
             const { error } = await window.supabase
                 .from('clinic_requests')
-                .update({ status: newStatus })
+                .update(updateProps)
                 .eq('id', requestId);
 
             if (error) {
@@ -517,8 +545,8 @@ async function loadSystemUsers() {
 async function loadOutbreakDashboard() {
     if (!window.supabase) return;
 
-    const areaEl  = document.getElementById('adminAreaList');
-    const tbody   = document.getElementById('adminCasesTableBody');
+    const areaEl = document.getElementById('adminAreaList');
+    const tbody = document.getElementById('adminCasesTableBody');
     const chipsEl = document.getElementById('adminOutbreakChips');
     const countEl = document.getElementById('recentCasesCount');
     if (!areaEl || !tbody) return;
@@ -531,62 +559,65 @@ async function loadOutbreakDashboard() {
 
         if (error || !cases || cases.length === 0) {
             areaEl.innerHTML = '<p style="text-align:center;padding:32px;color:#94A3B8;">No cases submitted yet.</p>';
-            tbody.innerHTML  = '<tr><td colspan="5" style="text-align:center;padding:24px;color:#94A3B8;">No cases yet.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:#94A3B8;">No cases yet.</td></tr>';
             if (chipsEl) chipsEl.innerHTML = '';
             return;
         }
 
-        // Aggregate by area
         const areaMap = {};
-        const totals  = { critical:0, high:0, moderate:0, low:0 };
-
         cases.forEach(c => {
             const area = (c.location || 'Unknown').split(',')[0].trim();
-            if (!areaMap[area]) areaMap[area] = { count:0, sevs:{critical:0,high:0,moderate:0,low:0}, diseases:new Set() };
+            if (!areaMap[area]) areaMap[area] = { count: 0, diseases: new Set(), locations: [] };
             areaMap[area].count++;
-            const sev = c.severity || 'low';
-            areaMap[area].sevs[sev] = (areaMap[area].sevs[sev]||0) + 1;
-            totals[sev] = (totals[sev]||0) + 1;
             if (c.disease) areaMap[area].diseases.add(c.disease);
+
+            let specificLoc = c.location && c.location.indexOf(',') !== -1 ? c.location.slice(c.location.indexOf(',') + 1).trim() : 'Unknown Sub-area';
+            if (c.description && c.description.trim() !== '') specificLoc += ' - ' + c.description;
+            areaMap[area].locations.push({ loc: specificLoc, disease: c.disease, id: c.id });
         });
 
-        const sevOrder = s => ({critical:0,high:1,moderate:2,low:3}[s]??4);
-        function dominant(sevs) {
-            for (const s of ['critical','high','moderate','low']) if (sevs[s]>0) return s;
-            return 'low';
-        }
-        const riskColor = { critical:'#EF4444', high:'#F59E0B', moderate:'#3B82F6', low:'#10B981' };
-        const riskLabel = { critical:'HIGH RISK', high:'HIGH', moderate:'MODERATE', low:'LOW' };
-        const riskBg    = { critical:'rgba(239,68,68,0.08)', high:'rgba(245,158,11,0.08)', moderate:'rgba(59,130,246,0.08)', low:'rgba(16,185,129,0.08)' };
+        // Compute severity from count for each area
+        const sevOrder = s => ({ critical: 0, high: 1, moderate: 2, low: 3 }[s] ?? 4);
+        const riskColor = { critical: '#EF4444', high: '#F59E0B', moderate: '#3B82F6', low: '#10B981' };
+        const riskLabel = { critical: 'CRITICAL', high: 'HIGH', moderate: 'MODERATE', low: 'LOW' };
+        const riskBg = { critical: 'rgba(239,68,68,0.08)', high: 'rgba(245,158,11,0.08)', moderate: 'rgba(59,130,246,0.08)', low: 'rgba(16,185,129,0.08)' };
+
+        // Total severity chips based on area count-severity
+        const totals = { critical: 0, high: 0, moderate: 0, low: 0 };
+        Object.values(areaMap).forEach(info => {
+            const sev = computeSeverityFromCount(info.count);
+            totals[sev]++;
+        });
 
         // Chips
         if (chipsEl) {
             chipsEl.innerHTML = [
                 `<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#1e293b;">${cases.length} Total Cases</span>`,
-                `<span style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#EF4444;">${totals.critical} Critical</span>`,
-                `<span style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#F59E0B;">${totals.high} High</span>`,
-                `<span style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#3B82F6;">${totals.moderate} Moderate</span>`,
-                `<span style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#10B981;">${totals.low} Low</span>`,
+                `<span style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#EF4444;">${totals.critical} Areas Critical</span>`,
+                `<span style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#F59E0B;">${totals.high} Areas High</span>`,
+                `<span style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#3B82F6;">${totals.moderate} Areas Moderate</span>`,
+                `<span style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#10B981;">${totals.low} Areas Low</span>`,
                 `<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:600;color:#64748B;">${Object.keys(areaMap).length} Areas</span>`
             ].join('');
         }
 
-        // Area cards
-        const sorted = Object.entries(areaMap).sort((a,b) => {
-            const da = sevOrder(dominant(a[1].sevs)), db = sevOrder(dominant(b[1].sevs));
-            return da !== db ? da-db : b[1].count-a[1].count;
-        });
+        // Area cards — sorted by count desc
+        const sorted = Object.entries(areaMap).sort((a, b) => b[1].count - a[1].count);
 
         areaEl.innerHTML = '';
         sorted.forEach(([area, info]) => {
-            const dom   = dominant(info.sevs);
+            const dom = computeSeverityFromCount(info.count);
             const color = riskColor[dom];
-            const bars  = ['critical','high','moderate','low']
-                .filter(s => info.sevs[s]>0)
-                .map(s => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;color:#64748B;margin-right:8px;"><span style="width:8px;height:8px;border-radius:50%;background:${riskColor[s]};display:inline-block;"></span>${info.sevs[s]} ${s}</span>`)
-                .join('');
-            const tags  = [...info.diseases].map(d =>
+            const tags = [...info.diseases].map(d =>
                 `<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:12px;padding:2px 8px;font-size:0.68rem;font-weight:600;color:#475569;">${d}</span>`).join(' ');
+
+            const locsList = info.locations.slice(0, 5).map(l => {
+                return `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9;font-size:0.78rem;">
+                    <span style="color:#475569;"><span style="color:${color};margin-right:4px;">●</span>${l.loc}</span>
+                    <span style="font-weight:600;color:#1e293b;">${l.disease || ''}</span>
+                </div>`;
+            }).join('');
+            const moreLocs = info.locations.length > 5 ? `<div style="text-align:center;font-size:0.7rem;color:#94a3b8;margin-top:4px;">+ ${info.locations.length - 5} more cases</div>` : '';
 
             areaEl.insertAdjacentHTML('beforeend', `
             <div style="border-left:4px solid ${color};background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.05);">
@@ -594,47 +625,68 @@ async function loadOutbreakDashboard() {
                     <span style="font-weight:700;font-size:0.95rem;color:#1e293b;">${area}</span>
                     <span style="background:${riskBg[dom]};color:${color};border-radius:20px;padding:3px 10px;font-size:0.65rem;font-weight:800;letter-spacing:0.5px;">${riskLabel[dom]}</span>
                 </div>
-                <p style="font-size:0.82rem;color:#64748B;margin-bottom:6px;"><strong style="color:#1e293b;font-size:0.95rem;">${info.count}</strong> case${info.count!==1?'s':''}</p>
-                <div style="margin-bottom:6px;">${bars}</div>
-                ${info.diseases.size>0?`<div style="display:flex;flex-wrap:wrap;gap:4px;">${tags}</div>`:''}
+                <p style="font-size:0.82rem;color:#64748B;margin-bottom:6px;"><strong style="color:#1e293b;font-size:0.95rem;">${info.count}</strong> case${info.count !== 1 ? 's' : ''} &nbsp;<span style="font-size:0.68rem;color:#94a3b8;">(${info.count<=10?'1–10 Low':info.count<=30?'11–30 Moderate':info.count<=60?'31–60 High':'61+ Critical'})</span></p>
+                ${info.diseases.size > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">${tags}</div>` : ''}
+                <div style="background:#f8fafc;padding:8px 12px;border-radius:8px;">
+                    <strong style="font-size:0.75rem;color:#1e293b;margin-bottom:4px;display:block;">Specific Locations</strong>
+                    ${locsList}
+                    ${moreLocs}
+                </div>
             </div>`);
         });
 
-        // Cases table
+        // Cases table with admin actions
         if (countEl) countEl.textContent = `${cases.length} cases total`;
-        const sevPill = s => {
-            const cls = s==='critical'?'critical':s==='high'?'high':s==='moderate'?'moderate':'stable';
-            return `<span class="severity-pill ${cls}">${(s||'low').toUpperCase()}</span>`;
+        const sevPill = (s, count) => {
+            const computed = computeSeverityFromCount(count || 0);
+            const cls = computed === 'critical' ? 'critical' : computed === 'high' ? 'high' : computed === 'moderate' ? 'moderate' : 'stable';
+            return `<span class="severity-pill ${cls}">${computed.toUpperCase()}</span>`;
         };
         function timeAgo(d) {
-            const diff = Math.floor((Date.now()-new Date(d))/1000);
-            if (diff<60)    return diff+'s ago';
-            if (diff<3600)  return Math.floor(diff/60)+'m ago';
-            if (diff<86400) return Math.floor(diff/3600)+'h ago';
-            return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+            const diff = Math.floor((Date.now() - new Date(d)) / 1000);
+            if (diff < 60) return diff + 's ago';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+            return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
         }
 
-        tbody.innerHTML = cases.slice(0,30).map(c => `
-            <tr>
-                <td>${c.location||'—'}</td>
-                <td>${c.disease||'—'}</td>
-                <td>${sevPill(c.severity||'low')}</td>
-                <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(c.description||'').replace(/"/g,'&quot;')}">${c.description||'—'}</td>
+        // Build a per-disease running count to assign severity
+        const diseaseCountMap = {};
+        const casesForTable = cases.slice(0, 30);
+        // Count total per disease across ALL cases for accurate severity
+        cases.forEach(c => {
+            const d = (c.disease || 'Unknown').toLowerCase();
+            diseaseCountMap[d] = (diseaseCountMap[d] || 0) + 1;
+        });
+
+        tbody.innerHTML = casesForTable.map(c => {
+            const dCount = diseaseCountMap[(c.disease || '').toLowerCase()] || 1;
+            const caseStatus = c.status || 'reported';
+            const statusStyle = caseStatus === 'cured' ? 'color:#10B981;font-weight:700;' :
+                                caseStatus === 'treating' ? 'color:#3B82F6;font-weight:700;' : 'color:#94A3B8;';
+            return `
+            <tr id="case-row-${c.id}">
+                <td>${c.location || '—'}</td>
+                <td>${c.disease || '—'}</td>
+                <td>${sevPill(c.severity, dCount)}</td>
+                <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(c.description || '').replace(/"/g, '&quot;')}">${c.description || '—'}</td>
                 <td style="white-space:nowrap;">${timeAgo(c.created_at)}</td>
-            </tr>`).join('');
+                <td style="white-space:nowrap;">
+                    <span style="${statusStyle};font-size:0.75rem;display:block;margin-bottom:4px;">${caseStatus.toUpperCase()}</span>
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                        <button onclick="updateCaseStatus('${c.id}','treating')" title="Mark as Treating"
+                            style="font-size:0.68rem;padding:3px 7px;border-radius:4px;border:1px solid #3B82F6;color:#3B82F6;background:transparent;cursor:pointer;font-weight:600;">Treating</button>
+                        <button onclick="updateCaseStatus('${c.id}','cured')" title="Mark as Cured"
+                            style="font-size:0.68rem;padding:3px 7px;border-radius:4px;border:1px solid #10B981;color:#10B981;background:transparent;cursor:pointer;font-weight:600;">Cured</button>
+                        <button onclick="deleteCase('${c.id}')" title="Remove Case"
+                            style="font-size:0.68rem;padding:3px 7px;border-radius:4px;border:1px solid #EF4444;color:#EF4444;background:transparent;cursor:pointer;font-weight:600;">Remove</button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
 
-        // Also update the main Dashboard's epidemic areas table
-        const epicTbody = document.getElementById('epicAreasTableBody');
-        if (epicTbody && sorted.length > 0) {
-            epicTbody.innerHTML = sorted.slice(0,5).map(([loc,info],i) => {
-                const dom = dominant(info.sevs);
-                const topDisease = [...info.diseases][0] || '—';
-                return `<tr>
-                    <td>${i+1}</td><td>${loc}</td><td>${topDisease}</td>
-                    <td>${info.count}</td><td>${sevPill(dom)}</td>
-                </tr>`;
-            }).join('');
-        }
+        // Also refresh the Dashboard's Epidemic Areas tabs
+        renderEpicAreasFromCases(cases);
 
     } catch (err) {
         console.error('loadOutbreakDashboard error:', err);
@@ -648,11 +700,271 @@ async function loadOutbreakDashboard() {
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'cases' }, () => {
                 loadOutbreakDashboard();
                 const b = document.getElementById('outbreakBadge');
-                if (b) { b.style.display = 'inline-block'; setTimeout(() => b.style.display='none', 5000); }
+                if (b) { b.style.display = 'inline-block'; setTimeout(() => b.style.display = 'none', 5000); }
             })
             .subscribe();
     }
 }
+
+// ══════════════════════════════════════════════
+// ── CASE STATUS ACTIONS (Admin) ──
+// ══════════════════════════════════════════════
+async function updateCaseStatus(caseId, newStatus) {
+    if (!window.supabase) return;
+    try {
+        const { error } = await window.supabase
+            .from('cases')
+            .update({ status: newStatus })
+            .eq('id', caseId);
+        if (error) throw error;
+        showToast(`Case marked as ${newStatus}!`, 'success');
+        // Update the status label in the row immediately
+        const row = document.getElementById('case-row-' + caseId);
+        if (row) {
+            const statusSpan = row.querySelector('td:last-child span');
+            if (statusSpan) {
+                statusSpan.textContent = newStatus.toUpperCase();
+                statusSpan.style.color = newStatus === 'cured' ? '#10B981' : '#3B82F6';
+            }
+        }
+    } catch (err) {
+        console.error('updateCaseStatus error:', err);
+        showToast('Error updating case: ' + err.message, 'error');
+    }
+}
+
+async function deleteCase(caseId) {
+    if (!confirm('Remove this case? This cannot be undone.\nحذف هذه الحالة؟')) return;
+    if (!window.supabase) return;
+    try {
+        const { error } = await window.supabase
+            .from('cases')
+            .delete()
+            .eq('id', caseId);
+        if (error) throw error;
+        // Animate row removal
+        const row = document.getElementById('case-row-' + caseId);
+        if (row) {
+            row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(20px)';
+            setTimeout(() => { row.remove(); loadOutbreakDashboard(); }, 350);
+        }
+        showToast('Case removed successfully!', 'success');
+    } catch (err) {
+        console.error('deleteCase error:', err);
+        showToast('Error removing case: ' + err.message, 'error');
+    }
+}
+
+// ══════════════════════════════════════════════
+// ── MANAGE DISEASES ──
+// ══════════════════════════════════════════════
+
+async function loadDiseasesSettings() {
+    if (!window.supabase) return;
+    const tbody = document.getElementById('diseasesTableBody');
+    if (!tbody) return;
+
+    try {
+        const { data: diseases, error } = await window.supabase
+            .from('diseases')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+        if (error) {
+            if (error.code === '42P01') {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;">Please run the 'add_diseases_table.sql' migration.</td></tr>`;
+                return;
+            }
+            throw error;
+        }
+
+        if (!diseases || diseases.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;">No diseases found. Add one above.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = diseases.map(d => {
+            const sevClass = d.default_severity === 'critical' ? 'critical' : d.default_severity === 'high' ? 'high' : d.default_severity === 'low' ? 'stable' : 'moderate';
+            return `
+            <tr>
+                <td><strong>${d.name}</strong></td>
+                <td><span class="severity-pill ${sevClass}">${(d.default_severity || 'moderate').toUpperCase()}</span></td>
+                <td><span class="tag" style="background:${d.is_active ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'}; color:${d.is_active ? '#10B981' : '#EF4444'}">${d.is_active ? 'Active' : 'Inactive'}</span></td>
+                <td>
+                    <button class="btn-remove" onclick="removeDisease('${d.id}')" title="Delete Disease">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
+                        Delete
+                    </button>
+                    ${d.is_active ?
+                    `<button class="btn-approve" style="background:transparent; color:#E67E22; border:1px solid #E67E22; margin-left:6px;" onclick="toggleDiseaseActive('${d.id}', false)">Deactivate</button>` :
+                    `<button class="btn-approve" style="background:transparent; color:#10B981; border:1px solid #10B981; margin-left:6px;" onclick="toggleDiseaseActive('${d.id}', true)">Activate</button>`
+                }
+                </td>
+            </tr>`;
+        }).join('');
+    } catch (err) {
+        console.error('loadDiseasesSettings error:', err);
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#EF4444;">Failed to load diseases</td></tr>`;
+    }
+}
+
+async function removeDisease(id) {
+    if (!confirm("Are you sure you want to delete this disease? Active cases will still retain the name as text.")) return;
+    try {
+        const { error } = await window.supabase.from('diseases').delete().eq('id', id);
+        if (error) throw error;
+        showToast('Disease deleted', 'success');
+        loadDiseasesSettings();
+        loadDashboardStats();
+    } catch (err) {
+        showToast('Error deleting disease', 'error');
+    }
+}
+
+async function toggleDiseaseActive(id, isActive) {
+    try {
+        const { error } = await window.supabase.from('diseases').update({ is_active: isActive }).eq('id', id);
+        if (error) throw error;
+        showToast(isActive ? 'Disease activated' : 'Disease deactivated', 'success');
+        loadDiseasesSettings();
+        loadDashboardStats();
+    } catch (err) {
+        showToast('Error updating disease', 'error');
+    }
+}
+
+
+// ══════════════════════════════════════════════
+// ── EPIDEMIC AREAS — Interactive Tabs + Sub-area Ranking ──
+// ══════════════════════════════════════════════
+
+function computeSeverityFromCount(count) {
+    if (count <= 10) return 'low';
+    if (count <= 30) return 'moderate';
+    if (count <= 60) return 'high';
+    return 'critical';
+}
+
+/**
+ * Build main-area → sub-area map from cases array,
+ * then render the area tabs and the default sub-area panel.
+ * Location format expected: "MainArea, SubArea"
+ */
+function renderEpicAreasFromCases(cases) {
+    const tabsEl = document.getElementById('epicAreaTabs');
+    const panelEl = document.getElementById('epicSubAreasPanel');
+    if (!tabsEl || !panelEl) return;
+
+    if (!cases || cases.length === 0) {
+        tabsEl.innerHTML = '<div class="area-tabs-loading">No epidemic data yet.</div>';
+        panelEl.innerHTML = '';
+        return;
+    }
+
+    const sevPriority = { critical: 0, high: 1, moderate: 2, low: 3 };
+
+    // Build mainAreaMap
+    const mainAreaMap = {};
+    cases.forEach(c => {
+        if (!c.location) return;
+        const parts = c.location.split(',');
+        const mainArea = parts[0].trim();
+        const subArea = parts.length > 1 ? parts.slice(1).join(',').trim() : mainArea;
+
+        if (!mainAreaMap[mainArea]) mainAreaMap[mainArea] = { total: 0, subAreas: {} };
+        mainAreaMap[mainArea].total++;
+
+        const subs = mainAreaMap[mainArea].subAreas;
+        if (!subs[subArea]) subs[subArea] = { count: 0, diseases: new Set() };
+        subs[subArea].count++;
+        if (c.disease) subs[subArea].diseases.add(c.disease);
+    });
+
+    // Sort main areas by total cases (desc)
+    const sortedMainAreas = Object.entries(mainAreaMap)
+        .sort(([, a], [, b]) => b.total - a.total);
+
+    // Store globally so selectEpicArea can access
+    window._epicAreaData = mainAreaMap;
+
+    // Tab accent colour from count-based severity
+    const areaTabColor = { critical: '#EF4444', high: '#F59E0B', moderate: '#3B82F6', low: '#10B981' };
+
+    // Render tab buttons
+    tabsEl.innerHTML = sortedMainAreas.map(([area, info], i) => {
+        const sev = computeSeverityFromCount(info.total);
+        const color = areaTabColor[sev] || '#10B981';
+        // Use data-area attribute to avoid quote escaping issues in onclick
+        const safeArea = area.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        return `
+        <button class="area-tab-btn${i === 0 ? ' active' : ''}"
+                data-area="${safeArea}"
+                onclick="selectEpicArea(this)"
+                style="--tab-accent:${color};">
+            <span class="area-tab-name">${area}</span>
+            <span class="area-tab-count">${info.total}</span>
+        </button>`;
+    }).join('');
+
+    // Show first area by default
+    if (sortedMainAreas.length > 0) {
+        _renderEpicSubAreas(sortedMainAreas[0][0], sortedMainAreas[0][1], panelEl);
+    }
+}
+
+/** Called when admin clicks an area tab button */
+function selectEpicArea(btn) {
+    const areaName = btn.getAttribute('data-area');
+    if (!areaName) return;
+    document.querySelectorAll('#epicAreaTabs .area-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const panelEl = document.getElementById('epicSubAreasPanel');
+    if (!panelEl || !window._epicAreaData) return;
+    const areaInfo = window._epicAreaData[areaName];
+    if (areaInfo) _renderEpicSubAreas(areaName, areaInfo, panelEl);
+}
+
+/** Render ranked sub-areas inside the panel for a selected main area */
+function _renderEpicSubAreas(areaName, areaInfo, panelEl) {
+    const riskColor = { critical: '#EF4444', high: '#F59E0B', moderate: '#3B82F6', low: '#10B981' };
+
+    const sortedSubs = Object.entries(areaInfo.subAreas)
+        .sort(([, a], [, b]) => b.count - a.count);
+
+    panelEl.innerHTML = `
+    <div class="subareas-header">
+        <span class="subareas-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:5px;vertical-align:-2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            ${areaName}
+        </span>
+        <span class="subareas-total">${areaInfo.total} total case${areaInfo.total !== 1 ? 's' : ''} — <span style="font-weight:700;color:${riskColor[computeSeverityFromCount(areaInfo.total)]}">${computeSeverityFromCount(areaInfo.total).toUpperCase()}</span></span>
+    </div>
+    <div class="subareas-list">
+        ${sortedSubs.length === 0
+            ? '<div class="subarea-empty">No sub-area data available.</div>'
+            : sortedSubs.map(([sub, info], i) => {
+                const sev = computeSeverityFromCount(info.count);
+                const color = riskColor[sev] || riskColor.low;
+                const diseases = [...info.diseases].slice(0, 2).join(', ');
+                return `
+                <div class="subarea-row">
+                    <div class="subarea-rank-badge" style="background:${i === 0 ? color : '#f1f5f9'};color:${i === 0 ? '#fff' : '#64748b'}">${i + 1}</div>
+                    <div class="subarea-info">
+                        <span class="subarea-name">${sub}</span>
+                        ${diseases ? `<span class="subarea-disease">${diseases}</span>` : ''}
+                    </div>
+                    <div class="subarea-right">
+                        <span class="subarea-cases">${info.count} case${info.count !== 1 ? 's' : ''}</span>
+                        <span class="severity-pill ${sev === 'critical' ? 'critical' : sev === 'high' ? 'high' : sev === 'moderate' ? 'moderate' : 'stable'}">${sev.toUpperCase()}</span>
+                    </div>
+                </div>`;
+            }).join('')
+        }
+    </div>`;
+}
+
 
 // ══════════════════════════════════════════════
 // ── INIT ──
@@ -673,6 +985,42 @@ document.addEventListener('DOMContentLoaded', function () {
     loadClinicRequests();
     loadSystemUsers();
     loadOutbreakDashboard();
+    loadDiseasesSettings();
+
+    // Add Disease form
+    const addDiseaseForm = document.getElementById('addDiseaseForm');
+    if (addDiseaseForm) {
+        addDiseaseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('addDiseaseBtn');
+            const name = document.getElementById('newDiseaseName').value.trim();
+            const severity = document.getElementById('newDiseaseSeverity').value;
+
+            if (!name) return;
+            btn.disabled = true;
+            btn.textContent = 'Adding...';
+
+            try {
+                const { error } = await window.supabase.from('diseases').insert({
+                    name: name,
+                    default_severity: severity,
+                    is_active: true
+                });
+                if (error) throw error;
+                showToast('Disease added successfully!', 'success');
+                addDiseaseForm.reset();
+                loadDiseasesSettings();
+                loadDashboardStats();
+            } catch (err) {
+                console.error(err);
+                if (err.code === '42P01') showToast('Please run the SQL migration first.', 'error');
+                else showToast('Error adding disease.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Add Disease';
+            }
+        });
+    }
 
     // Close sidebar on outside click (mobile)
     document.addEventListener('click', function (e) {

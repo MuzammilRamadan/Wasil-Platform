@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,7 @@
     <title>WASIL | Outbreak Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../Js files/supabase-config.js"></script>
     <style>
@@ -32,7 +32,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Cairo', 'Inter', -apple-system, sans-serif;
             background: var(--bg);
             min-height: 100vh;
             color: var(--text);
@@ -357,12 +357,12 @@
                 </svg>
             </a>
             <div class="header-title">
-                <h1>Outbreak Dashboard</h1>
-                <p>Cases submitted by community users</p>
+                <h1 data-i18n="dash.title">Outbreak Dashboard</h1>
+                <p data-i18n="dash.subtitle">Cases submitted by community users</p>
             </div>
             <div class="live-badge">
                 <span class="live-dot"></span>
-                LIVE
+                <span data-i18n="landing.tickerLive">LIVE</span>
             </div>
         </div>
 
@@ -378,15 +378,15 @@
 
     <main>
         <!-- By Area -->
-        <div class="section-label">📍 By Area</div>
+        <div class="section-label" data-i18n="dash.by_area">📍 By Area</div>
         <div id="areaList">
-            <div class="loader"><div class="spinner"></div><p>Loading outbreak data...</p></div>
+            <div class="loader"><div class="spinner"></div><p data-i18n="dash.loading_data">Loading outbreak data...</p></div>
         </div>
 
         <!-- Recent Cases -->
-        <div class="section-label">🕐 Recent Cases</div>
+        <div class="section-label" data-i18n="dash.recent">🕐 Recent Cases</div>
         <div id="recentList">
-            <div class="loader"><div class="spinner"></div><p>Loading recent cases...</p></div>
+            <div class="loader"><div class="spinner"></div><p data-i18n="dash.loading_recent">Loading recent cases...</p></div>
         </div>
     </main>
 
@@ -439,7 +439,7 @@
                 .order('created_at', { ascending: false });
 
             if (error || !cases) {
-                areaList.innerHTML   = `<div class="empty"><p>Failed to load data.</p></div>`;
+                areaList.innerHTML   = `<div class="empty"><p>${t('dash.failed')}</p></div>`;
                 recentList.innerHTML = '';
                 return;
             }
@@ -452,8 +452,8 @@
                         <line x1="12" y1="8" x2="12" y2="12"></line>
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
-                    <h4>No Cases Reported Yet</h4>
-                    <p>Cases submitted by community users will appear here in real time.</p>
+                    <h4>${t('dash.no_cases_title')}</h4>
+                    <p>${t('dash.no_cases_desc')}</p>
                 </div>`;
                 recentList.innerHTML = '';
                 updateChips({}, 0);
@@ -484,11 +484,11 @@
         // ── Update header chips ──
         function updateChips(totals, total) {
             chipsEl.innerHTML = `
-                <div class="chip">${total}<span>Total</span></div>
-                <div class="chip" style="border-color:rgba(239,68,68,0.4);">${totals.critical||0}<span style="color:#FCA5A5;">Critical</span></div>
-                <div class="chip" style="border-color:rgba(245,158,11,0.4);">${totals.high||0}<span style="color:#FCD34D;">High</span></div>
-                <div class="chip" style="border-color:rgba(59,130,246,0.4);">${totals.moderate||0}<span style="color:#93C5FD;">Moderate</span></div>
-                <div class="chip" style="border-color:rgba(16,185,129,0.4);">${totals.low||0}<span style="color:#6EE7B7;">Low</span></div>`;
+                <div class="chip">${total}<span>${t('dash.total')}</span></div>
+                <div class="chip" style="border-color:rgba(239,68,68,0.4);">${totals.critical||0}<span style="color:#FCA5A5;">${t('sev.critical')}</span></div>
+                <div class="chip" style="border-color:rgba(245,158,11,0.4);">${totals.high||0}<span style="color:#FCD34D;">${t('sev.high')}</span></div>
+                <div class="chip" style="border-color:rgba(59,130,246,0.4);">${totals.moderate||0}<span style="color:#93C5FD;">${t('sev.moderate')}</span></div>
+                <div class="chip" style="border-color:rgba(16,185,129,0.4);">${totals.low||0}<span style="color:#6EE7B7;">${t('sev.low')}</span></div>`;
         }
 
         // ── Render area cards ──
@@ -518,10 +518,10 @@
                 areaList.insertAdjacentHTML('beforeend', `
                 <div class="area-card ${dom === 'critical' ? '' : dom}">
                     <div class="area-top">
-                        <span class="area-name">${area}</span>
-                        <span class="risk-badge ${dom}">${label}</span>
+                        <span class="area-name">${t('area.' + area.toLowerCase().replace(' ', '_').replace('-', '')) || area}</span>
+                        <span class="risk-badge ${dom}">${t('sev.' + dom) || label}</span>
                     </div>
-                    <p class="area-count"><strong>${info.count}</strong> reported case${info.count !== 1 ? 's' : ''}</p>
+                    <p class="area-count"><strong>${info.count}</strong> ${info.count !== 1 ? t('dash.reported_cases') : t('dash.reported_case')}</p>
                     <div class="sev-bars">${sevBars}</div>
                     ${info.diseases.size > 0 ? `<div class="disease-tags">${diseases}</div>` : ''}
                 </div>`);
@@ -544,11 +544,11 @@
             <div class="case-item">
                 <span class="sev-dot ${sev}" style="background:${dotColors[sev]};margin-top:4px;"></span>
                 <div class="case-body">
-                    <h5>${area}${c.disease ? ' — ' + c.disease : ''}</h5>
+                    <h5>${t('area.' + area.toLowerCase().replace(' ', '_').replace('-', '')) || area}${c.disease ? ' — ' + (t('vaccine.' + c.disease.toLowerCase().replace(' ', '_')) !== 'vaccine.' + c.disease.toLowerCase().replace(' ', '_') ? t('vaccine.' + c.disease.toLowerCase().replace(' ', '_')) : c.disease) : ''}</h5>
                     <p>${addr || c.description || 'No additional details'}</p>
                     <span class="case-time">${timeAgo(c.created_at)}</span>
                 </div>
-                <span class="sev-tag ${sev}">${sev.toUpperCase()}</span>
+                <span class="sev-tag ${sev}">${t('sev.' + sev) || sev.toUpperCase()}</span>
             </div>`;
 
             if (isNew) {

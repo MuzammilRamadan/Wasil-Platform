@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
@@ -75,8 +75,15 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
                 </svg>
-                <span>Outbreak Dashboard</span>
+                <span data-i18n="admin.outbreak_dashboard">لوحة تحكم الوباء</span>
                 <span class="nav-badge" id="outbreakBadge" style="display:none;">!</span>
+            </a>
+            <a class="nav-item" data-section="diseases" onclick="showSection('diseases', this)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                <span data-i18n="admin.manage_diseases">Manage Diseases</span>
             </a>
         </nav>
 
@@ -139,143 +146,29 @@
             <section id="section-dashboard" class="admin-section active">
                 <div class="section-heading">
                     <h1 data-i18n="admin.epidemic_situation">Epidemic Situation</h1>
-                    <p class="section-sub">Ministry of Health — Real-time Overview</p>
+                    <p class="section-sub" data-i18n="admin.overview_sub">Ministry of Health — Real-time Overview</p>
                 </div>
 
                 <!-- Disease Severity Cards -->
                 <div class="cards-grid" id="diseaseCardsGrid">
-                    <!-- Injected by JS -->
-                    <div class="disease-card critical">
-                        <div class="disease-card-icon" style="color:var(--critical);">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M12 2v3M12 19v3M2 12H5M19 12h3"></path>
-                                <path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path>
-                            </svg>
-                        </div>
-                        <div class="disease-card-body">
-                            <h3>Cholera</h3>
-                            <div class="severity-pill critical">CRITICAL</div>
-                        </div>
-                        <div class="disease-card-stats">
-                            <div class="stat"><span class="stat-num" id="chol-cases">1,245</span><span
-                                    class="stat-label">Cases</span></div>
-                            <div class="stat"><span class="stat-num">3</span><span class="stat-label">Areas</span></div>
-                        </div>
-                    </div>
-                    <div class="disease-card high">
-                        <div class="disease-card-icon" style="color:var(--high);">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="disease-card-body">
-                            <h3>Typhoid</h3>
-                            <div class="severity-pill high">HIGH</div>
-                        </div>
-                        <div class="disease-card-stats">
-                            <div class="stat"><span class="stat-num">850</span><span class="stat-label">Cases</span>
-                            </div>
-                            <div class="stat"><span class="stat-num">2</span><span class="stat-label">Areas</span></div>
-                        </div>
-                    </div>
-                    <div class="disease-card moderate">
-                        <div class="disease-card-icon" style="color:var(--moderate);">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <path
-                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                                </path>
-                            </svg>
-                        </div>
-                        <div class="disease-card-body">
-                            <h3>Dengue</h3>
-                            <div class="severity-pill moderate">MODERATE</div>
-                        </div>
-                        <div class="disease-card-stats">
-                            <div class="stat"><span class="stat-num">420</span><span class="stat-label">Cases</span>
-                            </div>
-                            <div class="stat"><span class="stat-num">2</span><span class="stat-label">Areas</span></div>
-                        </div>
-                    </div>
-                    <div class="disease-card stable">
-                        <div class="disease-card-icon" style="color:var(--stable);">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                <path d="M9 12l2 2 4-4"></path>
-                            </svg>
-                        </div>
-                        <div class="disease-card-body">
-                            <h3>Malaria</h3>
-                            <div class="severity-pill stable">STABLE</div>
-                        </div>
-                        <div class="disease-card-stats">
-                            <div class="stat"><span class="stat-num">320</span><span class="stat-label">Cases</span>
-                            </div>
-                            <div class="stat"><span class="stat-num">2</span><span class="stat-label">Areas</span></div>
-                        </div>
+                    <!-- Injected dynamically by JS -->
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #7F8C8D;">
+                        <span data-i18n="admin.loading_disease">Loading disease statistics...</span>
                     </div>
                 </div>
 
-                <!-- Epidemic Areas Table -->
-                <div class="table-card">
+                <!-- Epidemic Areas — Interactive Area Tabs -->
+                <div class="table-card" id="epicAreasCard">
                     <div class="table-header">
                         <h2 data-i18n="admin.epidemic_areas">Epidemic Areas</h2>
-                        <span class="table-sub">Ranked by severity (case count)</span>
+                        <span class="table-sub" data-i18n="admin.select_area">Select an area to view ranked sub-areas</span>
                     </div>
-                    <div class="table-wrap">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th data-i18n="admin.rank">#</th>
-                                    <th data-i18n="admin.location">Location</th>
-                                    <th>Top Disease</th>
-                                    <th data-i18n="admin.cases">Cases</th>
-                                    <th data-i18n="admin.severity">Severity</th>
-                                </tr>
-                            </thead>
-                            <tbody id="epicAreasTableBody">
-                                <tr>
-                                    <td>1</td>
-                                    <td>Khartoum North</td>
-                                    <td>Cholera</td>
-                                    <td>487</td>
-                                    <td><span class="severity-pill critical">CRITICAL</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Omdurman</td>
-                                    <td>Typhoid</td>
-                                    <td>312</td>
-                                    <td><span class="severity-pill high">HIGH</span></td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>Jabarona</td>
-                                    <td>Cholera</td>
-                                    <td>198</td>
-                                    <td><span class="severity-pill high">HIGH</span></td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>Bahri</td>
-                                    <td>Dengue</td>
-                                    <td>145</td>
-                                    <td><span class="severity-pill moderate">MODERATE</span></td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>Haj Yousif</td>
-                                    <td>Malaria</td>
-                                    <td>89</td>
-                                    <td><span class="severity-pill stable">STABLE</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <!-- Area Tab Buttons -->
+                    <div class="area-tabs-bar" id="epicAreaTabs">
+                        <div class="area-tabs-loading"><span data-i18n="admin.loading_area">Loading area data...</span></div>
                     </div>
+                    <!-- Sub-area Ranked Panel -->
+                    <div class="area-subareas-panel" id="epicSubAreasPanel"></div>
                 </div>
             </section>
 
@@ -283,11 +176,11 @@
             <section id="section-deployed" class="admin-section">
                 <div class="section-heading">
                     <h1 data-i18n="admin.deployed_clinics">Deployed Clinics</h1>
-                    <p class="section-sub">All active clinics — MOH & Organization operated</p>
+                    <p class="section-sub" data-i18n="admin.active_clinics_sub">All active clinics — MOH & Organization operated</p>
                 </div>
                 <div class="table-card">
                     <div class="table-header">
-                        <h2>Active Deployments</h2>
+                        <h2 data-i18n="admin.active_deploy">Active Deployments</h2>
                         <span class="table-sub" id="deployedCount">Loading...</span>
                     </div>
                     <div class="table-wrap">
@@ -300,13 +193,12 @@
                                     <th data-i18n="admin.diseases_treated">Diseases</th>
                                     <th data-i18n="admin.schedule">Schedule</th>
                                     <th data-i18n="admin.operating_party">Operating Party</th>
-                                    <th>Status</th>
+                                    <th data-i18n="admin.status">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="deployedTableBody">
                                 <tr id="deployedLoadingRow">
-                                    <td colspan="7" style="text-align:center;color:#7F8C8D;padding:24px;">Loading
-                                        deployed clinics...</td>
+                                    <td colspan="7" style="text-align:center;color:#7F8C8D;padding:24px;" data-i18n="admin.loading_deployed">جاري تحميل العيادات المنتشرة...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -318,13 +210,11 @@
             <section id="section-requests" class="admin-section">
                 <div class="section-heading">
                     <h1 data-i18n="admin.clinic_requests">Clinic Requests</h1>
-                    <p class="section-sub">Review and approve organization clinic assignment requests</p>
+                    <p class="section-sub" data-i18n="admin.clinic_req_sub">Review and approve organization clinic assignment requests</p>
                 </div>
                 <div class="requests-list" id="requestsList">
                     <!-- Dynamically loaded from Supabase by loadClinicRequests() -->
-                    <div style="text-align:center;color:#7F8C8D;padding:48px 24px;">
-                        Loading clinic requests...
-                    </div>
+                    <div style="text-align:center;color:#7F8C8D;padding:48px 24px;" data-i18n="admin.loading_requests">جاري تحميل الطلبات...</div>
                 </div>
             </section>
 
@@ -332,7 +222,7 @@
             <section id="section-users" class="admin-section">
                 <div class="section-heading">
                     <h1 data-i18n="admin.system_users">System Users</h1>
-                    <p class="section-sub">All registered users in the WASIL platform</p>
+                    <p class="section-sub" data-i18n="admin.system_user_sub">All registered users in the WASIL platform</p>
                 </div>
 
                 <!-- Tabs -->
@@ -360,8 +250,7 @@
                                 </thead>
                                 <tbody id="orgsTableBody">
                                     <tr id="orgsLoadingRow">
-                                        <td colspan="6" style="text-align:center;color:#7F8C8D;padding:24px;">Loading
-                                            organizations...</td>
+                                        <td colspan="6" style="text-align:center;color:#7F8C8D;padding:24px;" data-i18n="admin.loading_orgs">جاري تحميل المنظمات...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -386,8 +275,7 @@
                                 </thead>
                                 <tbody id="communityTableBody">
                                     <tr id="communityLoadingRow">
-                                        <td colspan="6" style="text-align:center;color:#7F8C8D;padding:24px;">Loading
-                                            community users...</td>
+                                        <td colspan="6" style="text-align:center;color:#7F8C8D;padding:24px;" data-i18n="admin.loading_community">جاري تحميل مستخدمي المجتمع...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -399,11 +287,13 @@
             <!-- ═══ SECTION: OUTBREAK DASHBOARD ═══ -->
             <section id="section-outbreak" class="admin-section">
                 <div class="section-heading">
-                    <h1>Outbreak Dashboard</h1>
+                    <h1 data-i18n="admin.outbreak_dashboard">Outbreak Dashboard</h1>
                     <p class="section-sub" style="display:flex;align-items:center;gap:6px;">
-                        Real-time community-reported cases
-                        <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:20px;padding:2px 8px;font-size:0.72rem;font-weight:700;color:#10B981;">
-                            <span id="outbreakLiveDot" style="width:6px;height:6px;border-radius:50%;background:#10B981;animation:pulse-dot 1.5s infinite;"></span>
+                        <span data-i18n="admin.realtime_cases">Real-time community-reported cases</span>
+                        <span
+                            style="display:inline-flex;align-items:center;gap:4px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:20px;padding:2px 8px;font-size:0.72rem;font-weight:700;color:#10B981;">
+                            <span id="outbreakLiveDot"
+                                style="width:6px;height:6px;border-radius:50%;background:#10B981;animation:pulse-dot 1.5s infinite;"></span>
                             LIVE
                         </span>
                     </p>
@@ -417,35 +307,99 @@
                 <!-- By Area -->
                 <div class="table-card" style="margin-bottom:16px;">
                     <div class="table-header">
-                        <h2>&#128205; Cases by Area</h2>
-                        <span class="table-sub">Sorted by severity &amp; count</span>
+                        <h2 data-i18n="admin.cases_by_area">&#128205; Cases by Area</h2>
+                        <span class="table-sub" data-i18n="admin.sorted_severity">Sorted by severity &amp; count</span>
                     </div>
                     <div id="adminAreaList" style="padding:0 16px 16px;">
-                        <div style="text-align:center;padding:32px;color:var(--text-muted,#94A3B8);">Loading outbreak data...</div>
+                        <div style="text-align:center;padding:32px;color:var(--text-muted,#94A3B8);" data-i18n="admin.loading_outbreak_data">Loading outbreak
+                            data...</div>
                     </div>
                 </div>
 
                 <!-- Recent Cases -->
                 <div class="table-card">
                     <div class="table-header">
-                        <h2>&#128336; Recent Reported Cases</h2>
+                        <h2 data-i18n="admin.recent_cases">&#128336; Recent Reported Cases</h2>
                         <span class="table-sub" id="recentCasesCount">—</span>
                     </div>
                     <div class="table-wrap">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Location</th>
-                                    <th>Disease</th>
-                                    <th>Severity</th>
-                                    <th>Description</th>
-                                    <th>Reported</th>
-                                </tr>
+                                <th data-i18n="admin.location">الموقع</th>
+                                <th data-i18n="admin.reported_disease">المرض</th>
+                                <th data-i18n="admin.severity">الخطورة</th>
+                                <th data-i18n="admin.manage_diseases_sub">الوصف</th>
+                                <th data-i18n="admin.date_requested">التاريخ</th>
+                                <th data-i18n="admin.actions">الإجراءات</th>
+                            </tr>
                             </thead>
                             <tbody id="adminCasesTableBody">
-                                <tr><td colspan="5" style="text-align:center;color:#94A3B8;padding:24px;">Loading cases...</td></tr>
+                                <tr>
+                                <td colspan="5" style="text-align:center;color:#94A3B8;padding:24px;" data-i18n="admin.loading_diseases">جاري تحميل الحالات...</td>
+                            </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ SECTION: MANAGE DISEASES ═══ -->
+            <section id="section-diseases" class="admin-section">
+                <div class="section-heading">
+                    <h1 data-i18n="admin.manage_diseases">Manage Diseases</h1>
+                    <p class="section-sub" data-i18n="admin.manage_diseases_sub">إضافة أو إزالة الأمراض من نظام الإبلاغ</p>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="table-card"
+                        style="grid-column: span 1; display:flex; flex-direction:column; background:#fff; border-radius:10px; border:1px solid #E2E8F0; padding:20px;">
+                        <h2 style="font-size:1.1rem; color:#1E293B; margin-bottom:16px;" data-i18n="admin.add_disease">إضافة مرض جديد</h2>
+                        <form id="addDiseaseForm" style="display:flex; flex-direction:column; gap:16px;">
+                            <div>
+                                <label style="display:block; font-size:0.85rem; font-weight:600; color:#475569; margin-bottom:6px;" data-i18n="admin.disease_name">اسم المرض</label>
+                                <input type="text" id="newDiseaseName" required
+                                    style="width:100%; padding:10px; border:1px solid #CBD5E1; border-radius:6px; outline:none;"
+                                    placeholder="e.g. COVID-19" data-i18n-placeholder="admin.disease_name_ph">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:0.85rem; font-weight:600; color:#475569; margin-bottom:6px;" data-i18n="admin.default_severity">الخطورة الافتراضية</label>
+                                <select id="newDiseaseSeverity" required
+                                    style="width:100%; padding:10px; border:1px solid #CBD5E1; border-radius:6px; outline:none;">
+                                    <option value="critical" data-i18n="sev.critical">حرج</option>
+                                    <option value="high" data-i18n="sev.high">مرتفع</option>
+                                    <option value="moderate" selected data-i18n="sev.moderate">متوسط</option>
+                                    <option value="low" data-i18n="sev.low">منخفض</option>
+                                </select>
+                            </div>
+                            <button type="submit" id="addDiseaseBtn"
+                                style="background:#2563EB; color:white; border:none; border-radius:6px; padding:10px 16px; font-weight:600; cursor:pointer; margin-top:8px; transition:0.2s;"
+                                data-i18n="admin.add_disease_btn">إضافة مرض</button>
+                        </form>
+                    </div>
+
+                    <div class="table-card" style="grid-column: span 2;">
+                        <div class="table-header">
+                            <h2 data-i18n="admin.active_diseases">Active Diseases</h2>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                    <th data-i18n="admin.disease_th_name">الاسم</th>
+                                    <th data-i18n="admin.disease_th_severity">الخطورة الافتراضية</th>
+                                    <th data-i18n="admin.disease_th_status">الحالة</th>
+                                    <th data-i18n="admin.disease_th_actions">الإجراءات</th>
+                                </tr>
+                                </thead>
+                                <tbody id="diseasesTableBody">
+                                    <tr>
+                                         <td colspan="4" style="text-align:center; color:#94A3B8; padding:24px;" data-i18n="admin.loading_diseases">Loading
+                                             diseases...</td>
+                                     </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>

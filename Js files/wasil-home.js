@@ -25,9 +25,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // ... (existing role UI logic) ...
 
     // ── DATA FETCHING ──
+    fetchOutbreakStatus();
     if (!isOrg) {
         fetchClinics();
-        fetchOutbreakStatus();
     } else {
         fetchDashboardStats();
         fetchServiceRequests();
@@ -261,55 +261,108 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Function: Fetch Dashboard Stats (Organization) ──
     async function fetchDashboardStats() {
-        // Fetch counts for each severity
-        const severities = ['critical', 'high', 'moderate', 'low'];
-        const stats = {};
-
-        for (const severity of severities) {
-            const { count, error } = await supabase
+        if (!window.supabase) return;
+        
+        try {
+            // Fetch diseases
+            const { data: activeDiseases } = await window.supabase
+                .from('diseases')
+                .select('*')
+                .eq('is_active', true)
+                .order('created_at', { ascending: true });
+                
+            // Fetch cases
+            const { data: cases, error } = await window.supabase
                 .from('cases')
-                .select('*', { count: 'exact', head: true })
-                .eq('severity', severity);
+                .select('*');
 
-            if (!error) stats[severity] = count;
-        }
+            if (error) throw error;
+            
+            const diseaseList = (activeDiseases && activeDiseases.length > 0) ? activeDiseases : [
+                {name: 'Cholera', default_severity: 'critical'},
+                {name: 'Typhoid', default_severity: 'high'},
+                {name: 'Dengue Fever', default_severity: 'moderate'},
+                {name: 'Malaria', default_severity: 'low'}
+            ];
 
-        // Update UI (Severity Cards)
-        // Note: In a real app, we'd map these IDs dynamically. 
-        // For this demo, we'll just log or update specific elements if they existed with IDs.
-        // We will update the "Reported Cases" count in the hero or status section if applicable.
+            // 1. DYNAMIC DISEASE SEVERITY CARDS
+            const grid = document.getElementById('diseaseCardsGrid');
+            if (grid) {
+                grid.innerHTML = diseaseList.map(disease => {
+                    const count = cases ? cases.filter(c => c.disease && c.disease.toLowerCase() === disease.name.toLowerCase()).length : 0;
+                    const sev = disease.default_severity || 'moderate';
+                    const sevClass = sev === 'critical' ? 'critical' : sev === 'high' ? 'high' : sev === 'low' ? 'low' : 'moderate';
+                    const sevLabel = (sev === 'low' ? 'stable' : sev).toUpperCase();
+                    
+                    return `
+                    <div class="severity-card ${sevClass === 'critical' || sevClass === 'high' ? '' : sevClass}">
+                        <h5>${disease.name}</h5>
+                        <div class="severity-level ${sevClass}">${sevLabel}</div>
+                        <div class="case-count">${count.toLocaleString()}</div>
+                        <div class="case-label">reported cases</div>
+                    </div>`;
+                }).join('');
+            }
 
-        // Example: Update total cases in outbreak status
-        const totalCases = Object.values(stats).reduce((a, b) => a + b, 0);
-        document.querySelectorAll('.outbreak-status p').forEach(p => {
-            // updates all for demo purposes, or target specific areas if we had area data
-            // p.textContent = `${totalCases} Reported Cases`; 
-        });
+            // 2. REPORTED CASES (Aggregated by Area with Sublocations)
+            const casesList = document.getElementById('reportedCasesList');
+            if (casesList) {
+                if (!cases || cases.length === 0) {
+                    casesList.innerHTML = '<p style="text-align:center;color:var(--text-light);padding:20px;">No cases reported yet.</p>';
+                } else {
+                    const areaMap = {};
+                    cases.forEach(c => {
+                        const area = (c.location || 'Unknown').split(',')[0].trim();
+                        if (!areaMap[area]) areaMap[area] = { count: 0, subLocations: [], severities: [] };
+                        
+                        areaMap[area].count++;
+                        areaMap[area].severities.push(c.severity || 'low');
+                        
+                        let specificLoc = c.location && c.location.indexOf(',') !== -1 ? c.location.slice(c.location.indexOf(',') + 1).trim() : 'Unknown area';
+                        areaMap[area].subLocations.push({ loc: specificLoc, dis: c.disease, sev: c.severity || 'low' });
+                    });
+                    
+                    const sortedAreas = Object.entries(areaMap).sort((a, b) => b[1].count - a[1].count);
+                    
+                    casesList.innerHTML = sortedAreas.map(([areaName, info]) => {
+                        // determine highest severity
+                        let topSev = 'low';
+                        for (const s of ['critical', 'high', 'moderate']) {
+                            if (info.severities.includes(s)) { topSev = s; break; }
+                        }
+                        const badgeClass = topSev === 'critical' ? 'critical' : (topSev === 'high' ? 'high' : (topSev === 'moderate' ? 'moderate' : 'low'));
+                        
+                        const subLocsHtml = info.subLocations.slice(0,4).map(sub => `
+                        <div style="font-size:0.75rem; color:var(--text); padding:3px 0; border-bottom:1px solid rgba(0,0,0,0.04); display:flex; justify-content:space-between;">
+                            <span>• ${sub.loc}</span>
+                            <span style="font-weight:600; opacity:0.8;">${sub.dis || '—'}</span>
+                        </div>
+                        `).join('');
+                        const extra = info.subLocations.length > 4 ? `<div style="font-size:0.7rem;color:var(--text-light);margin-top:4px;text-align:center;">+ ${info.subLocations.length - 4} more</div>` : '';
 
-        // Fetch prioritized cases for the list
-        const { data: cases } = await supabase
-            .from('cases')
-            .select('*')
-            .order('severity', { ascending: false }) // severe first
-            .limit(5);
+                        return `
+                        <div class="case-item" style="flex-direction:column; align-items:stretch; gap:8px;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                <div class="case-info">
+                                    <h5>${areaName}</h5>
+                                    <p>${info.count} Total Cases</p>
+                                </div>
+                                <div class="case-meta">
+                                    <span class="case-severity-tag ${badgeClass}">${topSev.toUpperCase()}</span>
+                                </div>
+                            </div>
+                            <div style="background:var(--bg-light); border-radius:6px; padding:8px 10px; margin-top:4px;">
+                                <span style="font-size:0.7rem; font-weight:700; color:var(--text-light); display:block; margin-bottom:4px; text-transform:uppercase;">Specific Locations</span>
+                                ${subLocsHtml}
+                                ${extra}
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+            }
 
-        const casesList = document.querySelector('.cases-list');
-        if (casesList && cases) {
-            casesList.innerHTML = '';
-            cases.forEach(c => {
-                const badgeClass = c.severity === 'critical' ? 'critical' : (c.severity === 'high' ? 'high' : 'moderate');
-                const html = `
-                <div class="case-item">
-                    <div class="case-info">
-                        <h5>${c.location} — ${c.disease}</h5>
-                        <p>${c.description || 'No description'}</p>
-                    </div>
-                    <div class="case-meta">
-                        <span class="case-severity-tag ${badgeClass}">${c.severity.toUpperCase()}</span>
-                    </div>
-                </div>`;
-                casesList.insertAdjacentHTML('beforeend', html);
-            });
+        } catch (err) {
+            console.error('fetchDashboardStats error:', err);
         }
     }
 
@@ -386,11 +439,15 @@ document.addEventListener('DOMContentLoaded', function () {
         let pending = 0;
         let rejected = 0;
         let areas = new Set();
+        let notifications = [];
 
         myRequests?.forEach(req => {
             if (req.status === 'approved') active++;
             if (req.status === 'pending') pending++;
-            if (req.status === 'rejected') rejected++;
+            if (req.status === 'rejected') {
+                rejected++;
+                notifications.push(req);
+            }
             if (req.target_area) {
                 req.target_area.split(',').forEach(a => areas.add(a.trim()));
             }
@@ -406,6 +463,34 @@ document.addEventListener('DOMContentLoaded', function () {
         if (pendingEl) pendingEl.textContent = pending;
         if (areasEl) areasEl.textContent = areas.size;
         if (rejectedEl) rejectedEl.textContent = rejected;
+
+        // Populate Notifications Banner/Modal
+        const btnNotifs = document.getElementById('btnNotifications');
+        const badgeNotifs = document.getElementById('headerNotifBadge');
+        if (btnNotifs) btnNotifs.style.display = 'block';
+
+        if (badgeNotifs) {
+            badgeNotifs.textContent = notifications.length;
+            badgeNotifs.style.display = notifications.length > 0 ? 'flex' : 'none';
+        }
+
+        const notifList = document.getElementById('notificationsList');
+        if (notifList) {
+            if (notifications.length === 0) {
+                notifList.innerHTML = '<p style="text-align:center;color:var(--text-light);font-size:0.85rem;padding:20px;">No new notifications</p>';
+            } else {
+                notifList.innerHTML = notifications.map(n => {
+                    const reqDate = n.created_at ? new Date(n.created_at).toLocaleDateString() : '';
+                    return `<div style="background:rgba(231,76,60,0.05);border-left:4px solid #E74C3C;padding:12px;border-radius:6px;font-size:0.85rem;">
+                        <div style="font-weight:700;color:#E74C3C;margin-bottom:4px;">Request Rejected - ${n.clinic_name || n.target_area || 'Clinic'}</div>
+                        <div style="color:var(--text);margin-bottom:6px;">Your clinic request on ${reqDate} was rejected.</div>
+                        <div style="background:#fff;padding:8px;border-radius:4px;font-size:0.8rem;color:var(--text-light);font-style:italic;">
+                            " ${n.rejection_reason || 'No specific reason provided by reviewer.'} "
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+        }
 
         if (myRequests && myRequests.length > 0) {
             listContainer.innerHTML = '';
@@ -472,19 +557,6 @@ document.addEventListener('DOMContentLoaded', function () {
             navServicesBtn.setAttribute('data-target', 'view-requested-services');
             navServicesBtn.setAttribute('href', '#requested-services');
         }
-
-        // Show notification badge for org
-        const headerBadge = document.getElementById('headerNotifBadge');
-        if (headerBadge) {
-            headerBadge.style.display = 'flex';
-            headerBadge.textContent = '3';
-        }
-
-        // Add notification badge to services nav
-        const navNotif = document.createElement('span');
-        navNotif.className = 'nav-notification';
-        navNotif.textContent = '3';
-        if (navServicesBtn) navServicesBtn.appendChild(navNotif);
     }
 
     // ── 4. View Switching (Bottom Nav) ──
@@ -598,6 +670,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // ── Notifications Modal (Org Only) ──
+    const notifModal = document.getElementById('notificationsModal');
+    const btnNotifs = document.getElementById('btnNotifications');
+
+    if (btnNotifs && notifModal) {
+        btnNotifs.addEventListener('click', function () {
+            notifModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // hide badge when opened
+            const badge = document.getElementById('headerNotifBadge');
+            if (badge) badge.style.display = 'none';
+        });
+
+        notifModal.addEventListener('click', function (e) {
+            if (e.target === notifModal) {
+                notifModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    }
+
     // Handle form submission
     if (assignationForm) {
         assignationForm.addEventListener('submit', async function (e) {
@@ -611,9 +705,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const supplies = document.getElementById('suppliesField').value;
             const deployDate = document.getElementById('deploymentDate').value;
+            const opTime = document.getElementById('operationTime').value;
 
             if (checkedAreas.length === 0) {
-                alert('Please select at least one target area.');
+                alert(t('home.select_area_err') || 'Please select at least one target area.');
                 return;
             }
 
@@ -622,10 +717,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (!deployDate) {
-                alert('Please select a deployment date.');
+            if (!deployDate || !opTime.trim()) {
+                alert('Please select a deployment date and operation time.');
                 return;
             }
+            
+            const combinedSchedule = `${deployDate} (${opTime})`;
 
             // Get current user
             const { data: { user } } = await supabase.auth.getUser();
@@ -662,7 +759,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     org_name: orgName,
                     target_area: checkedAreas.join(', '),
                     diseases: diseasesArray.length > 0 ? diseasesArray : [supplies.trim()],
-                    schedule: deployDate,
+                    schedule: combinedSchedule,
                     status: 'pending'
                 });
 

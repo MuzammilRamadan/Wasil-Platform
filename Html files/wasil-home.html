@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
@@ -26,7 +26,7 @@
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
-        <span>Request submitted successfully!</span>
+        <span data-i18n="home.req_success">Request submitted successfully!</span>
     </div>
 
     <!-- Header -->
@@ -36,7 +36,16 @@
                 data-i18n="app-name">WASIL</p>
             <h2 style="font-size: 0.9rem;" data-i18n="app-slogan">ELECTRONIC HEALTH PLATFORM</h2>
         </div>
-        <div class="header-actions">
+        <div class="header-actions" style="display:flex;align-items:center;gap:10px;">
+            <!-- Notifications Bell (Org Only) -->
+            <button class="icon-btn" id="btnNotifications" data-role="organization" title="Notifications"
+                style="position:relative;background:transparent;border:none;color:var(--text);cursor:pointer;padding:8px;display:none;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span id="headerNotifBadge" style="position:absolute;top:2px;right:4px;background:#E74C3C;color:#fff;border-radius:50%;width:16px;height:16px;font-size:0.65rem;font-weight:700;display:none;align-items:center;justify-content:center;">0</span>
+            </button>
             <button class="icon-btn logout-btn" id="logoutBtn" aria-label="Logout" title="Logout"
                 onclick="handleLogout()"
                 style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:rgba(231,76,60,0.08);color:#E74C3C;border:1px solid rgba(231,76,60,0.2);font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
@@ -90,7 +99,7 @@
                 <span class="section-title" data-i18n="sec-outbreak">Outbreak Status</span>
                 <span style="font-size:0.72rem;color:var(--text-light);display:flex;align-items:center;gap:4px;">
                     <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;animation:pulse-dot 1.5s infinite;"></span>
-                    Live
+                    <span data-i18n="home.live">مباشر</span>
                 </span>
             </div>
 
@@ -98,7 +107,7 @@
             <div id="outbreakStatusList">
                 <div class="clinics-loading" id="outbreakLoading">
                     <div class="loading-spinner"></div>
-                    <p>Loading outbreak data...</p>
+                    <p data-i18n="home.loading_outbreak">Loading outbreak data...</p>
                 </div>
             </div>
 
@@ -222,7 +231,7 @@
                 <!-- Dynamically populated from approved clinic_requests -->
                 <div class="clinics-loading" id="clinicsLoading">
                     <div class="loading-spinner"></div>
-                    <p>Loading deployed clinics...</p>
+                    <p data-i18n="home.loading_clinics">Loading deployed clinics...</p>
                 </div>
             </div>
         </div>
@@ -338,7 +347,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
-                Back to Home
+                <span data-i18n="home.back_home">العودة للرئيسية</span>
             </button>
 
             <div class="dashboard-title">
@@ -348,113 +357,45 @@
                     <rect x="14" y="14" width="7" height="7"></rect>
                     <rect x="3" y="14" width="7" height="7"></rect>
                 </svg>
-                Epidemic Dashboard
+                <span data-i18n="home.epidemic_dashboard">لوحة تحكم الوباء</span>
             </div>
 
             <!-- Disease Severity Cards -->
             <div class="section-header">
-                <span class="section-title">Disease Severity</span>
+                <span class="section-title" data-i18n="home.disease_severity">Disease Severity</span>
             </div>
 
-            <div class="severity-grid">
-                <div class="severity-card">
-                    <h5>Cholera</h5>
-                    <div class="severity-level high">CRITICAL</div>
-                    <div class="case-count">1,245</div>
-                    <div class="case-label">reported cases</div>
-                </div>
-                <div class="severity-card moderate">
-                    <h5>Typhoid</h5>
-                    <div class="severity-level moderate">HIGH</div>
-                    <div class="case-count">850</div>
-                    <div class="case-label">reported cases</div>
-                </div>
-                <div class="severity-card moderate">
-                    <h5>Dengue</h5>
-                    <div class="severity-level moderate">MODERATE</div>
-                    <div class="case-count">420</div>
-                    <div class="case-label">reported cases</div>
-                </div>
-                <div class="severity-card low">
-                    <h5>Malaria</h5>
-                    <div class="severity-level low">STABLE</div>
-                    <div class="case-count">320</div>
-                    <div class="case-label">reported cases</div>
+            <div class="severity-grid" id="diseaseCardsGrid">
+                <div class="clinics-loading" style="padding: 24px; text-align: center; color: var(--text-light);">
+                    <div class="loading-spinner" style="margin: 0 auto 10px;"></div>
+                    <p style="font-size: 0.85rem;" data-i18n="home.loading_severity">Loading disease severity data...</p>
                 </div>
             </div>
 
             <!-- Reported Cases (Prioritized) -->
             <div class="reported-cases-section">
                 <div class="section-header">
-                    <span class="section-title">Reported Cases</span>
-                    <span class="see-all" style="font-size: 0.72rem; color: var(--text-light);">Prioritized</span>
+                    <span class="section-title" data-i18n="home.reported_cases">Reported Cases</span>
+                    <span class="see-all" style="font-size: 0.72rem; color: var(--text-light);" data-i18n="home.prioritized">Prioritized</span>
                 </div>
 
-                <div class="cases-list">
-                    <div class="case-item">
-                        <div class="case-info">
-                            <h5>Khartoum North — Cholera</h5>
-                            <p>Block 7, Residential Area</p>
-                        </div>
-                        <div class="case-meta">
-                            <span class="case-count-badge">487</span>
-                            <span class="case-severity-tag critical">Critical</span>
-                        </div>
-                    </div>
-                    <div class="case-item">
-                        <div class="case-info">
-                            <h5>Omdurman — Typhoid</h5>
-                            <p>Market District, Dense Population</p>
-                        </div>
-                        <div class="case-meta">
-                            <span class="case-count-badge">312</span>
-                            <span class="case-severity-tag critical">Critical</span>
-                        </div>
-                    </div>
-                    <div class="case-item">
-                        <div class="case-info">
-                            <h5>Jabarona — Cholera</h5>
-                            <p>South Sector, Camp Area</p>
-                        </div>
-                        <div class="case-meta">
-                            <span class="case-count-badge">198</span>
-                            <span class="case-severity-tag high">High</span>
-                        </div>
-                    </div>
-                    <div class="case-item">
-                        <div class="case-info">
-                            <h5>Bahri — Dengue Fever</h5>
-                            <p>Industrial Zone, Worker Camps</p>
-                        </div>
-                        <div class="case-meta">
-                            <span class="case-count-badge">145</span>
-                            <span class="case-severity-tag high">High</span>
-                        </div>
-                    </div>
-                    <div class="case-item">
-                        <div class="case-info">
-                            <h5>Haj Yousif — Malaria</h5>
-                            <p>East Block, Near Drainage</p>
-                        </div>
-                        <div class="case-meta">
-                            <span class="case-count-badge">89</span>
-                            <span class="case-severity-tag moderate">Moderate</span>
-                        </div>
+                <div class="cases-list" id="reportedCasesList">
+                    <div class="clinics-loading" style="padding: 24px; text-align: center; color: var(--text-light);">
+                        <div class="loading-spinner" style="margin: 0 auto 10px;"></div>
+                        <p style="font-size: 0.85rem;" data-i18n="home.grouping_cases">Grouping reported cases...</p>
                     </div>
                 </div>
             </div>
 
             <!-- Request Clinic Assignation Button -->
-            <button class="request-assign-btn" id="btnRequestAssignation">
-                Request Clinic Assignation
-            </button>
+            <button class="request-assign-btn" id="btnRequestAssignation" data-i18n="home.request_assignation">طلب تعيين عيادة</button>
         </div>
 
         <!-- ═══════════ VIEW: REQUESTED SERVICES (Organization) ═══════════ -->
         <div id="view-requested-services" class="view-section" style="display: none;">
             <div class="section-header">
-                <span class="section-title">Requested Services</span>
-                <span class="see-all" style="font-size: 0.72rem; color: var(--text-light);">Community Requests</span>
+                <span class="section-title" data-i18n="home.requested_services">Requested Services</span>
+                <span class="see-all" style="font-size: 0.72rem; color: var(--text-light);" data-i18n="home.community_requests">Community Requests</span>
             </div>
 
             <div class="service-requests-list" id="serviceRequestsList">
@@ -541,37 +482,37 @@
         <!-- ═══════════ VIEW: ASSIGNED CLINICS (Organization) ═══════════ -->
         <div id="view-assigned-clinics" class="view-section" style="display: none;">
             <div class="section-header">
-                <span class="section-title">Assigned Clinics</span>
+                <span class="section-title" data-i18n="home.assigned_clinics">Assigned Clinics</span>
             </div>
 
             <!-- Stats Overview -->
             <div class="stats-overview">
                 <div class="stat-card">
                     <div class="stat-value" id="orgStatActive">—</div>
-                    <div class="stat-label">Active Clinics</div>
+                    <div class="stat-label" data-i18n="home.active_clinics">Active Clinics</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="orgStatPending">—</div>
-                    <div class="stat-label">Pending Requests</div>
+                    <div class="stat-label" data-i18n="home.pending_requests">Pending Requests</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="orgStatAreas">—</div>
-                    <div class="stat-label">Areas Covered</div>
+                    <div class="stat-label" data-i18n="home.areas_covered">Areas Covered</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="orgStatRejected">—</div>
-                    <div class="stat-label">Rejected</div>
+                    <div class="stat-label" data-i18n="home.rejected">Rejected</div>
                 </div>
             </div>
 
             <div class="section-header">
-                <span class="section-title" style="font-size: 0.95rem;">Your Requests</span>
+                <span class="section-title" style="font-size: 0.95rem;" data-i18n="home.your_requests">Your Requests</span>
             </div>
 
             <div class="assigned-clinics-list" id="assignedClinicsList">
                 <div class="clinics-loading">
                     <div class="loading-spinner"></div>
-                    <p>Loading your clinic requests...</p>
+                    <p data-i18n="home.loading_your_req">Loading your clinic requests...</p>
                 </div>
             </div>
         </div>
@@ -603,24 +544,24 @@
 
                 <!-- Contact Information (shown for all services) -->
                 <div class="form-group">
-                    <label class="form-label">Contact Information</label>
-                    <input type="tel" class="form-input" id="serviceMobileInput" placeholder="e.g. +249 91 234 5678">
+                    <label class="form-label" data-i18n="home.contact_info">معلومات الاتصال</label>
+                    <input type="tel" class="form-input" id="serviceMobileInput" placeholder="e.g. +249 91 234 5678" data-i18n-placeholder="home.contact_ph">
                 </div>
 
                 <!-- Vaccination-specific fields -->
                 <div id="vaccinationFields" style="display:none;">
                     <div class="form-group">
-                        <label class="form-label">Vaccination Type</label>
+                        <label class="form-label" data-i18n="home.vaccine_type">نوع اللقاح</label>
                         <select class="form-input" id="vaccinationTypeInput">
-                            <option value="" disabled selected>Select vaccine type...</option>
-                            <option value="Cholera Vaccine">Cholera Vaccine</option>
-                            <option value="Typhoid Vaccine">Typhoid Vaccine</option>
-                            <option value="Meningitis Vaccine">Meningitis Vaccine</option>
-                            <option value="Yellow Fever Vaccine">Yellow Fever Vaccine</option>
-                            <option value="Hepatitis A Vaccine">Hepatitis A Vaccine</option>
-                            <option value="Polio Vaccine">Polio Vaccine</option>
-                            <option value="Measles Vaccine">Measles Vaccine</option>
-                            <option value="Other">Other</option>
+                            <option value="" disabled selected data-i18n="home.select_vaccine">اختر نوع اللقاح...</option>
+                            <option value="Cholera Vaccine" data-i18n="vaccine.cholera">Cholera Vaccine</option>
+                            <option value="Typhoid Vaccine" data-i18n="vaccine.typhoid">Typhoid Vaccine</option>
+                            <option value="Meningitis Vaccine" data-i18n="vaccine.meningitis">Meningitis Vaccine</option>
+                            <option value="Yellow Fever Vaccine" data-i18n="vaccine.yellow_fever">Yellow Fever Vaccine</option>
+                            <option value="Hepatitis A Vaccine" data-i18n="vaccine.hepatitis_a">Hepatitis A Vaccine</option>
+                            <option value="Polio Vaccine" data-i18n="vaccine.polio">Polio Vaccine</option>
+                            <option value="Measles Vaccine" data-i18n="vaccine.measles">Measles Vaccine</option>
+                            <option value="Other" data-i18n="vaccine.other">Other</option>
                         </select>
                     </div>
                     <div class="form-group" id="otherVaccineGroup" style="display:none; margin-top:-6px;">
@@ -632,16 +573,16 @@
                 <!-- Ambulance-specific fields -->
                 <div id="ambulanceFields" style="display:none;">
                     <div class="form-group">
-                        <label class="form-label">Case Type</label>
+                        <label class="form-label" data-i18n="home.case_type">نوع الحالة</label>
                         <select class="form-input" id="ambulanceCaseTypeInput">
-                            <option value="" disabled selected>Select case type...</option>
-                            <option value="Suspected Epidemic Disease">Suspected Epidemic Disease</option>
-                            <option value="Severe Dehydration">Severe Dehydration (Cholera/Diarrhea)</option>
-                            <option value="High Fever">High Fever / Convulsions</option>
-                            <option value="Trauma / Injury">Trauma / Injury</option>
-                            <option value="Pregnancy Emergency">Pregnancy Emergency</option>
-                            <option value="Respiratory Distress">Respiratory Distress</option>
-                            <option value="Other Emergency">Other Emergency</option>
+                            <option value="" disabled selected data-i18n="home.select_case">اختر نوع الحالة...</option>
+                            <option value="Suspected Epidemic Disease" data-i18n="case_type.epidemic">Suspected Epidemic Disease</option>
+                            <option value="Severe Dehydration" data-i18n="case_type.dehydration">Severe Dehydration (Cholera/Diarrhea)</option>
+                            <option value="High Fever" data-i18n="case_type.fever">High Fever / Convulsions</option>
+                            <option value="Trauma / Injury" data-i18n="case_type.trauma">Trauma / Injury</option>
+                            <option value="Pregnancy Emergency" data-i18n="case_type.pregnancy">Pregnancy Emergency</option>
+                            <option value="Respiratory Distress" data-i18n="case_type.respiratory">Respiratory Distress</option>
+                            <option value="Other Emergency" data-i18n="case_type.other">Other Emergency</option>
                         </select>
                     </div>
                 </div>
@@ -661,14 +602,13 @@
     <div class="modal-overlay" id="assignationModal">
         <div class="modal-content">
             <div class="modal-handle"></div>
-            <h3 class="modal-title">Request Clinic Assignation</h3>
+            <h3 class="modal-title" data-i18n="home.request_assignation">طلب تعيين عيادة</h3>
 
             <form id="assignationForm">
                 <!-- Target Area -->
                 <div class="form-group">
-                    <label class="form-label">Clinic Target Area</label>
-                    <p style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.6rem;">Select areas
-                        affected by epidemic</p>
+                    <label class="form-label" data-i18n="home.clinic_target">Clinic Target Area</label>
+                    <p style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.6rem;" data-i18n="home.select_areas">اختر المناطق المتضررة من الوباء</p>
                     <div class="checkbox-grid">
                         <div class="checkbox-item">
                             <input type="checkbox" id="area-khartoum-n" name="target_areas" value="Khartoum North">
@@ -699,20 +639,38 @@
 
                 <!-- Supplies & Vaccines -->
                 <div class="form-group">
-                    <label class="form-label">Supplies & Offerings</label>
+                    <label class="form-label" data-i18n="home.supplies">Supplies & Offerings</label>
                     <textarea class="form-textarea" id="suppliesField"
-                        placeholder="List what your organization will provide (e.g., Cholera vaccines, ORS packets, IV fluids, medical staff, testing kits...)"></textarea>
+                        placeholder="List what your organization will provide (e.g., Cholera vaccines, ORS packets, IV fluids, medical staff, testing kits...)"
+                        data-i18n-placeholder="home.supplies_ph"></textarea>
                 </div>
 
-                <!-- Deployment Date -->
-                <div class="form-group">
-                    <label class="form-label">Deployment Date</label>
-                    <input type="date" class="form-input" id="deploymentDate">
+                <!-- Deployment Date & Operation Time -->
+                <div style="display:flex; gap:10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label" data-i18n="home.deploy_date">Deployment Date</label>
+                        <input type="date" class="form-input" id="deploymentDate" required>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label" data-i18n="home.operation_time">Operation Time</label>
+                        <input type="text" class="form-input" id="operationTime" placeholder="e.g. 09:00 AM - 05:00 PM" data-i18n-placeholder="home.operation_ph" required>
+                    </div>
                 </div>
 
                 <!-- Submit -->
-                <button type="submit" class="submit-assign-btn">Request Assignation</button>
+                <button type="submit" class="submit-assign-btn" data-i18n="home.request_assignation">طلب تعيين عيادة</button>
             </form>
+        </div>
+    </div>
+
+    <!-- ═══════════ NOTIFICATIONS MODAL ═══════════ -->
+    <div class="modal-overlay" id="notificationsModal">
+        <div class="modal-content" style="max-height:80vh; overflow-y:auto;">
+            <div class="modal-handle"></div>
+            <h3 class="modal-title" data-i18n="home.notifications">Notifications</h3>
+            <div id="notificationsList" style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+                <p style="text-align:center;color:var(--text-light);font-size:0.85rem;padding:20px;" data-i18n="home.no_notifications">No new notifications</p>
+            </div>
         </div>
     </div>
 
@@ -744,7 +702,7 @@
                 <line x1="16" y1="13" x2="8" y2="13"></line>
                 <line x1="16" y1="17" x2="8" y2="17"></line>
             </svg>
-            <span>Assigned Clinics</span>
+            <span data-i18n="nav-assigned">العيادات المعينة</span>
         </a>
     </nav>
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
@@ -41,7 +41,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Cairo', 'Inter', -apple-system, sans-serif;
             background: var(--bg);
             min-height: 100vh;
             color: var(--text);
@@ -449,77 +449,12 @@
             <!-- Disease -->
             <div class="form-section">
                 <h2 class="section-title" data-i18n="report.sec_disease">Suspected Disease</h2>
-                <div class="disease-grid">
-                    <label class="disease-option">
-                        <input type="radio" name="disease" value="Cholera" required>
-                        <div class="disease-card">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" class="disease-icon" style="color:var(--critical);margin-bottom:4px;">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M12 2v3M12 19v3M2 12H5M19 12h3"></path>
-                                <path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path>
-                            </svg>
-                            <span data-i18n="dis.cholera">Cholera</span>
-                        </div>
-                    </label>
-                    <label class="disease-option">
-                        <input type="radio" name="disease" value="Typhoid">
-                        <div class="disease-card">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" class="disease-icon" style="color:var(--high);margin-bottom:4px;">
-                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
-                            </svg>
-                            <span data-i18n="dis.typhoid">Typhoid</span>
-                        </div>
-                    </label>
-                    <label class="disease-option">
-                        <input type="radio" name="disease" value="Dengue Fever">
-                        <div class="disease-card">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" class="disease-icon" style="color:var(--moderate);margin-bottom:4px;">
-                                <path
-                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                                </path>
-                            </svg>
-                            <span data-i18n="dis.dengue">Dengue</span>
-                        </div>
-                    </label>
-                    <label class="disease-option">
-                        <input type="radio" name="disease" value="Malaria">
-                        <div class="disease-card">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" class="disease-icon" style="color:var(--stable);margin-bottom:4px;">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                <path d="M9 12l2 2 4-4"></path>
-                            </svg>
-                            <span data-i18n="dis.malaria">Malaria</span>
-                        </div>
-                    </label>
-                    <label class="disease-option">
-                        <input type="radio" name="disease" value="Unknown">
-                        <div class="disease-card">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" class="disease-icon"
-                                style="color:var(--text-light);margin-bottom:4px;">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                            </svg>
-                            <span data-i18n="dis.unknown">Unknown</span>
-                        </div>
-                    </label>
-                    <label class="disease-option">
-                        <input type="radio" name="disease" value="__other__">
-                        <div class="disease-card">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" class="disease-icon"
-                                style="color:var(--text-light);margin-bottom:4px;">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                            <span data-i18n="dis.other">Other</span>
-                        </div>
-                    </label>
+                <div class="disease-grid" id="diseaseGridContainer">
+                    <div style="grid-column: 1 / -1; text-align: center; color: var(--text-light); padding: 20px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                        </svg>
+                    </div>
                 </div>
                 <div id="otherDiseaseGroup" style="display:none;margin-top:12px;">
                     <input type="text" id="otherDisease" class="form-input" placeholder="Enter disease name..."
@@ -527,36 +462,6 @@
                 </div>
             </div>
 
-            <!-- Severity -->
-            <div class="form-section">
-                <h2 class="section-title" data-i18n="report.sec_severity">Severity Level</h2>
-                <div class="severity-options">
-                    <label class="severity-option critical">
-                        <input type="radio" name="severity" value="critical" required>
-                        <div class="sev-card"><span class="sev-dot"></span><span
-                                data-i18n="sev.critical">Critical</span><small
-                                data-i18n="sev.critical_desc">Life-threatening</small></div>
-                    </label>
-                    <label class="severity-option high">
-                        <input type="radio" name="severity" value="high">
-                        <div class="sev-card"><span class="sev-dot"></span><span data-i18n="sev.high">High</span><small
-                                data-i18n="sev.high_desc">Spreading
-                                fast</small></div>
-                    </label>
-                    <label class="severity-option moderate">
-                        <input type="radio" name="severity" value="moderate">
-                        <div class="sev-card"><span class="sev-dot"></span><span
-                                data-i18n="sev.moderate">Moderate</span><small
-                                data-i18n="sev.moderate_desc">Manageable</small></div>
-                    </label>
-                    <label class="severity-option low">
-                        <input type="radio" name="severity" value="low">
-                        <div class="sev-card"><span class="sev-dot"></span><span data-i18n="sev.low">Low</span><small
-                                data-i18n="sev.low_desc">Isolated case</small>
-                        </div>
-                    </label>
-                </div>
-            </div>
 
             <!-- Location -->
             <div class="form-section">
@@ -565,14 +470,14 @@
                     <label class="form-label" data-i18n="report.area">Area / Neighborhood</label>
                     <select id="locationArea" class="form-input" required>
                         <option value="" disabled selected data-i18n="report.select_area">Select your area...</option>
-                        <option value="Khartoum North">Khartoum North</option>
-                        <option value="Omdurman">Omdurman</option>
-                        <option value="Bahri">Bahri</option>
-                        <option value="Jabarona">Jabarona</option>
-                        <option value="Haj Yousif">Haj Yousif</option>
-                        <option value="Sharg Al-Neel">Sharg Al-Neel</option>
-                        <option value="Khartoum Center">Khartoum Center</option>
-                        <option value="Soba">Soba</option>
+                        <option value="Khartoum North" data-i18n="area.khartoum_north">Khartoum North</option>
+                        <option value="Omdurman" data-i18n="area.omdurman">Omdurman</option>
+                        <option value="Bahri" data-i18n="area.bahri">Bahri</option>
+                        <option value="Jabarona" data-i18n="area.jabarona">Jabarona</option>
+                        <option value="Haj Yousif" data-i18n="area.haj_yousif">Haj Yousif</option>
+                        <option value="Sharg Al-Neel" data-i18n="area.sharg_alneel">Sharg Al-Neel</option>
+                        <option value="Khartoum Center" data-i18n="area.khartoum_center">Khartoum Center</option>
+                        <option value="Soba" data-i18n="area.soba">Soba</option>
                         <option value="__other__" data-i18n="report.other_area">Other area...</option>
                     </select>
                 </div>
@@ -634,13 +539,77 @@
                 }
             }
 
-            // ── DISEASE "Other" toggle ──
-            document.querySelectorAll('input[name="disease"]').forEach(radio => {
-                radio.addEventListener('change', function () {
-                    document.getElementById('otherDiseaseGroup').style.display =
-                        this.value === '__other__' ? 'block' : 'none';
-                });
-            });
+            // ── LOAD DISEASES DYNAMICALLY ──
+            const gridContainer = document.getElementById('diseaseGridContainer');
+            if (gridContainer && window.supabase) {
+                try {
+                    const { data: diseases, error } = await supabase.from('diseases').select('*').eq('is_active', true).order('created_at', { ascending: true });
+                    let diseaseList = diseases;
+                    if (error || !diseases || diseases.length === 0) {
+                        diseaseList = [
+                            {name: 'Cholera', default_severity: 'critical'},
+                            {name: 'Typhoid', default_severity: 'high'},
+                            {name: 'Dengue Fever', default_severity: 'moderate'},
+                            {name: 'Malaria', default_severity: 'low'}
+                        ];
+                    }
+                    
+                    gridContainer.innerHTML = diseaseList.map((d, i) => {
+                        const lname = d.name.toLowerCase();
+                        let iconPath = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>';
+                        let colorVar = 'var(--text-light)';
+                        const sev = d.default_severity || 'moderate';
+                        if (sev === 'critical') colorVar = 'var(--critical)';
+                        else if (sev === 'high') colorVar = 'var(--high)';
+                        else if (sev === 'moderate') colorVar = 'var(--moderate)';
+                        else if (sev === 'low') colorVar = '#10B981'; // stable
+                        
+                        if (lname.includes('cholera')) iconPath = '<circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12H5M19 12h3"></path><path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path>';
+                        else if (lname.includes('typhoid')) iconPath = '<path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>';
+                        else if (lname.includes('dengue')) iconPath = '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>';
+                        else if (lname.includes('malaria')) iconPath = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path>';
+                        
+                        return `
+                        <label class="disease-option">
+                            <input type="radio" name="disease" value="${d.name}" ${i === 0 ? 'required' : ''}>
+                            <div class="disease-card">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="disease-icon" style="color:${colorVar};margin-bottom:4px;">
+                                    ${iconPath}
+                                </svg>
+                                <span>${d.name}</span>
+                            </div>
+                        </label>`;
+                    }).join('') + `
+                    <label class="disease-option">
+                        <input type="radio" name="disease" value="Unknown">
+                        <div class="disease-card">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="disease-icon" style="color:var(--text-light);margin-bottom:4px;">
+                                <circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            <span data-i18n="dis.unknown">Unknown</span>
+                        </div>
+                    </label>
+                    <label class="disease-option">
+                        <input type="radio" name="disease" value="__other__">
+                        <div class="disease-card">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="disease-icon" style="color:var(--text-light);margin-bottom:4px;">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            <span data-i18n="dis.other">Other</span>
+                        </div>
+                    </label>`;
+
+                    // ── DISEASE "Other" toggle ──
+                    document.querySelectorAll('input[name="disease"]').forEach(radio => {
+                        radio.addEventListener('change', function () {
+                            document.getElementById('otherDiseaseGroup').style.display =
+                                this.value === '__other__' ? 'block' : 'none';
+                        });
+                    });
+                } catch (e) {
+                    console.error("Error loading diseases", e);
+                }
+            }
 
             // ── LOCATION "Other" toggle ──
             document.getElementById('locationArea').addEventListener('change', function () {
@@ -677,10 +646,6 @@
                     showNotification('Please select a suspected disease.', 'error');
                     return;
                 }
-                if (!severityRadio) {
-                    showNotification('Please select a severity level.', 'error');
-                    return;
-                }
                 if (!locationArea) {
                     showNotification('Please select your area.', 'error');
                     return;
@@ -700,11 +665,23 @@
                 try {
                     if (window.supabase) {
                         const { data: { user } } = await supabase.auth.getUser();
+
+                        // Compute severity from existing case count for this disease
+                        const { count: existingCount } = await supabase
+                            .from('cases')
+                            .select('id', { count: 'exact', head: true })
+                            .ilike('disease', disease);
+                        const totalCount = (existingCount || 0) + 1;
+                        let computedSeverity = 'low';
+                        if (totalCount >= 61)      computedSeverity = 'critical';
+                        else if (totalCount >= 31) computedSeverity = 'high';
+                        else if (totalCount >= 11) computedSeverity = 'moderate';
+
                         const { error } = await supabase
                             .from('cases')
                             .insert({
                                 disease,
-                                severity: severityRadio.value,
+                                severity: computedSeverity,
                                 location,
                                 description: description || null,
                                 reporter_id: user ? user.id : null

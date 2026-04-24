@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contact WASIL — Get in touch with the WASIL epidemic response platform team.">
+    <title>Contact Us | WASIL</title>
+    <link rel="stylesheet" href="../Css files/wasil-landing.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .info-page-wrap {
+            min-height: 100vh;
+            background: var(--navy);
+            padding-top: 90px;
+        }
+
+        .info-hero {
+            background: linear-gradient(160deg, var(--navy) 0%, #0B1A30 60%, rgba(14,116,144,0.25) 100%);
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            border-bottom: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-hero::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(14,116,144,0.12) 0%, transparent 70%);
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .info-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(14,116,144,0.12);
+            border: 1px solid rgba(34,211,238,0.2);
+            padding: 7px 18px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--teal-light);
+            margin-bottom: 1.25rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-hero h1 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--white) 30%, var(--teal-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-hero p {
+            color: var(--gray-400);
+            font-size: 0.95rem;
+            max-width: 520px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-content {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--teal-light);
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: gap 0.2s ease;
+            margin-bottom: 2.5rem;
+        }
+
+        .back-link:hover { gap: 12px; }
+
+        /* Contact Cards */
+        .contact-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 3rem;
+        }
+
+        .contact-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem 1.5rem;
+            text-align: center;
+            transition: all 0.35s ease;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            background: var(--glass-bg-strong);
+            box-shadow: 0 0 30px rgba(14,116,144,0.2);
+            border-color: rgba(34,211,238,0.2);
+        }
+
+        .contact-card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .contact-card:hover .contact-card-icon {
+            transform: scale(1.1);
+        }
+
+        .contact-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: var(--white);
+        }
+
+        .contact-card p {
+            font-size: 0.82rem;
+            color: var(--gray-400);
+            margin-bottom: 0.75rem;
+        }
+
+        .contact-card a {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--teal-light);
+            word-break: break-all;
+            transition: color 0.2s;
+        }
+
+        .contact-card a:hover {
+            color: var(--white);
+        }
+
+        /* Email Highlight Box */
+        .email-highlight {
+            background: linear-gradient(135deg, rgba(14,116,144,0.15) 0%, rgba(59,130,246,0.1) 100%);
+            border: 1px solid rgba(34,211,238,0.25);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .email-highlight::before {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(34,211,238,0.08) 0%, transparent 70%);
+            top: -50px;
+            right: -50px;
+            pointer-events: none;
+        }
+
+        .email-highlight-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(14,116,144,0.15);
+            border: 1px solid rgba(34,211,238,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+            color: var(--teal-light);
+        }
+
+        .email-highlight h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .email-highlight p {
+            color: var(--gray-400);
+            font-size: 0.88rem;
+            margin-bottom: 1.25rem;
+            max-width: 380px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .email-address-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(14,116,144,0.12);
+            border: 1px solid rgba(34,211,238,0.25);
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--teal-light);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .email-address-pill:hover {
+            background: rgba(14,116,144,0.22);
+            box-shadow: 0 0 20px rgba(34,211,238,0.15);
+            transform: scale(1.02);
+        }
+
+        /* Response Time */
+        .response-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--green);
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title-line {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title-line h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .section-title-line::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        .faq-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            background: var(--glass-bg-strong);
+            border-color: rgba(34,211,238,0.2);
+        }
+
+        .faq-question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .faq-question h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .faq-answer {
+            font-size: 0.84rem;
+            color: var(--gray-400);
+            line-height: 1.65;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--glass-border);
+            display: none;
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+
+        .faq-chevron {
+            color: var(--teal-light);
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .faq-item.open .faq-chevron {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ════════════ NAVBAR ════════════ -->
+    <nav class="landing-nav scrolled" id="landingNav">
+        <a href="wasil-landing.html" class="nav-logo">WASIL</a>
+        <div class="nav-right">
+            <a href="wasil-roleselect.html" class="nav-cta" data-i18n="page.enter_platform">دخول المنصة</a>
+        </div>
+    </nav>
+
+    <div class="info-page-wrap">
+
+        <!-- Hero -->
+        <div class="info-hero">
+            <div class="info-hero-badge">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span data-i18n="contact.badge">تواصل معنا</span>
+            </div>
+            <h1 data-i18n="contact.title">معلومات الاتصال</h1>
+            <p data-i18n="contact.subtitle">نحن هنا لمساعدتك. تواصل مع فريق واصل للدعم أو الشراكات أو أي استفسار.</p>
+        </div>
+
+        <!-- Content -->
+        <div class="info-content">
+
+            <a href="wasil-landing.html" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                <span data-i18n="page.back_landing">Back to Landing Page</span>
+            </a>
+
+            <!-- Email Highlight -->
+            <div class="email-highlight">
+                <div class="email-highlight-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <h2 data-i18n="contact.email_title">تواصل معنا بالبريد</h2>
+                <p data-i18n="contact.email_desc">For all inquiries — technical support, partnerships, health data requests, or general questions — email us directly.</p>
+                <a href="mailto:wasil-platform@gmail.com" class="email-address-pill" id="emailPill">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    wasil-platform@gmail.com
+                </a>
+                <div class="response-info">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span data-i18n="contact.response_time">نستجيب عادةً خلال 1-3 أيام عمل</span>
+                </div>
+            </div>
+
+            <!-- Contact Cards -->
+            <div class="contact-cards">
+                <div class="contact-card">
+                    <div class="contact-card-icon" style="background:rgba(59,130,246,0.1);color:#3B82F6;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+                    </div>
+                    <h3 data-i18n="contact.general_inq">General Inquiries</h3>
+                    <p data-i18n="contact.general_desc">Questions about the platform or how to use WASIL?</p>
+                    <a href="mailto:wasil-platform@gmail.com">wasil-platform@gmail.com</a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-card-icon" style="background:rgba(245,158,11,0.1);color:#F59E0B;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                    </div>
+                    <h3 data-i18n="contact.partnerships">Partnerships</h3>
+                    <p data-i18n="contact.partnerships_desc">NGOs, health organizations, or government bodies looking to collaborate?</p>
+                    <a href="mailto:wasil-platform@gmail.com">wasil-platform@gmail.com</a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-card-icon" style="background:rgba(239,68,68,0.1);color:#EF4444;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                    </div>
+                    <h3 data-i18n="contact.tech_support">Technical Support</h3>
+                    <p data-i18n="contact.tech_desc">Experiencing issues or bugs with the platform?</p>
+                    <a href="mailto:wasil-platform@gmail.com">wasil-platform@gmail.com</a>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="faq-section">
+                <div class="section-title-line">
+                    <h2 data-i18n="contact.faq_title">الأسئلة الشائعة</h2>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4 data-i18n="contact.faq1_q">How do I register as a Community Member?</h4>
+                        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <div class="faq-answer" data-i18n="contact.faq1_a">
+                        Click "Get Started" on the landing page, select "Community Member" as your role, and complete the sign-up form with your email and password. Verification is required before accessing the platform.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4 data-i18n="contact.faq2_q">How can my organization apply to deploy mobile clinics?</h4>
+                        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <div class="faq-answer" data-i18n="contact.faq2_a">
+                        Register as an "Organization" on the platform. Once your account is approved by MOH admins, you can access the clinic assignment dashboard to submit deployment requests for affected areas.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4 data-i18n="contact.faq3_q">Is my health data kept confidential?</h4>
+                        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <div class="faq-answer">
+                        <span data-i18n="contact.faq3_a">Yes. All personal health data is encrypted and only accessible to authorized health personnel. Case reports are aggregated and anonymized for epidemiological analysis.</span> <a href="wasil-privacy.html" style="color:var(--teal-light);" data-i18n="footer.privacy">Privacy Policy</a>
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4 data-i18n="contact.faq4_q">The platform is available in Arabic?</h4>
+                        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <div class="faq-answer" data-i18n="contact.faq4_a">
+                        Yes! WASIL supports full Arabic and English localization. You can toggle between languages using the language button in the top navigation bar across the platform.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4 data-i18n="contact.faq5_q">I forgot my password. How do I reset it?</h4>
+                        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <div class="faq-answer" data-i18n="contact.faq5_a">
+                        On the login page, click "Forgot Password" and enter your registered email. You will receive a password reset link within a few minutes. If you don't receive it, check your spam folder or contact us at wasil-platform@gmail.com.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="landing-footer" style="margin-top:0;">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="footer-logo">WASIL</div>
+                <div class="footer-tagline" data-i18n="footer.tagline">Electronic Health Platform — Sudan</div>
+            </div>
+            <div class="footer-links">
+                <a href="wasil-landing.html" data-i18n="footer.home">Home</a>
+                <a href="wasil-whoarewe.html" data-i18n="footer.about">Who Are We</a>
+                <a href="wasil-contact.html" data-i18n="footer.contact">Contact</a>
+                <a href="wasil-privacy.html" data-i18n="footer.privacy">Privacy Policy</a>
+            </div>
+        </div>
+        <div class="footer-bottom" data-i18n="footer.copyright">
+            &copy; 2026 WASIL. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        function toggleFaq(el) {
+            const isOpen = el.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+            if (!isOpen) el.classList.add('open');
+        }
+    </script>
+
+    <script src="../Js files/wasil-i18n.js"></script>
+</body>
+</html>
