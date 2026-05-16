@@ -1,4 +1,4 @@
-// Wasil Role Select Logic
+//  wasil Role Select Logic
 window.onload = function () {
     document.getElementById('card-community').addEventListener('click', function () {
         localStorage.setItem('wasil_role', 'community');
@@ -23,3 +23,4 @@ function animateAndNavigate(card, dest) {
         window.location.href = dest;
     }, 250);
 }
+

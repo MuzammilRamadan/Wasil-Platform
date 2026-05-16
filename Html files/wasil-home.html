@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description"
-        content="WASIL - Electronic Health Platform for epidemic response and mobile clinic management in Sudan">
-    <title>WASIL | Electronic Health Platform</title>
+        content="wasil - Electronic Health Platform for epidemic response and mobile clinic management in Sudan">
+    <title> wasil | Electronic Health Platform</title>
     <link rel="stylesheet" href="../Css files/wasil-home.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,13 +16,45 @@
     <!-- Supabase SDK -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../Js files/supabase-config.js"></script>
+    <!-- A11y: Skip Navigation -->
+    <style>
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: 0;
+            background: var(--primary, #2563EB);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 0 0 8px 0;
+            font-size: 0.9rem;
+            font-weight: 700;
+            z-index: 9999;
+            text-decoration: none;
+            transition: top 0.2s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Enhanced focus-visible for keyboard users */
+        :focus-visible {
+            outline: 3px solid var(--primary, #2563EB);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- Success Toast -->
-    <div class="toast" id="successToast">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <!-- A11y: Skip to main content -->
+    <a href="#mainContent" class="skip-link" data-i18n="a11y.skip_link">Skip to main content</a>
+
+    <!-- Success Toast (aria-live so screen readers hear it) -->
+    <div class="toast" id="successToast" role="status" aria-live="polite" aria-atomic="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            aria-hidden="true">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
@@ -33,23 +65,26 @@
     <header>
         <div class="user-info">
             <p style="text-transform: uppercase; font-size: 0.65rem; letter-spacing: 2px; color: var(--primary); font-weight: 800;"
-                data-i18n="app-name">WASIL</p>
+                data-i18n="app-name"> wasil</p>
             <h2 style="font-size: 0.9rem;" data-i18n="app-slogan">ELECTRONIC HEALTH PLATFORM</h2>
         </div>
         <div class="header-actions" style="display:flex;align-items:center;gap:10px;">
             <!-- Notifications Bell (Org Only) -->
-            <button class="icon-btn" id="btnNotifications" data-role="organization" title="Notifications"
+            <button class="icon-btn" id="btnNotifications" data-role="organization" aria-label="Notifications"
+                aria-haspopup="dialog"
                 style="position:relative;background:transparent;border:none;color:var(--text);cursor:pointer;padding:8px;display:none;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                    aria-hidden="true">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
-                <span id="headerNotifBadge" style="position:absolute;top:2px;right:4px;background:#E74C3C;color:#fff;border-radius:50%;width:16px;height:16px;font-size:0.65rem;font-weight:700;display:none;align-items:center;justify-content:center;">0</span>
+                <span id="headerNotifBadge" aria-live="polite" aria-label="notification count"
+                    style="position:absolute;top:2px;right:4px;background:#E74C3C;color:#fff;border-radius:50%;width:16px;height:16px;font-size:0.65rem;font-weight:700;display:none;align-items:center;justify-content:center;">0</span>
             </button>
-            <button class="icon-btn logout-btn" id="logoutBtn" aria-label="Logout" title="Logout"
-                onclick="handleLogout()"
+            <button class="icon-btn logout-btn" id="logoutBtn" aria-label="Logout" onclick="handleLogout()"
                 style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:rgba(231,76,60,0.08);color:#E74C3C;border:1px solid rgba(231,76,60,0.2);font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                    aria-hidden="true">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
                     <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -66,9 +101,8 @@
 
             <!-- Hero Card -->
             <div class="hero-card">
-                <h3 data-i18n="hero-title">Outbreak Response</h3>
-                <p data-i18n="hero-desc">Access mobile clinics, report symptoms, request services, or manage epidemic
-                    response operations.</p>
+                <h3 data-i18n="hero-title">الاستجابة الوبائية</h3>
+                <p id="heroDynamicDesc" data-i18n="hero-desc">سجل أعراضك وموقعك الحالي حتى تستطيع السلطات الصحية الوصول إليك</p>
 
                 <div class="hero-actions">
                     <!-- Community buttons -->
@@ -94,58 +128,58 @@
                 </svg>
             </div>
 
-            <!-- Outbreak Status Section -->
-            <div class="section-header">
-                <span class="section-title" data-i18n="sec-outbreak">Outbreak Status</span>
-                <span style="font-size:0.72rem;color:var(--text-light);display:flex;align-items:center;gap:4px;">
-                    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;animation:pulse-dot 1.5s infinite;"></span>
-                    <span data-i18n="home.live">مباشر</span>
-                </span>
-            </div>
-
-            <!-- Dynamic outbreak cards populated from DB -->
-            <div id="outbreakStatusList">
-                <div class="clinics-loading" id="outbreakLoading">
-                    <div class="loading-spinner"></div>
-                    <p data-i18n="home.loading_outbreak">Loading outbreak data...</p>
-                </div>
-            </div>
+            <!-- Outbreak Status Section Removed by User Request -->
 
             <!-- Common Diseases Section -->
             <div class="section-header" style="margin-top: 1.25rem;">
-                <span class="section-title" data-i18n="sec-diseases">Common Diseases</span>
+                <span class="section-title" data-i18n="sec-diseases">الأمراض الشائعة</span>
             </div>
 
-            <div class="disease-guide-list">
+            <div class="disease-guide-list" id="diseaseSeverityGuide">
                 <div class="disease-item">
                     <div class="disease-header">
-                        <h4 data-i18n="dis-cholera">Cholera</h4>
+                        <h4 data-i18n="dis-cholera">الكوليرا</h4>
                         <span class="risk-dot high"></span>
                     </div>
-                    <p class="disease-symptoms" data-i18n="sym-cholera">Watery diarrhea, vomiting, dehydration, leg
-                        cramps.</p>
+                    <p class="disease-symptoms" id="sev-cholera" style="font-weight:600;">جاري تحميل...</p>
                 </div>
                 <div class="disease-item">
                     <div class="disease-header">
-                        <h4 data-i18n="dis-typhoid">Typhoid</h4>
+                        <h4 data-i18n="dis-typhoid">التيفوئيد</h4>
                         <span class="risk-dot moderate"></span>
                     </div>
-                    <p class="disease-symptoms" data-i18n="sym-typhoid">Prolonged fever, headache, nausea, loss of
-                        appetite.</p>
+                    <p class="disease-symptoms" id="sev-typhoid" style="font-weight:600;">جاري تحميل...</p>
                 </div>
                 <div class="disease-item">
                     <div class="disease-header">
-                        <h4 data-i18n="dis-dengue">Dengue Fever</h4>
+                        <h4 data-i18n="dis-dengue">حمى الضنك</h4>
                         <span class="risk-dot moderate"></span>
                     </div>
-                    <p class="disease-symptoms" data-i18n="sym-dengue">High fever, rash, joint pain, eye pain.</p>
+                    <p class="disease-symptoms" id="sev-dengue" style="font-weight:600;">جاري تحميل...</p>
                 </div>
                 <div class="disease-item">
                     <div class="disease-header">
-                        <h4 data-i18n="dis-malaria">Malaria</h4>
+                        <h4 data-i18n="dis-malaria">الملاريا</h4>
                         <span class="risk-dot stable"></span>
                     </div>
-                    <p class="disease-symptoms" data-i18n="sym-malaria">Fever, chills, sweats, headache, fatigue.</p>
+                    <p class="disease-symptoms" id="sev-malaria" style="font-weight:600;">جاري تحميل...</p>
+                </div>
+            </div>
+
+            <!-- Org-only: Epidemic Status by Locality -->
+            <div data-role="organization" style="margin-top:1.5rem;">
+                <div class="section-header">
+                    <span class="section-title">حالة الوباء</span>
+                    <span style="font-size:0.72rem;color:var(--text-light);display:flex;align-items:center;gap:4px;">
+                        <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;animation:pulse-dot 1.5s infinite;"></span>
+                        مباشر
+                    </span>
+                </div>
+                <div class="disease-guide-list" id="localityOutbreakList">
+                    <div style="text-align:center;padding:12px;color:var(--text-light);font-size:0.85rem;">
+                        <div class="loading-spinner" style="margin:0 auto 8px;"></div>
+                        جاري تحميل...
+                    </div>
                 </div>
             </div>
 
@@ -250,93 +284,16 @@
             </div>
         </div>
 
-        <!-- ═══════════ VIEW: SERVICES (Community) ═══════════ -->
-        <div id="view-services" class="view-section" style="display: none;">
+        <!-- ═══════════ VIEW: NOTIFICATIONS (Community) ═══════════ -->
+        <div id="view-notifications" class="view-section" style="display: none;">
             <div class="section-header">
-                <span class="section-title" id="servicesViewTitle" data-i18n="sec-services-view">Medical Services</span>
+                <span class="section-title" data-i18n="sec-notifications">الإشعارات</span>
             </div>
 
-            <div class="services-grid" id="communityServicesGrid">
-                <!-- Vaccination -->
-                <div class="service-card" id="svc-vaccination">
-                    <div class="service-icon" style="background: rgba(37, 99, 235, 0.08); color: #2563EB;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M18.5 2.5L21.5 5.5"></path>
-                            <path d="M15 6l3 3"></path>
-                            <path d="M16.5 4.5l-9.2 9.2a2 2 0 0 0-.5 1.3V18h3a2 2 0 0 0 1.3-.5l9.2-9.2"></path>
-                            <path d="M6 18L2 22"></path>
-                        </svg>
-                    </div>
-                    <h4 data-i18n="svc.vaccination">Vaccination</h4>
-                    <span data-i18n="svc.vaccination_sub">Find Vaccine Centers</span>
-                </div>
-
-                <!-- Rapid Ambulance -->
-                <div class="service-card" id="svc-ambulance">
-                    <div class="service-icon" style="background: rgba(239, 68, 68, 0.08); color: #EF4444;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <rect x="1" y="6" width="22" height="12" rx="2" ry="2"></rect>
-                            <line x1="6" y1="12" x2="18" y2="12"></line>
-                            <line x1="12" y1="6" x2="12" y2="18"></line>
-                        </svg>
-                    </div>
-                    <h4 data-i18n="svc.ambulance">Rapid Ambulance</h4>
-                    <span data-i18n="svc.ambulance_sub">Emergency Transport</span>
-                </div>
-
-                <!-- Medical Consult -->
-                <div class="service-card" id="svc-consult">
-                    <div class="service-icon" style="background: rgba(139, 92, 246, 0.08); color: #8B5CF6;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                        </svg>
-                    </div>
-                    <h4 data-i18n="svc.consult">Medical Consult</h4>
-                    <span data-i18n="svc.consult_sub">Talk to a Doctor</span>
-                </div>
-
-                <!-- Water & Sanitation -->
-                <div class="service-card" id="svc-water">
-                    <div class="service-icon" style="background: rgba(6, 182, 212, 0.08); color: #06B6D4;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
-                        </svg>
-                    </div>
-                    <h4 data-i18n="svc.water">Water &amp; Sanitation</h4>
-                    <span data-i18n="svc.water_sub">Report Issues</span>
-                </div>
-
-                <!-- Nutrition Support -->
-                <div class="service-card" id="svc-nutrition">
-                    <div class="service-icon" style="background: rgba(16, 185, 129, 0.08); color: #10B981;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path
-                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                            </path>
-                        </svg>
-                    </div>
-                    <h4 data-i18n="svc.nutrition">Nutrition Support</h4>
-                    <span data-i18n="svc.nutrition_sub">Aid Programs</span>
-                </div>
-
-                <!-- Mental Health -->
-                <div class="service-card" id="svc-mental">
-                    <div class="service-icon" style="background: rgba(245, 158, 11, 0.08); color: #F59E0B;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                            <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                            <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                        </svg>
-                    </div>
-                    <h4 data-i18n="svc.mental">Mental Health</h4>
-                    <span data-i18n="svc.mental_sub">Counseling &amp; Aid</span>
+            <div class="notifications-list" id="communityNotificationsList">
+                <div class="clinics-loading">
+                    <div class="loading-spinner"></div>
+                    <p>جاري تحميل الإشعارات...</p>
                 </div>
             </div>
         </div>
@@ -360,29 +317,16 @@
                 <span data-i18n="home.epidemic_dashboard">لوحة تحكم الوباء</span>
             </div>
 
-            <!-- Disease Severity Cards -->
-            <div class="section-header">
-                <span class="section-title" data-i18n="home.disease_severity">Disease Severity</span>
-            </div>
-
-            <div class="severity-grid" id="diseaseCardsGrid">
-                <div class="clinics-loading" style="padding: 24px; text-align: center; color: var(--text-light);">
-                    <div class="loading-spinner" style="margin: 0 auto 10px;"></div>
-                    <p style="font-size: 0.85rem;" data-i18n="home.loading_severity">Loading disease severity data...</p>
-                </div>
-            </div>
-
-            <!-- Reported Cases (Prioritized) -->
+            <!-- Reported Cases by Locality -->
             <div class="reported-cases-section">
                 <div class="section-header">
-                    <span class="section-title" data-i18n="home.reported_cases">Reported Cases</span>
-                    <span class="see-all" style="font-size: 0.72rem; color: var(--text-light);" data-i18n="home.prioritized">Prioritized</span>
+                    <span class="section-title" data-i18n="home.reported_cases">الحالات المبلغ عنها</span>
+                    <span class="see-all" style="font-size:0.72rem;color:var(--text-light);" data-i18n="home.prioritized">مرتبةة حسب الأولوية</span>
                 </div>
-
-                <div class="cases-list" id="reportedCasesList">
-                    <div class="clinics-loading" style="padding: 24px; text-align: center; color: var(--text-light);">
-                        <div class="loading-spinner" style="margin: 0 auto 10px;"></div>
-                        <p style="font-size: 0.85rem;" data-i18n="home.grouping_cases">Grouping reported cases...</p>
+                <div id="localityCaseCards" class="cases-list">
+                    <div class="clinics-loading" style="padding:24px;text-align:center;color:var(--text-light);">
+                        <div class="loading-spinner" style="margin:0 auto 10px;"></div>
+                        <p style="font-size:0.85rem;">جاري تحميل الحالات...</p>
                     </div>
                 </div>
             </div>
@@ -395,7 +339,8 @@
         <div id="view-requested-services" class="view-section" style="display: none;">
             <div class="section-header">
                 <span class="section-title" data-i18n="home.requested_services">Requested Services</span>
-                <span class="see-all" style="font-size: 0.72rem; color: var(--text-light);" data-i18n="home.community_requests">Community Requests</span>
+                <span class="see-all" style="font-size: 0.72rem; color: var(--text-light);"
+                    data-i18n="home.community_requests">Community Requests</span>
             </div>
 
             <div class="service-requests-list" id="serviceRequestsList">
@@ -506,7 +451,8 @@
             </div>
 
             <div class="section-header">
-                <span class="section-title" style="font-size: 0.95rem;" data-i18n="home.your_requests">Your Requests</span>
+                <span class="section-title" style="font-size: 0.95rem;" data-i18n="home.your_requests">Your
+                    Requests</span>
             </div>
 
             <div class="assigned-clinics-list" id="assignedClinicsList">
@@ -520,10 +466,11 @@
     </main>
 
     <!-- ═══════════ SERVICE REQUEST MODAL ═══════════ -->
-    <div class="modal-overlay" id="serviceRequestModal">
-        <div class="modal-content">
+    <div class="modal-overlay" id="serviceRequestModal" role="dialog" aria-modal="true" aria-hidden="true"
+        aria-labelledby="serviceModalTitle">
+        <div class="modal-content" role="document">
             <div class="modal-handle"></div>
-            <h3 class="modal-title" data-i18n="home.request_service">Request Service</h3>
+            <h3 class="modal-title" id="serviceModalTitle" data-i18n="home.request_service">Request Service</h3>
 
             <form id="serviceRequestForm">
                 <input type="hidden" id="serviceTypeHidden">
@@ -545,7 +492,8 @@
                 <!-- Contact Information (shown for all services) -->
                 <div class="form-group">
                     <label class="form-label" data-i18n="home.contact_info">معلومات الاتصال</label>
-                    <input type="tel" class="form-input" id="serviceMobileInput" placeholder="e.g. +249 91 234 5678" data-i18n-placeholder="home.contact_ph">
+                    <input type="tel" class="form-input" id="serviceMobileInput" placeholder="e.g. +249 91 234 5678"
+                        data-i18n-placeholder="home.contact_ph">
                 </div>
 
                 <!-- Vaccination-specific fields -->
@@ -553,12 +501,16 @@
                     <div class="form-group">
                         <label class="form-label" data-i18n="home.vaccine_type">نوع اللقاح</label>
                         <select class="form-input" id="vaccinationTypeInput">
-                            <option value="" disabled selected data-i18n="home.select_vaccine">اختر نوع اللقاح...</option>
+                            <option value="" disabled selected data-i18n="home.select_vaccine">اختر نوع اللقاح...
+                            </option>
                             <option value="Cholera Vaccine" data-i18n="vaccine.cholera">Cholera Vaccine</option>
                             <option value="Typhoid Vaccine" data-i18n="vaccine.typhoid">Typhoid Vaccine</option>
-                            <option value="Meningitis Vaccine" data-i18n="vaccine.meningitis">Meningitis Vaccine</option>
-                            <option value="Yellow Fever Vaccine" data-i18n="vaccine.yellow_fever">Yellow Fever Vaccine</option>
-                            <option value="Hepatitis A Vaccine" data-i18n="vaccine.hepatitis_a">Hepatitis A Vaccine</option>
+                            <option value="Meningitis Vaccine" data-i18n="vaccine.meningitis">Meningitis Vaccine
+                            </option>
+                            <option value="Yellow Fever Vaccine" data-i18n="vaccine.yellow_fever">Yellow Fever Vaccine
+                            </option>
+                            <option value="Hepatitis A Vaccine" data-i18n="vaccine.hepatitis_a">Hepatitis A Vaccine
+                            </option>
                             <option value="Polio Vaccine" data-i18n="vaccine.polio">Polio Vaccine</option>
                             <option value="Measles Vaccine" data-i18n="vaccine.measles">Measles Vaccine</option>
                             <option value="Other" data-i18n="vaccine.other">Other</option>
@@ -576,12 +528,16 @@
                         <label class="form-label" data-i18n="home.case_type">نوع الحالة</label>
                         <select class="form-input" id="ambulanceCaseTypeInput">
                             <option value="" disabled selected data-i18n="home.select_case">اختر نوع الحالة...</option>
-                            <option value="Suspected Epidemic Disease" data-i18n="case_type.epidemic">Suspected Epidemic Disease</option>
-                            <option value="Severe Dehydration" data-i18n="case_type.dehydration">Severe Dehydration (Cholera/Diarrhea)</option>
+                            <option value="Suspected Epidemic Disease" data-i18n="case_type.epidemic">Suspected Epidemic
+                                Disease</option>
+                            <option value="Severe Dehydration" data-i18n="case_type.dehydration">Severe Dehydration
+                                (Cholera/Diarrhea)</option>
                             <option value="High Fever" data-i18n="case_type.fever">High Fever / Convulsions</option>
                             <option value="Trauma / Injury" data-i18n="case_type.trauma">Trauma / Injury</option>
-                            <option value="Pregnancy Emergency" data-i18n="case_type.pregnancy">Pregnancy Emergency</option>
-                            <option value="Respiratory Distress" data-i18n="case_type.respiratory">Respiratory Distress</option>
+                            <option value="Pregnancy Emergency" data-i18n="case_type.pregnancy">Pregnancy Emergency
+                            </option>
+                            <option value="Respiratory Distress" data-i18n="case_type.respiratory">Respiratory Distress
+                            </option>
                             <option value="Other Emergency" data-i18n="case_type.other">Other Emergency</option>
                         </select>
                     </div>
@@ -590,7 +546,7 @@
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                     <button type="button" id="cancelServiceBtn"
                         style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--white); color:var(--text); cursor:pointer; font-weight:600; font-family:inherit; transition:all 0.2s;"
-                        data-i18n="home.cancel">Cancel</button>
+                        data-i18n="home.cancel" aria-label="Cancel service request">Cancel</button>
                     <button type="submit" class="submit-assign-btn" id="confirmServiceBtn" style="flex:2; margin-top:0;"
                         data-i18n="home.confirm_request">Confirm Request</button>
                 </div>
@@ -599,104 +555,147 @@
     </div>
 
     <!-- ═══════════ ASSIGNATION MODAL ═══════════ -->
-    <div class="modal-overlay" id="assignationModal">
-        <div class="modal-content">
+    <div class="modal-overlay" id="assignationModal" role="dialog" aria-modal="true" aria-hidden="true"
+        aria-labelledby="assignModalTitle">
+        <div class="modal-content" role="document" style="max-height:92vh;overflow-y:auto;">
             <div class="modal-handle"></div>
-            <h3 class="modal-title" data-i18n="home.request_assignation">طلب تعيين عيادة</h3>
+            <h3 class="modal-title" id="assignModalTitle">طلب تعيين عيادة</h3>
 
             <form id="assignationForm">
-                <!-- Target Area -->
+
+                <!-- 1. المحلية المستهدفة -->
                 <div class="form-group">
-                    <label class="form-label" data-i18n="home.clinic_target">Clinic Target Area</label>
-                    <p style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.6rem;" data-i18n="home.select_areas">اختر المناطق المتضررة من الوباء</p>
+                    <label class="form-label">المحلية المستهدفة</label>
+                    <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;">حدد المحلية التي تريد نشر العيادة فيها</p>
+                    <select id="assignLocality" class="form-input" required>
+                        <option value="" disabled selected>اختر المحلية...</option>
+                        <option value="الخرطوم">الخرطوم</option>
+                        <option value="بحري">بحري</option>
+                        <option value="امدرمان">امدرمان</option>
+                    </select>
+                </div>
+
+                <!-- 2. المنطقة المستهدفة -->
+                <div class="form-group" style="margin-top:10px;">
+                    <label class="form-label">المنطقة المستهدفة للعيادة</label>
+                    <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;">حدد المنطقة التي تعاني من تفشي الوباء</p>
+                    <select id="assignArea" class="form-input" required disabled>
+                        <option value="" disabled selected>اختر المنطقة أولاً...</option>
+                    </select>
+                </div>
+
+                <!-- 3. الأمراض المستهدفة -->
+                <div class="form-group" style="margin-top:10px;">
+                    <label class="form-label">الأمراض المستهدفة بالعلاج</label>
+                    <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;">حدد الأمراض التي ستعالجها العيادة (يمكن تحديد أكثر من مرض)</p>
                     <div class="checkbox-grid">
                         <div class="checkbox-item">
-                            <input type="checkbox" id="area-khartoum-n" name="target_areas" value="Khartoum North">
-                            <label for="area-khartoum-n">Khartoum North</label>
+                            <input type="checkbox" id="dis-cholera" name="target_diseases" value="الكوليرا">
+                            <label for="dis-cholera">الكوليرا</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="area-omdurman" name="target_areas" value="Omdurman">
-                            <label for="area-omdurman">Omdurman</label>
+                            <input type="checkbox" id="dis-typhoid" name="target_diseases" value="التيفوئيد">
+                            <label for="dis-typhoid">التيفوئيد</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="area-bahri" name="target_areas" value="Bahri">
-                            <label for="area-bahri">Bahri</label>
+                            <input type="checkbox" id="dis-dengue" name="target_diseases" value="حمى الضنك">
+                            <label for="dis-dengue">حمى الضنك</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="area-jabarona" name="target_areas" value="Jabarona">
-                            <label for="area-jabarona">Jabarona</label>
+                            <input type="checkbox" id="dis-malaria" name="target_diseases" value="الملاريا">
+                            <label for="dis-malaria">الملاريا</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="area-hajyousif" name="target_areas" value="Haj Yousif">
-                            <label for="area-hajyousif">Haj Yousif</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="area-sharg-alneel" name="target_areas" value="Sharg Al-Neel">
-                            <label for="area-sharg-alneel">Sharg Al-Neel</label>
+                            <input type="checkbox" id="dis-other" name="target_diseases" value="أخرى">
+                            <label for="dis-other">أخرى</label>
                         </div>
                     </div>
                 </div>
 
-                <!-- Supplies & Vaccines -->
-                <div class="form-group">
-                    <label class="form-label" data-i18n="home.supplies">Supplies & Offerings</label>
+                <!-- 4. الموارد والامدادات -->
+                <div class="form-group" style="margin-top:10px;">
+                    <label class="form-label">الموارد والامدادات</label>
                     <textarea class="form-textarea" id="suppliesField"
-                        placeholder="List what your organization will provide (e.g., Cholera vaccines, ORS packets, IV fluids, medical staff, testing kits...)"
-                        data-i18n-placeholder="home.supplies_ph"></textarea>
+                        placeholder="مثال: لقاحات الكوليرا، أكياس المحاليل الفموية، محاليل وريدية، كوادر طبية..."></textarea>
                 </div>
 
-                <!-- Deployment Date & Operation Time -->
-                <div style="display:flex; gap:10px;">
+                <!-- 5. الطاقة الاستيعابية -->
+                <div class="form-group" style="margin-top:10px;">
+                    <label class="form-label">الطاقة الاستيعابية للعيادة</label>
+                    <input type="number" class="form-input" id="clinicCapacity" min="1" placeholder="عدد المرضى المتوقعين يومياً" required>
+                </div>
+
+                <!-- 6. تواريخ النشر -->
+                <div style="display:flex;gap:10px;margin-top:10px;">
                     <div class="form-group" style="flex:1;">
-                        <label class="form-label" data-i18n="home.deploy_date">Deployment Date</label>
+                        <label class="form-label">تاريخ النشر</label>
                         <input type="date" class="form-input" id="deploymentDate" required>
                     </div>
                     <div class="form-group" style="flex:1;">
-                        <label class="form-label" data-i18n="home.operation_time">Operation Time</label>
-                        <input type="text" class="form-input" id="operationTime" placeholder="e.g. 09:00 AM - 05:00 PM" data-i18n-placeholder="home.operation_ph" required>
+                        <label class="form-label">تاريخ انتهاء النشر</label>
+                        <input type="date" class="form-input" id="deploymentEndDate" required>
                     </div>
                 </div>
 
+                <!-- 7. وقت التشغيل -->
+                <div class="form-group" style="margin-top:10px;">
+                    <label class="form-label">وقت التشغيل</label>
+                    <select class="form-input" id="operationTime" required>
+                        <option value="" disabled selected>اختر وقت التشغيل...</option>
+                        <option value="24 ساعة">24 ساعة (طوال اليوم)</option>
+                        <option value="صباحاً (08:00 - 14:00)">صباحاً (08:00 - 14:00)</option>
+                        <option value="مساءً (14:00 - 20:00)">مساءً (14:00 - 20:00)</option>
+                        <option value="نهاري (08:00 - 17:00)">نهاري (08:00 - 17:00)</option>
+                        <option value="ليلي (20:00 - 08:00)">ليلي (20:00 - 08:00)</option>
+                        <option value="متواصل (12 ساعة)">متواصل (12 ساعة)</option>
+                    </select>
+                </div>
+
                 <!-- Submit -->
-                <button type="submit" class="submit-assign-btn" data-i18n="home.request_assignation">طلب تعيين عيادة</button>
+                <button type="submit" class="submit-assign-btn" style="margin-top:16px;">تقديم طلب التعيين</button>
             </form>
         </div>
     </div>
 
     <!-- ═══════════ NOTIFICATIONS MODAL ═══════════ -->
-    <div class="modal-overlay" id="notificationsModal">
-        <div class="modal-content" style="max-height:80vh; overflow-y:auto;">
+    <div class="modal-overlay" id="notificationsModal" role="dialog" aria-modal="true" aria-hidden="true"
+        aria-labelledby="notifModalTitle">
+        <div class="modal-content" role="document" style="max-height:80vh; overflow-y:auto;">
             <div class="modal-handle"></div>
-            <h3 class="modal-title" data-i18n="home.notifications">Notifications</h3>
+            <h3 class="modal-title" id="notifModalTitle" data-i18n="home.notifications">Notifications</h3>
             <div id="notificationsList" style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
-                <p style="text-align:center;color:var(--text-light);font-size:0.85rem;padding:20px;" data-i18n="home.no_notifications">No new notifications</p>
+                <p style="text-align:center;color:var(--text-light);font-size:0.85rem;padding:20px;"
+                    data-i18n="home.no_notifications">No new notifications</p>
             </div>
         </div>
     </div>
 
     <!-- ═══════════ BOTTOM NAVIGATION ═══════════ -->
-    <nav class="bottom-nav" id="bottomNav">
+    <nav class="bottom-nav" id="bottomNav" aria-label="Main navigation">
         <!-- Home -->
-        <a href="#home" class="nav-item active" data-target="view-home" id="navHomeBtn">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <a href="#home" class="nav-item active" data-target="view-home" id="navHomeBtn" aria-current="page">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                aria-hidden="true">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
             <span data-i18n="nav-home">Home</span>
         </a>
 
-        <!-- Community: Services | Organization: Requested Services -->
-        <a href="#services" class="nav-item" data-target="view-services" id="navServicesBtn">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+        <!-- Community: Notifications | Organization: Requested Services -->
+        <a href="#notifications" class="nav-item" data-target="view-notifications" id="navNotificationsBtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
-            <span id="navServicesLabel" data-i18n="nav-services">Services</span>
+            <span id="navNotificationsLabel" data-i18n="nav-notifications">الإشعارات</span>
         </a>
 
         <!-- Organization: Assigned Clinics -->
         <a href="#assigned" class="nav-item" data-target="view-assigned-clinics" data-role="organization"
             id="navAssignedBtn">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                aria-hidden="true">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
                 <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -708,6 +707,7 @@
 
     <script src="../Js files/wasil-i18n.js"></script>
     <script src="../Js files/supabase-config.js"></script>
+    <script src="../Js files/wasil-a11y.js"></script>
     <script src="../Js files/wasil-home.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {

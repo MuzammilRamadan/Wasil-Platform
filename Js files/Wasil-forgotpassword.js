@@ -1,5 +1,5 @@
 // ============================================
-// WASIL FORGOT PASSWORD PAGE - INTERACTIVE FEATURES
+//  wasil FORGOT PASSWORD PAGE - INTERACTIVE FEATURES
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -141,9 +141,18 @@ document.addEventListener('DOMContentLoaded', function () {
         buttonText.style.display = 'none';
         buttonLoader.style.display = 'inline-flex';
 
-        // Simulate API call to verify code
-        setTimeout(() => {
-            // Verify code (accept any 6-digit code for demo)
+        try {
+            if (window.supabase) {
+                const { data, error } = await supabase.auth.verifyOtp({
+                    email: userEmail,
+                    token: code,
+                    type: 'recovery'
+                });
+
+                if (error) throw error;
+            }
+
+            // Verify code successful
             verificationCode = code;
             showNotification('Code verified successfully!', 'success');
 
@@ -151,7 +160,16 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 goToStep(3);
             }, 1000);
-        }, 1500);
+
+        } catch (error) {
+            console.error('Verify OTP error:', error);
+            showNotification(error.message || 'Invalid or expired verification code.', 'error');
+
+            // Bring button back to active state so user can try again
+            submitButton.disabled = false;
+            buttonText.style.display = 'inline';
+            buttonLoader.style.display = 'none';
+        }
     });
 
     // Resend code functionality
@@ -167,8 +185,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
-            // Simulate API call to resend code
-            await simulateAPICall(1000);
+            if (window.supabase) {
+                const { error } = await supabase.auth.resetPasswordForEmail(userEmail);
+                if (error) throw error;
+            }
 
             showNotification('Verification code resent!', 'success');
 
@@ -492,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Arabic translations
         const ar = {
             logo: 'واصل',
-            tagline: 'معك في كل مكان',
+            tagline: ' ',
             step1Label: 'أدخل البريد',
             step2Label: 'تحقق من الرمز',
             step3Label: 'كلمة سر جديدة',
@@ -507,8 +527,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // English translations
         const en = {
-            logo: 'WASIL',
-            tagline: 'With you everywhere',
+            logo: 'wasil',
+            tagline: ' ',
             step1Label: 'Enter Email',
             step2Label: 'Verify Code',
             step3Label: 'New Password',
@@ -584,3 +604,4 @@ document.addEventListener('DOMContentLoaded', function () {
     addLangSwitchButton();
 
 });
+

@@ -1,5 +1,5 @@
 -- ============================================
--- WASIL — Complete Supabase Tables & RLS Setup
+--  wasil — Complete Supabase Tables & RLS Setup
 -- ============================================
 -- Run this entire script in your Supabase SQL Editor:
 --   1. Go to https://supabase.com/dashboard
@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS clinic_requests (
     target_area TEXT,
     capacity INTEGER,
     diseases TEXT[],          -- array of disease names
+    supplies TEXT,            -- supplies to be deployed
     schedule TEXT,
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
     created_at TIMESTAMPTZ DEFAULT now(),

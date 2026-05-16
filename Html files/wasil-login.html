@@ -4,20 +4,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Wasil Mobile Clinic - Login to access your healthcare services">
-    <title>Wasil - Login</title>
+    <meta name="description" content="wasil Mobile Clinic - Login to access your healthcare services">
+    <title> wasil - Login</title>
     <link rel="stylesheet" href="../Css files/wasil-login.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+    <!-- A11y styles -->
+    <style>
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: 0;
+            background: #2563EB;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 0 0 8px 0;
+            font-size: 0.9rem;
+            font-weight: 700;
+            z-index: 9999;
+            text-decoration: none;
+            transition: top 0.2s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        :focus-visible {
+            outline: 3px solid #2563EB;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* Live error region */
+        #formErrorAlert {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+        }
+    </style>
 
 </head>
 
 <body>
-    <div class="container">
-        <div class="login-card">
+
+    <!-- A11y: Skip to main content -->
+    <a href="#loginCard" class="skip-link">Skip to login form</a>
+
+    <!-- A11y: Hidden live error region -->
+    <div id="formErrorAlert" role="alert" aria-live="assertive" aria-atomic="true"></div>
+    <div class="container" role="main">
+        <div class="login-card" id="loginCard">
             <!-- Wave Background -->
             <div class="wave-background">
                 <svg viewBox="0 0 500 300" preserveAspectRatio="none">
@@ -39,12 +82,12 @@
                         <rect x="8" y="16" width="24" height="8" rx="2" fill="#50C9C3" />
                     </svg>
                 </div>
-                <h1 class="logo" data-i18n="login.logo">WASIL</h1>
-                <p class="tagline" data-i18n="login.tagline">With you everywhere</p>
+                <h1 class="logo" data-i18n="login.logo"> wasil</h1>
+                <p class="tagline" data-i18n="login.tagline"> </p>
             </div>
 
             <!-- Login Form -->
-            <form class="login-form" id="loginForm">
+            <form class="login-form" id="loginForm" novalidate aria-label="Sign in form">
                 <div class="input-group">
                     <label for="emailPhone" class="input-label" data-i18n="login.email_label">Phone Number or
                         Email</label>
@@ -85,7 +128,7 @@
                     </span>
                 </button>
 
-                <a href="Wasil-forgotpassword.html" class="forgot-password" data-i18n="login.forgot">Forgot
+                <a href="wasil-forgotpassword.html" class="forgot-password" data-i18n="login.forgot">Forgot
                     Password?</a>
             </form>
 
@@ -96,14 +139,6 @@
                         stroke-width="1.5" fill="none" opacity="0.4" />
                 </svg>
             </div>
-
-            <!-- Demo Credentials Info -->
-            <div class="demo-info">
-                <p style="font-size: 13px; color: #7F8C8D; text-align: center; margin: 0;">
-                    <strong style="color: #4A90E2;" data-i18n="login.demo"></strong>
-                </p>
-            </div>
-
             <!-- Sign Up Link -->
             <div class="signup-section">
                 <p><span data-i18n="login.no_account">Don't have an account?</span> <a href="wasil-signup.html"
@@ -117,6 +152,7 @@
     <script src="../Js files/supabase-config.js"></script>
     <!-- App JavaScript -->
     <script src="../Js files/wasil-i18n.js"></script>
+    <script src="../Js files/wasil-a11y.js"></script>
     <script src="../Js files/wasil-login.js"></script>
 </body>
 

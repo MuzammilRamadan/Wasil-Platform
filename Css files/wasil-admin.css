@@ -1,5 +1,5 @@
 /* ============================================
-   WASIL ADMIN PANEL — Ministry of Health
+    wasil ADMIN PANEL — Ministry of Health
    ============================================ */
 
 *,
@@ -12,21 +12,22 @@
 
 :root {
     --sidebar-w: 256px;
-    --sidebar-bg: #0D1B3E;
-    --sidebar-active: rgba(255, 255, 255, 0.1);
-    --sidebar-hover: rgba(255, 255, 255, 0.07);
-    --accent: #27ae60;
-    --accent-dark: #1a7a4a;
+    --sidebar-bg: linear-gradient(135deg, #1E40AF, #2563EB, #0E7490);
+    --sidebar-active: rgba(255, 255, 255, 0.2);
+    --sidebar-hover: rgba(255, 255, 255, 0.1);
+    --primary: #2563EB;
+    --accent: #0E7490;
     --topbar-h: 60px;
-    --bg: #F0F4F8;
-    --card-bg: #ffffff;
-    --text: #1a2540;
-    --text-muted: #6b7898;
-    --border: #e2e8f0;
-    --critical: #E74C3C;
-    --high: #E67E22;
-    --moderate: #F39C12;
-    --stable: #27ae60;
+    --bg: #F1F5F9;
+    --card-bg: #FFFFFF;
+    --text: #1E293B;
+    --text-muted: #64748B;
+    --border: #E2E8F0;
+    --critical: #EF4444;
+    --high: #F59E0B;
+    --moderate: #3B82F6;
+    --stable: #10B981;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 html,
@@ -73,7 +74,8 @@ body {
     width: 46px;
     height: 46px;
     border-radius: 12px;
-    background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -141,7 +143,7 @@ body {
     top: 25%;
     bottom: 25%;
     width: 3px;
-    background: var(--accent);
+    background: #fff;
     border-radius: 0 3px 3px 0;
 }
 
@@ -201,9 +203,9 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(231, 76, 60, 0.12);
-    color: #ff7c6c;
-    border: 1px solid rgba(231, 76, 60, 0.25);
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--critical);
+    border: 1px solid rgba(239, 68, 68, 0.2);
     border-radius: 9px;
     padding: 9px 14px;
     cursor: pointer;
@@ -216,7 +218,7 @@ body {
 }
 
 .logout-btn:hover {
-    background: rgba(231, 76, 60, 0.25);
+    background: rgba(239, 68, 68, 0.15);
     color: #fff;
 }
 
@@ -292,11 +294,11 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    background: rgba(231, 76, 60, 0.07);
-    border: 1px solid rgba(231, 76, 60, 0.2);
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.15);
     border-radius: 8px;
     padding: 6px 14px;
-    color: #E74C3C;
+    color: var(--critical);
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
@@ -305,7 +307,7 @@ body {
 }
 
 .topbar-logout:hover {
-    background: rgba(231, 76, 60, 0.15);
+    background: rgba(239, 68, 68, 0.1);
 }
 
 /* ── MAIN CONTENT ── */
@@ -365,7 +367,7 @@ body {
     border-radius: 16px;
     padding: 20px 20px 18px;
     border-left: 4px solid var(--stable);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -443,30 +445,30 @@ body {
 }
 
 .severity-pill.critical {
-    background: rgba(231, 76, 60, 0.1);
-    color: #C0392B;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--critical);
 }
 
 .severity-pill.high {
-    background: rgba(230, 126, 34, 0.1);
-    color: #D35400;
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--high);
 }
 
 .severity-pill.moderate {
-    background: rgba(243, 156, 18, 0.1);
-    color: #B7770D;
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--moderate);
 }
 
 .severity-pill.stable {
-    background: rgba(39, 174, 96, 0.1);
-    color: #1a7a4a;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--stable);
 }
 
 /* ── TABLE CARD ── */
 .table-card {
     background: var(--card-bg);
     border-radius: 16px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow);
     overflow: hidden;
     margin-bottom: 24px;
 }
@@ -549,12 +551,12 @@ body {
     background: var(--card-bg);
     border-radius: 16px;
     padding: 22px 24px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow);
     display: grid;
     grid-template-columns: auto 1fr auto;
     gap: 24px;
     align-items: center;
-    border-left: 4px solid #4A90E2;
+    border-left: 4px solid var(--primary);
     transition: box-shadow 0.2s;
 }
 
@@ -652,21 +654,21 @@ body {
 }
 
 .btn-approve {
-    background: rgba(39, 174, 96, 0.1);
-    color: var(--accent-dark);
-    border: 1px solid rgba(39, 174, 96, 0.3);
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--stable);
+    border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .btn-approve:hover {
-    background: var(--accent);
+    background: var(--stable);
     color: #fff;
     transform: scale(1.03);
 }
 
 .btn-reject {
-    background: rgba(231, 76, 60, 0.07);
-    color: #C0392B;
-    border: 1px solid rgba(231, 76, 60, 0.25);
+    background: rgba(239, 68, 68, 0.07);
+    color: var(--critical);
+    border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .btn-reject:hover {
@@ -691,7 +693,7 @@ body {
     border-radius: 12px;
     padding: 6px;
     width: fit-content;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow);
 }
 
 .users-tab {
@@ -731,13 +733,13 @@ body {
 }
 
 .count-badge.green {
-    background: rgba(39, 174, 96, 0.1);
-    color: #1a7a4a;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--stable);
 }
 
 .count-badge.red {
-    background: rgba(231, 76, 60, 0.1);
-    color: #C0392B;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--critical);
 }
 
 /* ── REMOVE USER BUTTON ── */
@@ -747,9 +749,9 @@ body {
     gap: 5px;
     padding: 6px 14px;
     border-radius: 8px;
-    border: 1px solid rgba(231, 76, 60, 0.25);
-    background: rgba(231, 76, 60, 0.06);
-    color: #C0392B;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.06);
+    color: var(--critical);
     font-size: 0.78rem;
     font-weight: 600;
     font-family: 'Cairo', sans-serif;
@@ -1007,8 +1009,17 @@ body {
 
 /* Pulse animation for live dot (used in outbreak section) */
 @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.5; transform: scale(1.4); }
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(1.4);
+    }
 }
 
 /* ── RESPONSIVE ── */

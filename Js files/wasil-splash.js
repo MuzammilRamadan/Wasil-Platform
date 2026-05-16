@@ -4,3 +4,4 @@ window.onload = function () {
         window.location.href = 'wasil-landing.html';
     }, 2000);
 };
+

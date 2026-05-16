@@ -9,3 +9,4 @@ window.onload = function () {
         window.location.href = 'wasil-roleselect.html';
     };
 };
+

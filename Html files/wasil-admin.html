@@ -4,23 +4,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="WASIL - Ministry of Health System Administration">
-    <title>WASIL | MOH Admin Panel</title>
+    <meta name="description" content="wasil - Ministry of Health System Administration">
+    <title> wasil | MOH Admin Panel</title>
     <link rel="stylesheet" href="../Css files/wasil-admin.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../Js files/supabase-config.js"></script>
+    <!-- A11y styles -->
+    <style>
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: 0;
+            background: var(--primary, #2563EB);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 0 0 8px 0;
+            font-size: 0.9rem;
+            font-weight: 700;
+            z-index: 9999;
+            text-decoration: none;
+            transition: top 0.2s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--primary, #2563EB);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 
 <body>
 
+    <!-- A11y: Skip to main content -->
+    <a href="#adminMain" class="skip-link">Skip to main content</a>
+
     <!-- ═══ SIDEBAR OVERLAY (mobile) ═══ -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()" aria-hidden="true"></div>
 
     <!-- ═══ SIDEBAR ═══ -->
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar" aria-label="Admin navigation">
         <!-- Logo -->
         <div class="sidebar-logo">
             <div class="moh-emblem">
@@ -31,13 +61,14 @@
             </div>
             <div class="sidebar-brand">
                 <span class="brand-title" data-i18n="admin.title">Ministry of Health</span>
-                <span class="brand-sub" data-i18n="admin.subtitle">WASIL Admin</span>
+                <span class="brand-sub" data-i18n="admin.subtitle"> wasil Admin</span>
             </div>
         </div>
 
         <!-- Navigation -->
-        <nav class="sidebar-nav">
-            <a class="nav-item active" data-section="dashboard" onclick="showSection('dashboard', this)">
+        <nav class="sidebar-nav" aria-label="Admin sections">
+            <a class="nav-item active" data-section="dashboard" onclick="showSection('dashboard', this)" role="button"
+                tabindex="0" aria-current="page">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="7" height="7"></rect>
                     <rect x="14" y="3" width="7" height="7"></rect>
@@ -46,14 +77,16 @@
                 </svg>
                 <span data-i18n="admin.dashboard">Dashboard</span>
             </a>
-            <a class="nav-item" data-section="deployed" onclick="showSection('deployed', this)">
+            <a class="nav-item" data-section="deployed" onclick="showSection('deployed', this)" role="button"
+                tabindex="0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
                 <span data-i18n="admin.deployed_clinics">Deployed Clinics</span>
             </a>
-            <a class="nav-item" data-section="requests" onclick="showSection('requests', this)">
+            <a class="nav-item" data-section="requests" onclick="showSection('requests', this)" role="button"
+                tabindex="0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
@@ -62,7 +95,7 @@
                 <span data-i18n="admin.clinic_requests">Clinic Requests</span>
                 <span class="nav-badge" id="requestsBadge">0</span>
             </a>
-            <a class="nav-item" data-section="users" onclick="showSection('users', this)">
+            <a class="nav-item" data-section="users" onclick="showSection('users', this)" role="button" tabindex="0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
@@ -71,14 +104,16 @@
                 </svg>
                 <span data-i18n="admin.system_users">System Users</span>
             </a>
-            <a class="nav-item" data-section="outbreak" onclick="showSection('outbreak', this)">
+            <a class="nav-item" data-section="outbreak" onclick="showSection('outbreak', this)" role="button"
+                tabindex="0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
                 </svg>
                 <span data-i18n="admin.outbreak_dashboard">لوحة تحكم الوباء</span>
                 <span class="nav-badge" id="outbreakBadge" style="display:none;">!</span>
             </a>
-            <a class="nav-item" data-section="diseases" onclick="showSection('diseases', this)">
+            <a class="nav-item" data-section="diseases" onclick="showSection('diseases', this)" role="button"
+                tabindex="0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -116,9 +151,11 @@
     <div class="main-wrapper">
 
         <!-- Top Bar -->
-        <header class="topbar">
-            <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <header class="topbar" role="banner">
+            <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation menu"
+                aria-expanded="false" aria-controls="sidebar">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    aria-hidden="true">
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -140,7 +177,7 @@
             </div>
         </header>
 
-        <main class="main-content">
+        <main class="main-content" id="adminMain" role="main">
 
             <!-- ═══ SECTION: DASHBOARD ═══ -->
             <section id="section-dashboard" class="admin-section active">
@@ -161,11 +198,13 @@
                 <div class="table-card" id="epicAreasCard">
                     <div class="table-header">
                         <h2 data-i18n="admin.epidemic_areas">Epidemic Areas</h2>
-                        <span class="table-sub" data-i18n="admin.select_area">Select an area to view ranked sub-areas</span>
+                        <span class="table-sub" data-i18n="admin.select_area">Select an area to view ranked
+                            sub-areas</span>
                     </div>
                     <!-- Area Tab Buttons -->
                     <div class="area-tabs-bar" id="epicAreaTabs">
-                        <div class="area-tabs-loading"><span data-i18n="admin.loading_area">Loading area data...</span></div>
+                        <div class="area-tabs-loading"><span data-i18n="admin.loading_area">Loading area data...</span>
+                        </div>
                     </div>
                     <!-- Sub-area Ranked Panel -->
                     <div class="area-subareas-panel" id="epicSubAreasPanel"></div>
@@ -176,7 +215,8 @@
             <section id="section-deployed" class="admin-section">
                 <div class="section-heading">
                     <h1 data-i18n="admin.deployed_clinics">Deployed Clinics</h1>
-                    <p class="section-sub" data-i18n="admin.active_clinics_sub">All active clinics — MOH & Organization operated</p>
+                    <p class="section-sub" data-i18n="admin.active_clinics_sub">All active clinics — MOH & Organization
+                        operated</p>
                 </div>
                 <div class="table-card">
                     <div class="table-header">
@@ -187,18 +227,20 @@
                         <table class="data-table" id="deployedTable">
                             <thead>
                                 <tr>
-                                    <th data-i18n="admin.clinic_name">Clinic Name</th>
-                                    <th data-i18n="admin.location">Location</th>
-                                    <th data-i18n="admin.capacity">Capacity</th>
-                                    <th data-i18n="admin.diseases_treated">Diseases</th>
-                                    <th data-i18n="admin.schedule">Schedule</th>
-                                    <th data-i18n="admin.operating_party">Operating Party</th>
-                                    <th data-i18n="admin.status">Status</th>
+                                    <th data-i18n="admin.clinic_name">اسم العيادة</th>
+                                    <th data-i18n="admin.operating_party">الجهة المشغّلة</th>
+                                    <th data-i18n="admin.location">المنطقة المستهدفة</th>
+                                    <th data-i18n="admin.capacity">الطاقة الاستيعابية</th>
+                                    <th data-i18n="admin.diseases_treated">الأمراض المعالجة</th>
+                                    <th data-i18n="admin.supplies">الإمدادات</th>
+                                    <th data-i18n="admin.schedule">الجدول الزمني</th>
+                                    <th data-i18n="admin.status">الحالة</th>
                                 </tr>
                             </thead>
                             <tbody id="deployedTableBody">
                                 <tr id="deployedLoadingRow">
-                                    <td colspan="7" style="text-align:center;color:#7F8C8D;padding:24px;" data-i18n="admin.loading_deployed">جاري تحميل العيادات المنتشرة...</td>
+                                    <td colspan="8" style="text-align:center;color:#7F8C8D;padding:24px;"
+                                        data-i18n="admin.loading_deployed">جاري تحميل العيادات المنتشرة...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -210,11 +252,13 @@
             <section id="section-requests" class="admin-section">
                 <div class="section-heading">
                     <h1 data-i18n="admin.clinic_requests">Clinic Requests</h1>
-                    <p class="section-sub" data-i18n="admin.clinic_req_sub">Review and approve organization clinic assignment requests</p>
+                    <p class="section-sub" data-i18n="admin.clinic_req_sub">Review and approve organization clinic
+                        assignment requests</p>
                 </div>
                 <div class="requests-list" id="requestsList">
                     <!-- Dynamically loaded from Supabase by loadClinicRequests() -->
-                    <div style="text-align:center;color:#7F8C8D;padding:48px 24px;" data-i18n="admin.loading_requests">جاري تحميل الطلبات...</div>
+                    <div style="text-align:center;color:#7F8C8D;padding:48px 24px;" data-i18n="admin.loading_requests">
+                        جاري تحميل الطلبات...</div>
                 </div>
             </section>
 
@@ -222,7 +266,8 @@
             <section id="section-users" class="admin-section">
                 <div class="section-heading">
                     <h1 data-i18n="admin.system_users">System Users</h1>
-                    <p class="section-sub" data-i18n="admin.system_user_sub">All registered users in the WASIL platform</p>
+                    <p class="section-sub" data-i18n="admin.system_user_sub">All registered users in the wasil platform
+                    </p>
                 </div>
 
                 <!-- Tabs -->
@@ -250,7 +295,8 @@
                                 </thead>
                                 <tbody id="orgsTableBody">
                                     <tr id="orgsLoadingRow">
-                                        <td colspan="6" style="text-align:center;color:#7F8C8D;padding:24px;" data-i18n="admin.loading_orgs">جاري تحميل المنظمات...</td>
+                                        <td colspan="6" style="text-align:center;color:#7F8C8D;padding:24px;"
+                                            data-i18n="admin.loading_orgs">جاري تحميل المنظمات...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -275,7 +321,8 @@
                                 </thead>
                                 <tbody id="communityTableBody">
                                     <tr id="communityLoadingRow">
-                                        <td colspan="6" style="text-align:center;color:#7F8C8D;padding:24px;" data-i18n="admin.loading_community">جاري تحميل مستخدمي المجتمع...</td>
+                                        <td colspan="6" style="text-align:center;color:#7F8C8D;padding:24px;"
+                                            data-i18n="admin.loading_community">جاري تحميل مستخدمي المجتمع...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -311,7 +358,8 @@
                         <span class="table-sub" data-i18n="admin.sorted_severity">Sorted by severity &amp; count</span>
                     </div>
                     <div id="adminAreaList" style="padding:0 16px 16px;">
-                        <div style="text-align:center;padding:32px;color:var(--text-muted,#94A3B8);" data-i18n="admin.loading_outbreak_data">Loading outbreak
+                        <div style="text-align:center;padding:32px;color:var(--text-muted,#94A3B8);"
+                            data-i18n="admin.loading_outbreak_data">Loading outbreak
                             data...</div>
                     </div>
                 </div>
@@ -326,18 +374,19 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                <th data-i18n="admin.location">الموقع</th>
-                                <th data-i18n="admin.reported_disease">المرض</th>
-                                <th data-i18n="admin.severity">الخطورة</th>
-                                <th data-i18n="admin.manage_diseases_sub">الوصف</th>
-                                <th data-i18n="admin.date_requested">التاريخ</th>
-                                <th data-i18n="admin.actions">الإجراءات</th>
-                            </tr>
+                                    <th data-i18n="admin.location">الموقع</th>
+                                    <th data-i18n="admin.reported_disease">المرض</th>
+                                    <th data-i18n="admin.severity">الخطورة</th>
+                                    <th data-i18n="admin.manage_diseases_sub">الوصف</th>
+                                    <th data-i18n="admin.date_requested">التاريخ</th>
+                                    <th data-i18n="admin.actions">الإجراءات</th>
+                                </tr>
                             </thead>
                             <tbody id="adminCasesTableBody">
                                 <tr>
-                                <td colspan="5" style="text-align:center;color:#94A3B8;padding:24px;" data-i18n="admin.loading_diseases">جاري تحميل الحالات...</td>
-                            </tr>
+                                    <td colspan="5" style="text-align:center;color:#94A3B8;padding:24px;"
+                                        data-i18n="admin.loading_diseases">جاري تحميل الحالات...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -348,22 +397,28 @@
             <section id="section-diseases" class="admin-section">
                 <div class="section-heading">
                     <h1 data-i18n="admin.manage_diseases">Manage Diseases</h1>
-                    <p class="section-sub" data-i18n="admin.manage_diseases_sub">إضافة أو إزالة الأمراض من نظام الإبلاغ</p>
+                    <p class="section-sub" data-i18n="admin.manage_diseases_sub">إضافة أو إزالة الأمراض من نظام الإبلاغ
+                    </p>
                 </div>
 
                 <div class="cards-grid">
                     <div class="table-card"
                         style="grid-column: span 1; display:flex; flex-direction:column; background:#fff; border-radius:10px; border:1px solid #E2E8F0; padding:20px;">
-                        <h2 style="font-size:1.1rem; color:#1E293B; margin-bottom:16px;" data-i18n="admin.add_disease">إضافة مرض جديد</h2>
+                        <h2 style="font-size:1.1rem; color:#1E293B; margin-bottom:16px;" data-i18n="admin.add_disease">
+                            إضافة مرض جديد</h2>
                         <form id="addDiseaseForm" style="display:flex; flex-direction:column; gap:16px;">
                             <div>
-                                <label style="display:block; font-size:0.85rem; font-weight:600; color:#475569; margin-bottom:6px;" data-i18n="admin.disease_name">اسم المرض</label>
+                                <label
+                                    style="display:block; font-size:0.85rem; font-weight:600; color:#475569; margin-bottom:6px;"
+                                    data-i18n="admin.disease_name">اسم المرض</label>
                                 <input type="text" id="newDiseaseName" required
                                     style="width:100%; padding:10px; border:1px solid #CBD5E1; border-radius:6px; outline:none;"
                                     placeholder="e.g. COVID-19" data-i18n-placeholder="admin.disease_name_ph">
                             </div>
                             <div>
-                                <label style="display:block; font-size:0.85rem; font-weight:600; color:#475569; margin-bottom:6px;" data-i18n="admin.default_severity">الخطورة الافتراضية</label>
+                                <label
+                                    style="display:block; font-size:0.85rem; font-weight:600; color:#475569; margin-bottom:6px;"
+                                    data-i18n="admin.default_severity">الخطورة الافتراضية</label>
                                 <select id="newDiseaseSeverity" required
                                     style="width:100%; padding:10px; border:1px solid #CBD5E1; border-radius:6px; outline:none;">
                                     <option value="critical" data-i18n="sev.critical">حرج</option>
@@ -386,17 +441,18 @@
                             <table class="data-table">
                                 <thead>
                                     <tr>
-                                    <th data-i18n="admin.disease_th_name">الاسم</th>
-                                    <th data-i18n="admin.disease_th_severity">الخطورة الافتراضية</th>
-                                    <th data-i18n="admin.disease_th_status">الحالة</th>
-                                    <th data-i18n="admin.disease_th_actions">الإجراءات</th>
-                                </tr>
+                                        <th data-i18n="admin.disease_th_name">الاسم</th>
+                                        <th data-i18n="admin.disease_th_severity">الخطورة الافتراضية</th>
+                                        <th data-i18n="admin.disease_th_status">الحالة</th>
+                                        <th data-i18n="admin.disease_th_actions">الإجراءات</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="diseasesTableBody">
                                     <tr>
-                                         <td colspan="4" style="text-align:center; color:#94A3B8; padding:24px;" data-i18n="admin.loading_diseases">Loading
-                                             diseases...</td>
-                                     </tr>
+                                        <td colspan="4" style="text-align:center; color:#94A3B8; padding:24px;"
+                                            data-i18n="admin.loading_diseases">Loading
+                                            diseases...</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -407,10 +463,11 @@
         </main>
     </div>
 
-    <!-- Toast Notification -->
-    <div class="admin-toast" id="adminToast"></div>
+    <!-- Toast Notification (aria-live for screen readers) -->
+    <div class="admin-toast" id="adminToast" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <script src="../Js files/wasil-i18n.js"></script>
+    <script src="../Js files/wasil-a11y.js"></script>
     <script src="../Js files/wasil-admin.js"></script>
 </body>
 

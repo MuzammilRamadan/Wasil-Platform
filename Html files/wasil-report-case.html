@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description"
-        content="WASIL - Report an epidemic case in your area to help health authorities respond faster.">
-    <title>WASIL | Report a Case</title>
+        content="wasil - Report an epidemic case in your area to help health authorities respond faster.">
+    <title> wasil | Report a Case</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -406,36 +406,123 @@
                 opacity: 1;
             }
         }
+
+        /* A11y: Focus visible */
+        :focus-visible {
+            outline: 3px solid var(--primary, #2563EB);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* Symptom Chips */
+        .symptoms-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .symptom-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 13px;
+            border: 1.5px solid var(--border);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-light);
+            background: var(--white);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .symptom-chip:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(37,99,235,0.05);
+        }
+
+        .symptom-chip.selected {
+            border-color: var(--primary);
+            background: rgba(37,99,235,0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .symptom-chip.selected::before {
+            content: '✓ ';
+            font-size: 0.75rem;
+        }
+
+        /* Disease card highlighted state */
+        .disease-option .disease-card.best-match {
+            border-color: #10B981;
+            background: rgba(16,185,129,0.08);
+            color: #065F46;
+            box-shadow: 0 0 0 2px rgba(16,185,129,0.25);
+        }
+
+        .disease-option .disease-card.best-match span {
+            font-weight: 800;
+            color: #065F46;
+        }
+
+        .best-match-badge {
+            display: none;
+            font-size: 0.62rem;
+            font-weight: 700;
+            background: #10B981;
+            color: white;
+            border-radius: 20px;
+            padding: 2px 7px;
+            letter-spacing: 0.3px;
+            margin-top: 2px;
+        }
+
+        .disease-card.best-match .best-match-badge {
+            display: inline-block;
+        }
+
+        .symptom-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
 
     <!-- Header -->
-    <header class="page-header">
-        <button class="back-btn" onclick="history.back()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <header class="page-header" role="banner">
+        <button class="back-btn" onclick="history.back()" aria-label="Go back to previous page">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                aria-hidden="true">
                 <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
             <span data-i18n="report.back">Back</span>
         </button>
         <h1 data-i18n="report.title">Report a Case</h1>
-        <div style="width:64px;"></div>
+        <div style="width:64px;" aria-hidden="true"></div>
     </header>
 
-    <!-- Toast -->
-    <div class="wasil-toast" id="toastMsg">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <!-- Toast (aria-live so screen readers announce success) -->
+    <div class="wasil-toast" id="toastMsg" role="status" aria-live="polite" aria-atomic="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            aria-hidden="true">
             <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
         <span data-i18n="report.success">Case reported successfully!</span>
     </div>
 
-    <main class="report-main">
+    <main class="report-main" role="main" id="reportMain">
 
         <!-- Info Banner -->
-        <div class="info-banner">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="info-banner" role="note" aria-label="Information about case reporting">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                aria-hidden="true">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -446,13 +533,27 @@
 
         <form id="reportForm" novalidate>
 
+            <!-- Symptoms Selector -->
+            <div class="form-section" id="symptomsSection">
+                <h2 class="section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <span data-i18n="report.sec_symptoms">اختر أعراضك</span>
+                    <span class="optional-badge" data-i18n="report.optional">اختياري</span>
+                </h2>
+                <div class="symptoms-grid" id="symptomsGrid"></div>
+                <p class="symptom-hint" id="symptomHint" style="display:none;" data-i18n="report.symptom_hint">Diseases are filtered based on your symptoms ↓</p>
+            </div>
+
             <!-- Disease -->
             <div class="form-section">
-                <h2 class="section-title" data-i18n="report.sec_disease">Suspected Disease</h2>
+                <h2 class="section-title" data-i18n="report.sec_disease">المرض المشتبه به</h2>
                 <div class="disease-grid" id="diseaseGridContainer">
                     <div style="grid-column: 1 / -1; text-align: center; color: var(--text-light); padding: 20px;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
-                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" class="spin-icon">
+                            <path
+                                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+                            </path>
                         </svg>
                     </div>
                 </div>
@@ -465,20 +566,22 @@
 
             <!-- Location -->
             <div class="form-section">
-                <h2 class="section-title" data-i18n="report.sec_location">Your Location</h2>
+                <h2 class="section-title" data-i18n="report.sec_location">موقعك</h2>
+                
                 <div class="form-group">
-                    <label class="form-label" data-i18n="report.area">Area / Neighborhood</label>
-                    <select id="locationArea" class="form-input" required>
-                        <option value="" disabled selected data-i18n="report.select_area">Select your area...</option>
-                        <option value="Khartoum North" data-i18n="area.khartoum_north">Khartoum North</option>
-                        <option value="Omdurman" data-i18n="area.omdurman">Omdurman</option>
-                        <option value="Bahri" data-i18n="area.bahri">Bahri</option>
-                        <option value="Jabarona" data-i18n="area.jabarona">Jabarona</option>
-                        <option value="Haj Yousif" data-i18n="area.haj_yousif">Haj Yousif</option>
-                        <option value="Sharg Al-Neel" data-i18n="area.sharg_alneel">Sharg Al-Neel</option>
-                        <option value="Khartoum Center" data-i18n="area.khartoum_center">Khartoum Center</option>
-                        <option value="Soba" data-i18n="area.soba">Soba</option>
-                        <option value="__other__" data-i18n="report.other_area">Other area...</option>
+                    <label class="form-label">المحلية</label>
+                    <select id="locationLocality" class="form-input" required>
+                        <option value="" disabled selected>اختر المحلية...</option>
+                        <option value="الخرطوم">الخرطوم</option>
+                        <option value="بحري">بحري</option>
+                        <option value="امدرمان">امدرمان</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top:12px;">
+                    <label class="form-label" data-i18n="report.area">المنطقة / الحي</label>
+                    <select id="locationArea" class="form-input" required disabled>
+                        <option value="" disabled selected data-i18n="report.select_area">اختر المنطقة...</option>
                     </select>
                 </div>
                 <div id="otherLocationGroup" style="display:none;margin-top:12px;">
@@ -488,11 +591,11 @@
                 </div>
                 <!-- Specific address text input -->
                 <div class="form-group" style="margin-top:12px;margin-bottom:0;">
-                    <label class="form-label"><span data-i18n="report.specific_address">Specific Address / Block</span>
+                    <label class="form-label"><span data-i18n="report.specific_address">العنوان الدقيق /المربع</span>
                         <span style="color:var(--text-light);font-weight:400;"
-                            data-i18n="report.optional">(optional)</span></label>
+                            data-i18n="report.optional">(اختياري)</span></label>
                     <input type="text" id="specificAddress" class="form-input"
-                        placeholder="e.g. Block 7, near the school..."
+                        placeholder="مثال: مربع ٧، بالقرب من المدرسة..."
                         data-i18n-placeholder="report.specific_address_ph">
                 </div>
             </div>
@@ -527,6 +630,7 @@
     </main>
 
     <script src="../Js files/wasil-i18n.js"></script>
+    <script src="../Js files/wasil-a11y.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
 
@@ -547,13 +651,13 @@
                     let diseaseList = diseases;
                     if (error || !diseases || diseases.length === 0) {
                         diseaseList = [
-                            {name: 'Cholera', default_severity: 'critical'},
-                            {name: 'Typhoid', default_severity: 'high'},
-                            {name: 'Dengue Fever', default_severity: 'moderate'},
-                            {name: 'Malaria', default_severity: 'low'}
+                            { name: 'Cholera', default_severity: 'critical' },
+                            { name: 'Typhoid', default_severity: 'high' },
+                            { name: 'Dengue Fever', default_severity: 'moderate' },
+                            { name: 'Malaria', default_severity: 'low' }
                         ];
                     }
-                    
+
                     gridContainer.innerHTML = diseaseList.map((d, i) => {
                         const lname = d.name.toLowerCase();
                         let iconPath = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>';
@@ -563,12 +667,12 @@
                         else if (sev === 'high') colorVar = 'var(--high)';
                         else if (sev === 'moderate') colorVar = 'var(--moderate)';
                         else if (sev === 'low') colorVar = '#10B981'; // stable
-                        
+
                         if (lname.includes('cholera')) iconPath = '<circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12H5M19 12h3"></path><path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path>';
                         else if (lname.includes('typhoid')) iconPath = '<path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>';
                         else if (lname.includes('dengue')) iconPath = '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>';
                         else if (lname.includes('malaria')) iconPath = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path>';
-                        
+
                         return `
                         <label class="disease-option">
                             <input type="radio" name="disease" value="${d.name}" ${i === 0 ? 'required' : ''}>
@@ -576,7 +680,8 @@
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="disease-icon" style="color:${colorVar};margin-bottom:4px;">
                                     ${iconPath}
                                 </svg>
-                                <span>${d.name}</span>
+                                <span>${typeof translateDisease === 'function' ? translateDisease(d.name) : d.name}</span>
+                                <span class="best-match-badge">Best Match</span>
                             </div>
                         </label>`;
                     }).join('') + `
@@ -606,6 +711,75 @@
                                 this.value === '__other__' ? 'block' : 'none';
                         });
                     });
+
+                    // ── SYMPTOMS SETUP ──
+                    const SYMPTOM_MAP = {
+                        'Cholera':     ['إسهال مائي', 'قيء', 'جفاف', 'تشنجات عضلية', 'غثيان'],
+                        'Typhoid':     ['حمى شديدة', 'ألم في البطن', 'صداع', 'ضعف عام', 'طفح جلدي', 'غثيان'],
+                        'Dengue Fever':['حمى شديدة', 'صداع حاد', 'ألم في المفاصل', 'ألم عضلي', 'طفح جلدي', 'ألم خلف العينين', 'قيء'],
+                        'Malaria':     ['حمى', 'قشعريرة', 'تعرق', 'صداع', 'ألم عضلي', 'غثيان', 'قيء']
+                    };
+
+                    // Build unique symptom list
+                    const allSymptoms = [...new Set(Object.values(SYMPTOM_MAP).flat())];
+                    const selectedSymptoms = new Set();
+                    const symptomsGrid = document.getElementById('symptomsGrid');
+
+                    allSymptoms.forEach(symptom => {
+                        const chip = document.createElement('span');
+                        chip.className = 'symptom-chip';
+                        chip.textContent = symptom;
+                        chip.addEventListener('click', () => {
+                            if (selectedSymptoms.has(symptom)) {
+                                selectedSymptoms.delete(symptom);
+                                chip.classList.remove('selected');
+                            } else {
+                                selectedSymptoms.add(symptom);
+                                chip.classList.add('selected');
+                            }
+                            updateDiseaseHighlights();
+                        });
+                        symptomsGrid.appendChild(chip);
+                    });
+
+                    function updateDiseaseHighlights() {
+                        const hint = document.getElementById('symptomHint');
+                        const cards = document.querySelectorAll('.disease-card');
+                        cards.forEach(c => {
+                            c.classList.remove('best-match');
+                        });
+
+                        if (selectedSymptoms.size === 0) {
+                            hint.style.display = 'none';
+                            return;
+                        }
+                        hint.style.display = 'block';
+
+                        // Score each disease
+                        let bestScore = 0;
+                        let bestDisease = null;
+                        diseaseList.forEach(d => {
+                            const symptoms = SYMPTOM_MAP[d.name] || [];
+                            const score = [...selectedSymptoms].filter(s => symptoms.includes(s)).length;
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestDisease = d.name;
+                            }
+                        });
+
+                        if (!bestDisease || bestScore === 0) return;
+
+                        // Find the radio input for bestDisease and highlight its card
+                        document.querySelectorAll('input[name="disease"]').forEach(radio => {
+                            if (radio.value === bestDisease) {
+                                const card = radio.nextElementSibling;
+                                if (card) card.classList.add('best-match');
+                                // Auto-select the best match radio
+                                radio.checked = true;
+                                radio.dispatchEvent(new Event('change'));
+                            }
+                        });
+                    }
                 } catch (e) {
                     console.error("Error loading diseases", e);
                 }
@@ -615,6 +789,34 @@
             document.getElementById('locationArea').addEventListener('change', function () {
                 document.getElementById('otherLocationGroup').style.display =
                     this.value === '__other__' ? 'block' : 'none';
+            });
+
+            // ── LOCALITY -> AREA LOGIC ──
+            const areasByLocality = {
+                "الخرطوم": ["وسط الخرطوم", "جبل اولياء", "الخرطوم 1", "الخرطوم 2", "الخرطوم 3", "جنوب الحزام", "الشجرة", "أخرى"],
+                "امدرمان": ["امدرمان", "امدرمان القديمة", "كرري", "امبدة", "أخرى"],
+                "بحري": ["بحري المدينة", "بحري وسط", "بحري شمال", "ريفي بحري", "شرق النيل", "أخرى"]
+            };
+
+            const localitySelect = document.getElementById('locationLocality');
+            const areaSelect = document.getElementById('locationArea');
+
+            localitySelect.addEventListener('change', function() {
+                const locality = this.value;
+                areaSelect.innerHTML = '<option value="" disabled selected>اختر المنطقة...</option>';
+                document.getElementById('otherLocationGroup').style.display = 'none';
+
+                if (locality && areasByLocality[locality]) {
+                    areasByLocality[locality].forEach(area => {
+                        const option = document.createElement('option');
+                        option.value = area === 'أخرى' ? '__other__' : area;
+                        option.textContent = area;
+                        areaSelect.appendChild(option);
+                    });
+                    areaSelect.disabled = false;
+                } else {
+                    areaSelect.disabled = true;
+                }
             });
 
             // ── CHARACTER COUNT ──
@@ -652,7 +854,13 @@
                 }
 
                 let disease = diseaseRadio.value === '__other__' ? (otherDisease || 'Other') : diseaseRadio.value;
+                const locality = document.getElementById('locationLocality').value || '';
                 let location = locationArea === '__other__' ? (otherLocation || 'Other area') : locationArea;
+                if (locality && locationArea !== '__other__') {
+                    location = `${locality}, ${location}`;
+                } else if (locality && locationArea === '__other__') {
+                    location = `${locality}, ${location}`;
+                }
                 if (specificAddress) location += `, ${specificAddress}`;
 
                 // Loading state
@@ -673,7 +881,7 @@
                             .ilike('disease', disease);
                         const totalCount = (existingCount || 0) + 1;
                         let computedSeverity = 'low';
-                        if (totalCount >= 61)      computedSeverity = 'critical';
+                        if (totalCount >= 61) computedSeverity = 'critical';
                         else if (totalCount >= 31) computedSeverity = 'high';
                         else if (totalCount >= 11) computedSeverity = 'moderate';
 

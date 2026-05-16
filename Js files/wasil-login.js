@@ -1,5 +1,5 @@
 // ============================================
-// WASIL LOGIN PAGE - ROLE-BASED AUTH
+//  wasil LOGIN PAGE - ROLE-BASED AUTH
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (forgotPasswordLink) {
         forgotPasswordLink.addEventListener('click', function (e) {
             e.preventDefault();
-            window.location.href = 'Wasil-forgotpassword.html';
+            window.location.href = 'wasil-forgotpassword.html';
         });
     }
 
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Apply translations on load
     if (typeof applyLanguage === 'function') applyLanguage();
 
-    console.log('Wasil Login Page Initialized ✓ Role:', role);
+    console.log('wasil Login Page Initialized ✓ Role:', role);
 });
 
 // === SHARED NOTIFICATION SYSTEM ===
@@ -276,3 +276,4 @@ function showNotification(message, type = 'info') {
         setTimeout(() => n.remove(), 300);
     }, 3500);
 }
+

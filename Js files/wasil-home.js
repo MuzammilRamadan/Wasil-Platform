@@ -1,9 +1,9 @@
 // ============================================
-// WASIL Electronic Health Platform — Home Logic
+//  wasil Electronic Health Platform — Home Logic
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('WASIL Electronic Health Platform Loaded');
+    console.log('wasil Electronic Health Platform Loaded');
 
     // ── 0. Session Check ──
     async function checkSession() {
@@ -25,14 +25,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // ... (existing role UI logic) ...
 
     // ── DATA FETCHING ──
-    fetchOutbreakStatus();
     if (!isOrg) {
         fetchClinics();
+        fetchNotifications();
     } else {
         fetchDashboardStats();
         fetchServiceRequests();
         fetchAssignedClinics();
     }
+    // Always update disease severity labels and locality outbreak on home
+    fetchDiseaseSeverityForHome();
 
     // ── Function: Fetch & Render Outbreak Status (Real-time by area) ──
     async function fetchOutbreakStatus() {
@@ -47,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (error || !cases || cases.length === 0) {
             container.innerHTML = `<div class="empty-state" style="padding:1rem 0;">
-                <p style="color:var(--text-light);font-size:0.82rem;">No cases reported yet.</p>
+                <p style="color:var(--text-light);font-size:0.82rem;">${t('home.no_cases_reported') || 'No cases reported yet.'}</p>
             </div>`;
             return;
         }
@@ -72,10 +74,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function severityStyle(sev) {
-            if (sev === 'critical') return { color: 'var(--alert)', bg: 'rgba(239,68,68,0.08)', label: 'HIGH RISK', border: 'var(--alert)' };
-            if (sev === 'high')     return { color: '#F59E0B',       bg: 'rgba(245,158,11,0.08)', label: 'HIGH',      border: '#F59E0B' };
-            if (sev === 'moderate') return { color: 'var(--warning)', bg: 'rgba(245,158,11,0.08)', label: 'MODERATE',  border: 'var(--warning)' };
-            return { color: 'var(--success)', bg: 'rgba(16,185,129,0.08)', label: 'LOW', border: 'var(--success)' };
+            if (sev === 'critical') return { color: 'var(--alert)', bg: 'rgba(239,68,68,0.08)', label: t('home.sev_critical') || 'CRITICAL', border: 'var(--alert)' };
+            if (sev === 'high') return { color: '#F59E0B', bg: 'rgba(245,158,11,0.08)', label: t('home.sev_high') || 'HIGH', border: '#F59E0B' };
+            if (sev === 'moderate') return { color: 'var(--warning)', bg: 'rgba(245,158,11,0.08)', label: t('home.sev_moderate') || 'MODERATE', border: 'var(--warning)' };
+            return { color: 'var(--success)', bg: 'rgba(16,185,129,0.08)', label: t('home.sev_low') || 'LOW', border: 'var(--success)' };
         }
 
         // Sort areas by case count descending
@@ -92,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <h4 style="margin:0;">${area}</h4>
                         <span class="status-badge" style="color:${style.color};background:${style.bg};">${style.label}</span>
                     </div>
-                    <p style="font-size:0.78rem;color:${style.color};font-weight:600;">${info.count} Reported Case${info.count !== 1 ? 's' : ''}</p>
+                    <p style="font-size:0.78rem;color:${style.color};font-weight:600;">${info.count} <span style="text-transform: capitalize">${info.count !== 1 ? t('home.cases_label') || 'Cases' : t('home.case_label') || 'Case'}</span></p>
                 </div>
                 <span class="status-badge" style="color:${style.color};background:${style.bg};font-size:0.7rem;">${info.count}</span>
             </div>`;
@@ -112,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const listContainer = document.getElementById('clinicsList');
         if (!listContainer) return;
 
-        const { data: clinics, error } = await supabase
+        let { data: clinics, error } = await supabase
             .from('clinic_requests')
             .select('*')
             .eq('status', 'approved')
@@ -120,22 +122,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (error) {
             console.error('Error fetching clinics:', error);
-            listContainer.innerHTML = `<div class="empty-state">
-                <p>Failed to load clinics.</p>
-            </div>`;
-            return;
+            if (sessionStorage.getItem('demo_mode')) {
+                clinics = [
+                    { clinic_name: "عيادة الأمل المتنقلة", org_name: "وزارة الصحة", target_area: "بحري, شرق النيل", capacity: 150, schedule: "2026-05-20", diseases: ["Cholera", "Malaria"] },
+                    { clinic_name: "عيادة الإغاثة", org_name: "منظمة أطباء بلا حدود", target_area: "امدرمان, امبدة", capacity: 200, schedule: "2026-05-18", diseases: ["Dengue Fever"] }
+                ];
+            } else {
+                listContainer.innerHTML = `<div class="empty-state">
+                    <p>Failed to load clinics.</p>
+                </div>`;
+                return;
+            }
         }
 
         if (clinics && clinics.length > 0) {
             listContainer.innerHTML = ''; // Clear loading content
             clinics.forEach((clinic, index) => {
                 const diseasesArray = Array.isArray(clinic.diseases) ? clinic.diseases : (clinic.diseases ? [clinic.diseases] : []);
-                const vaccines = diseasesArray.map(v => `<span class="vaccine-tag">${v}</span>`).join('');
+                const vaccines = diseasesArray.map(v => `<span class="vaccine-tag">${translateDisease(v)}</span>`).join('');
                 const clinicName = clinic.clinic_name || `${clinic.org_name || 'Organization'} Clinic`;
 
                 const html = `
                 <div class="clinic-card" style="cursor:pointer;" data-clinic-id="${index}">
-                    <span class="clinic-number">CLINIC #${index + 1}</span>
+                    <span class="clinic-number">${t('home.clinic_num') || 'CLINIC #'} ${index + 1}</span>
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                         <h4 style="margin: 0; padding-right: 10px;">${clinicName}</h4>
                         <span class="clinic-org-badge">${clinic.org_name || 'Admin'}</span>
@@ -161,7 +170,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         ${vaccines}
                     </div>
                     <div style="margin-top:10px;text-align:right;">
-                        <span style="font-size:0.78rem;color:var(--primary);font-weight:600;">View Details &rsaquo;</span>
+                        <button class="request-assign-btn" style="width:100%; margin-bottom:8px;" onclick="event.stopPropagation(); alert('تم تسجيلك للعيادة بنجاح وسيتم إرسال رسالة تأكيد لرقمك');">التسجيل لحجز موعد</button>
+                        <span style="font-size:0.78rem;color:var(--primary);font-weight:600;">${t('home.view_details') || 'View Details'} &rsaquo;</span>
                     </div>
                 </div>`;
                 listContainer.insertAdjacentHTML('beforeend', html);
@@ -184,12 +194,66 @@ document.addEventListener('DOMContentLoaded', function () {
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
-                <h4>No Deployed Clinics</h4>
-                <p>There are currently no active mobile clinics deployed by the Ministry of Health.</p>
+                <h4>${t('home.no_deployed_clinics') || 'No Deployed Clinics'}</h4>
+                <p>${t('home.no_deployed_desc') || 'There are currently no active mobile clinics deployed by the Ministry of Health.'}</p>
             </div>`;
         }
     }
 
+    // ── Function: Fetch Notifications (Community) ──
+    async function fetchNotifications() {
+        const notifContainer = document.getElementById('communityNotificationsList');
+        if (!notifContainer) return;
+
+        let { data: clinics, error } = await supabase
+            .from('clinic_requests')
+            .select('*')
+            .eq('status', 'approved')
+            .order('created_at', { ascending: false });
+
+        if (error || !clinics || clinics.length === 0) {
+            if (sessionStorage.getItem('demo_mode') && error) {
+                clinics = [
+                    { clinic_name: "عيادة الأمل المتنقلة", org_name: "وزارة الصحة", target_area: "بحري, شرق النيل", capacity: 150, schedule: "2026-05-20", diseases: ["Cholera", "Malaria"] },
+                    { clinic_name: "عيادة الإغاثة", org_name: "منظمة أطباء بلا حدود", target_area: "امدرمان, امبدة", capacity: 200, schedule: "2026-05-18", diseases: ["Dengue Fever"] }
+                ];
+            } else {
+                notifContainer.innerHTML = `<div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <h4>لا توجد إشعارات جديدة</h4>
+                    <p>سيتم إشعارك فور توفر عيادات متنقلة بالقرب من موقعك.</p>
+                </div>`;
+                return;
+            }
+        }
+
+        notifContainer.innerHTML = '';
+        clinics.forEach((clinic) => {
+            const clinicName = clinic.clinic_name || `${clinic.org_name || 'Organization'} Clinic`;
+            const area = clinic.target_area || 'Various';
+            
+            const html = `
+            <div class="service-request-item" style="padding: 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; background: var(--white);">
+                <div class="request-icon" style="background: rgba(16, 185, 129, 0.08); color: #10B981; padding: 8px; border-radius: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                </div>
+                <div class="request-content" style="flex: 1;">
+                    <h5 style="margin: 0 0 4px 0; font-size: 0.95rem; color: var(--text);">تم نشر عيادة جديدة</h5>
+                    <p style="margin: 0; font-size: 0.82rem; color: var(--text-light); line-height: 1.4;">
+                        عيادة <strong>${clinicName}</strong> متوفرة الآن في منطقة <strong>${area}</strong>.
+                    </p>
+                </div>
+                <span class="new-badge" style="background: #10B981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold;">جديد</span>
+            </div>`;
+            notifContainer.insertAdjacentHTML('beforeend', html);
+        });
+    }
     // ── Function: Show Clinic Detail ──
     function showClinicDetail(index) {
         const clinic = (window._wasilClinics || [])[index];
@@ -197,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const clinicName = clinic.clinic_name || `${clinic.org_name || 'Organization'} Clinic`;
         const diseasesArray = Array.isArray(clinic.diseases) ? clinic.diseases : (clinic.diseases ? [clinic.diseases] : []);
-        const supplyTags = diseasesArray.map(v => `<span class="vaccine-tag" style="margin:3px;">${v}</span>`).join('');
+        const supplyTags = diseasesArray.map(v => `<span class="vaccine-tag" style="margin:3px;">${translateDisease(v)}</span>`).join('');
         const deployDate = clinic.schedule ? new Date(clinic.schedule).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
 
         const content = document.getElementById('clinicDetailContent');
@@ -210,10 +274,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 </svg>
             </div>
-            <span style="font-size:0.7rem;font-weight:700;letter-spacing:2px;opacity:0.8;">DEPLOYED CLINIC</span>
+            <span style="font-size:0.7rem;font-weight:700;letter-spacing:2px;opacity:0.8;">${t('home.deployed_clinic_label') || 'DEPLOYED CLINIC'}</span>
             <h3 style="margin:6px 0 4px;font-size:1.1rem;">${clinicName}</h3>
             <p style="font-size:0.82rem;opacity:0.85;margin:0;">${clinic.org_name || 'Ministry of Health'}</p>
-            <span style="display:inline-block;margin-top:10px;background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;">APPROVED &amp; ACTIVE</span>
+            <span style="display:inline-block;margin-top:10px;background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;">${t('home.status_active') || 'APPROVED & ACTIVE'}</span>
         </div>
 
         <div style="background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);margin-bottom:12px;">
@@ -243,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <path d="M16.5 4.5l-9.2 9.2a2 2 0 0 0-.5 1.3V18h3a2 2 0 0 0 1.3-.5l9.2-9.2"></path>
                     <path d="M6 18L2 22"></path>
                 </svg>
-                Supplies &amp; Services Offered
+                ${t('home.supplies_label') || 'Supplies'}
             </h4>
             ${diseasesArray.length > 0
                 ? `<div style="display:flex;flex-wrap:wrap;gap:6px;">${supplyTags}</div>`
@@ -251,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
 
         <div style="background:rgba(37,99,235,0.04);border:1px solid rgba(37,99,235,0.15);border-radius:14px;padding:16px;">
-            <p style="font-size:0.8rem;color:var(--primary);font-weight:600;margin:0 0 4px;">&#128337; Operating Hours</p>
+            <p style="font-size:0.8rem;color:var(--primary);font-weight:600;margin:0 0 4px;">&#128337; ${t('home.operative_hours') || 'Operating Hours'}</p>
             <p style="font-size:0.82rem;color:var(--text);margin:0;">${deployDate ? 'From ' + deployDate : '7:00 AM – 5:00 PM daily (or as scheduled by clinic)'}</p>
         </div>`;
 
@@ -259,107 +323,166 @@ document.addEventListener('DOMContentLoaded', function () {
         navItems.forEach(nav => nav.classList.remove('active'));
     }
 
+    // ── Function: Fetch Disease Severity Labels for Home (all roles) ──
+    async function fetchDiseaseSeverityForHome() {
+        const diseaseNames = ['Cholera', 'Typhoid', 'Dengue Fever', 'Malaria'];
+        const idMap = { 'Cholera': 'sev-cholera', 'Typhoid': 'sev-typhoid', 'Dengue Fever': 'sev-dengue', 'Malaria': 'sev-malaria' };
+        const dotIdMap = { 'Cholera': 0, 'Typhoid': 1, 'Dengue Fever': 2, 'Malaria': 3 };
+
+        let cases = [];
+        if (window.supabase) {
+            const { data } = await window.supabase.from('cases').select('disease');
+            if (data) cases = data;
+        }
+
+        const countMap = {};
+        diseaseNames.forEach(d => countMap[d] = 0);
+        cases.forEach(c => {
+            const key = diseaseNames.find(d => c.disease && c.disease.toLowerCase() === d.toLowerCase());
+            if (key) countMap[key]++;
+        });
+
+        const maxCount = Math.max(...Object.values(countMap), 1);
+
+        diseaseNames.forEach(d => {
+            const el = document.getElementById(idMap[d]);
+            if (!el) return;
+            const count = countMap[d];
+            const ratio = count / maxCount;
+            let sevLabel, sevColor;
+            if (ratio >= 0.75) { sevLabel = 'خطورة حرجة'; sevColor = '#EF4444'; }
+            else if (ratio >= 0.5) { sevLabel = 'خطورة عالية'; sevColor = '#F59E0B'; }
+            else if (ratio >= 0.25) { sevLabel = 'خطورة متوسطة'; sevColor = '#3B82F6'; }
+            else { sevLabel = 'مستوى منخفض'; sevColor = '#10B981'; }
+            el.textContent = `${sevLabel} — ${count} حالة`;
+            el.style.color = sevColor;
+        });
+
+        // Also fill locality outbreak list (org only)
+        const localityEl = document.getElementById('localityOutbreakList');
+        if (!localityEl) return;
+
+        const LOCALITIES = ['الخرطوم', 'بحري', 'امدرمان'];
+        let allCases = [];
+        if (window.supabase) {
+            const { data } = await window.supabase.from('cases').select('location, disease');
+            if (data) allCases = data;
+        }
+
+        const localityMap = {};
+        LOCALITIES.forEach(l => localityMap[l] = 0);
+        allCases.forEach(c => {
+            const loc = (c.location || '').trim();
+            const matched = LOCALITIES.find(l => loc.startsWith(l));
+            if (matched) localityMap[matched]++;
+        });
+
+        const totalAll = Object.values(localityMap).reduce((a, b) => a + b, 0) || 1;
+        localityEl.innerHTML = LOCALITIES.map(l => {
+            const cnt = localityMap[l];
+            const pct = Math.round((cnt / totalAll) * 100);
+            const color = cnt > 20 ? '#EF4444' : cnt > 10 ? '#F59E0B' : '#10B981';
+            return `
+            <div class="disease-item">
+                <div class="disease-header">
+                    <h4 style="font-size:0.95rem;">${l}</h4>
+                    <span class="risk-dot" style="background:${color};"></span>
+                </div>
+                <p class="disease-symptoms" style="color:${color};font-weight:600;">${cnt} حالة مبلغة (${pct}%)</p>
+            </div>`;
+        }).join('');
+    }
+
     // ── Function: Fetch Dashboard Stats (Organization) ──
     async function fetchDashboardStats() {
         if (!window.supabase) return;
-        
+
         try {
-            // Fetch diseases
-            const { data: activeDiseases } = await window.supabase
-                .from('diseases')
-                .select('*')
-                .eq('is_active', true)
-                .order('created_at', { ascending: true });
-                
-            // Fetch cases
-            const { data: cases, error } = await window.supabase
-                .from('cases')
-                .select('*');
-
+            const { data: cases, error } = await window.supabase.from('cases').select('*');
             if (error) throw error;
-            
-            const diseaseList = (activeDiseases && activeDiseases.length > 0) ? activeDiseases : [
-                {name: 'Cholera', default_severity: 'critical'},
-                {name: 'Typhoid', default_severity: 'high'},
-                {name: 'Dengue Fever', default_severity: 'moderate'},
-                {name: 'Malaria', default_severity: 'low'}
-            ];
 
-            // 1. DYNAMIC DISEASE SEVERITY CARDS
-            const grid = document.getElementById('diseaseCardsGrid');
-            if (grid) {
-                grid.innerHTML = diseaseList.map(disease => {
-                    const count = cases ? cases.filter(c => c.disease && c.disease.toLowerCase() === disease.name.toLowerCase()).length : 0;
-                    const sev = disease.default_severity || 'moderate';
-                    const sevClass = sev === 'critical' ? 'critical' : sev === 'high' ? 'high' : sev === 'low' ? 'low' : 'moderate';
-                    const sevLabel = (sev === 'low' ? 'stable' : sev).toUpperCase();
-                    
+            const LOCALITIES = ['الخرطوم', 'بحري', 'امدرمان'];
+            const LOCALITY_AREAS = {
+                'الخرطوم': ['وسط الخرطوم', 'جبل اولياء', 'الخرطوم 1', 'الخرطوم 2', 'الخرطوم 3', 'جنوب الحزام', 'الشجرة'],
+                'امدرمان': ['امدرمان', 'امدرمان القديمة', 'كرري', 'امبدة'],
+                'بحري': ['بحري المدينة', 'بحري وسط', 'بحري شمال', 'ريفي بحري', 'شرق النيل']
+            };
+            const DISEASE_NAMES = ['الكوليرا', 'التيفوئيد', 'حمى الضنك', 'الملاريا'];
+
+            // Build data structure: locality -> area -> disease -> count
+            const localityData = {};
+            LOCALITIES.forEach(l => {
+                localityData[l] = { total: 0, areas: {} };
+                LOCALITY_AREAS[l].forEach(a => {
+                    localityData[l].areas[a] = { total: 0, diseases: {} };
+                    DISEASE_NAMES.forEach(d => localityData[l].areas[a].diseases[d] = 0);
+                });
+            });
+
+            (cases || []).forEach(c => {
+                const loc = (c.location || '').trim();
+                const dis = translateDisease(c.disease) || c.disease || 'غير محدد';
+                const matchedLocality = LOCALITIES.find(l => loc.startsWith(l));
+                if (!matchedLocality) return;
+                const rest = loc.slice(matchedLocality.length).replace(/^[,\s]+/, '');
+                const matchedArea = LOCALITY_AREAS[matchedLocality].find(a => rest.startsWith(a)) || 'غير محدد';
+
+                localityData[matchedLocality].total++;
+                if (!localityData[matchedLocality].areas[matchedArea]) {
+                    localityData[matchedLocality].areas[matchedArea] = { total: 0, diseases: {} };
+                    DISEASE_NAMES.forEach(d => localityData[matchedLocality].areas[matchedArea].diseases[d] = 0);
+                }
+                localityData[matchedLocality].areas[matchedArea].total++;
+                if (DISEASE_NAMES.includes(dis)) {
+                    localityData[matchedLocality].areas[matchedArea].diseases[dis]++;
+                }
+            });
+
+            const container = document.getElementById('localityCaseCards');
+            if (!container) return;
+
+            if (!cases || cases.length === 0) {
+                container.innerHTML = `<p style="text-align:center;color:var(--text-light);padding:20px;">لا توجد حالات مبلغة حتى الآن.</p>`;
+                return;
+            }
+
+            container.innerHTML = LOCALITIES.map((locality, li) => {
+                const lData = localityData[locality];
+                const sevColor = lData.total > 20 ? '#EF4444' : lData.total > 10 ? '#F59E0B' : '#10B981';
+                const areaCards = Object.entries(lData.areas).map(([areaName, aData]) => {
+                    if (aData.total === 0) return '';
+                    const disBreakdown = Object.entries(aData.diseases)
+                        .filter(([, cnt]) => cnt > 0)
+                        .map(([dis, cnt]) => `<span style="font-size:0.72rem;background:rgba(37,99,235,0.08);color:var(--primary);border-radius:12px;padding:2px 8px;margin:2px;display:inline-block;">${dis}: ${cnt}</span>`)
+                        .join('');
                     return `
-                    <div class="severity-card ${sevClass === 'critical' || sevClass === 'high' ? '' : sevClass}">
-                        <h5>${disease.name}</h5>
-                        <div class="severity-level ${sevClass}">${sevLabel}</div>
-                        <div class="case-count">${count.toLocaleString()}</div>
-                        <div class="case-label">reported cases</div>
+                    <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-top:8px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <span style="font-size:0.88rem;font-weight:700;color:var(--text);">${areaName}</span>
+                            <span style="font-size:0.78rem;font-weight:700;color:var(--primary);background:rgba(37,99,235,0.08);padding:2px 8px;border-radius:20px;">${aData.total} حالة</span>
+                        </div>
+                        <div>${disBreakdown || '<span style="font-size:0.75rem;color:var(--text-light);">-</span>'}</div>
                     </div>`;
                 }).join('');
-            }
 
-            // 2. REPORTED CASES (Aggregated by Area with Sublocations)
-            const casesList = document.getElementById('reportedCasesList');
-            if (casesList) {
-                if (!cases || cases.length === 0) {
-                    casesList.innerHTML = '<p style="text-align:center;color:var(--text-light);padding:20px;">No cases reported yet.</p>';
-                } else {
-                    const areaMap = {};
-                    cases.forEach(c => {
-                        const area = (c.location || 'Unknown').split(',')[0].trim();
-                        if (!areaMap[area]) areaMap[area] = { count: 0, subLocations: [], severities: [] };
-                        
-                        areaMap[area].count++;
-                        areaMap[area].severities.push(c.severity || 'low');
-                        
-                        let specificLoc = c.location && c.location.indexOf(',') !== -1 ? c.location.slice(c.location.indexOf(',') + 1).trim() : 'Unknown area';
-                        areaMap[area].subLocations.push({ loc: specificLoc, dis: c.disease, sev: c.severity || 'low' });
-                    });
-                    
-                    const sortedAreas = Object.entries(areaMap).sort((a, b) => b[1].count - a[1].count);
-                    
-                    casesList.innerHTML = sortedAreas.map(([areaName, info]) => {
-                        // determine highest severity
-                        let topSev = 'low';
-                        for (const s of ['critical', 'high', 'moderate']) {
-                            if (info.severities.includes(s)) { topSev = s; break; }
-                        }
-                        const badgeClass = topSev === 'critical' ? 'critical' : (topSev === 'high' ? 'high' : (topSev === 'moderate' ? 'moderate' : 'low'));
-                        
-                        const subLocsHtml = info.subLocations.slice(0,4).map(sub => `
-                        <div style="font-size:0.75rem; color:var(--text); padding:3px 0; border-bottom:1px solid rgba(0,0,0,0.04); display:flex; justify-content:space-between;">
-                            <span>• ${sub.loc}</span>
-                            <span style="font-weight:600; opacity:0.8;">${sub.dis || '—'}</span>
+                return `
+                <div class="case-item" style="flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;border-radius:12px;border:1.5px solid var(--border);margin-bottom:10px;">
+                    <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'; this.querySelector('.expand-arrow').style.transform=this.nextElementSibling.style.display==='block'?'rotate(180deg)':'rotate(0deg)';"
+                        style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;background:var(--white);">
+                        <div>
+                            <h5 style="margin:0;font-size:0.95rem;color:var(--text);">${locality}</h5>
+                            <p style="margin:4px 0 0;font-size:0.78rem;color:${sevColor};font-weight:700;">${lData.total} حالة مبلغة</p>
                         </div>
-                        `).join('');
-                        const extra = info.subLocations.length > 4 ? `<div style="font-size:0.7rem;color:var(--text-light);margin-top:4px;text-align:center;">+ ${info.subLocations.length - 4} more</div>` : '';
-
-                        return `
-                        <div class="case-item" style="flex-direction:column; align-items:stretch; gap:8px;">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                                <div class="case-info">
-                                    <h5>${areaName}</h5>
-                                    <p>${info.count} Total Cases</p>
-                                </div>
-                                <div class="case-meta">
-                                    <span class="case-severity-tag ${badgeClass}">${topSev.toUpperCase()}</span>
-                                </div>
-                            </div>
-                            <div style="background:var(--bg-light); border-radius:6px; padding:8px 10px; margin-top:4px;">
-                                <span style="font-size:0.7rem; font-weight:700; color:var(--text-light); display:block; margin-bottom:4px; text-transform:uppercase;">Specific Locations</span>
-                                ${subLocsHtml}
-                                ${extra}
-                            </div>
-                        </div>`;
-                    }).join('');
-                }
-            }
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="width:12px;height:12px;border-radius:50%;background:${sevColor};display:inline-block;"></span>
+                            <span class="expand-arrow" style="font-size:1.1rem;color:var(--text-light);transition:transform 0.2s;">&#8964;</span>
+                        </div>
+                    </div>
+                    <div style="display:none;padding:12px 14px 14px;background:#fafafa;border-top:1px solid var(--border);">
+                        ${areaCards || '<p style="font-size:0.82rem;color:var(--text-light);text-align:center;">لا توجد حالات محددة لهذه المحلية</p>'}
+                    </div>
+                </div>`;
+            }).join('');
 
         } catch (err) {
             console.error('fetchDashboardStats error:', err);
@@ -371,10 +494,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const list = document.getElementById('serviceRequestsList');
         if (!list) return;
 
-        // Realtime subscription
         supabase.channel('public:service_requests')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'service_requests' }, payload => {
-                showToast('New Service Request Received!');
+                showToast(t('home.new_service_req') ? t('home.new_service_req') + '!' : 'New Service Request Received!');
                 renderRequestItem(payload.new, list, true);
             })
             .subscribe();
@@ -477,13 +599,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const notifList = document.getElementById('notificationsList');
         if (notifList) {
             if (notifications.length === 0) {
-                notifList.innerHTML = '<p style="text-align:center;color:var(--text-light);font-size:0.85rem;padding:20px;">No new notifications</p>';
+                notifList.innerHTML = `<p style="text-align:center;color:var(--text-light);font-size:0.85rem;padding:20px;">${t('home.no_new_notifs') || 'No new notifications'}</p>`;
             } else {
                 notifList.innerHTML = notifications.map(n => {
                     const reqDate = n.created_at ? new Date(n.created_at).toLocaleDateString() : '';
                     return `<div style="background:rgba(231,76,60,0.05);border-left:4px solid #E74C3C;padding:12px;border-radius:6px;font-size:0.85rem;">
-                        <div style="font-weight:700;color:#E74C3C;margin-bottom:4px;">Request Rejected - ${n.clinic_name || n.target_area || 'Clinic'}</div>
-                        <div style="color:var(--text);margin-bottom:6px;">Your clinic request on ${reqDate} was rejected.</div>
+                        <div style="font-weight:700;color:#E74C3C;margin-bottom:4px;">${t('home.status_rejected') || 'Request Rejected'} - ${n.clinic_name || n.target_area || 'Clinic'}</div>
+                        <div style="color:var(--text);margin-bottom:6px;">${t('home.notif_rejected') || 'Your clinic request was rejected'} (${reqDate})</div>
                         <div style="background:#fff;padding:8px;border-radius:4px;font-size:0.8rem;color:var(--text-light);font-style:italic;">
                             " ${n.rejection_reason || 'No specific reason provided by reviewer.'} "
                         </div>
@@ -497,20 +619,20 @@ document.addEventListener('DOMContentLoaded', function () {
             myRequests.forEach(req => {
                 const clinicName = req.clinic_name || `${req.target_area || 'Clinic'} Assignment`;
                 const displayDate = req.created_at ? new Date(req.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown date';
-                const diseasesOverview = Array.isArray(req.diseases) ? req.diseases.join(', ') : (req.diseases || 'General Medical');
+                const diseasesOverview = Array.isArray(req.diseases) ? req.diseases.map(translateDisease).join(', ') : translateDisease(req.diseases || 'General Medical');
 
                 let statusClass = '';
                 let statusText = 'Pending';
 
                 if (req.status === 'approved') {
                     statusClass = 'active';
-                    statusText = 'Active';
+                    statusText = t('home.status_active') || 'Active';
                 } else if (req.status === 'rejected') {
                     statusClass = 'rejected';
-                    statusText = 'Rejected';
+                    statusText = t('home.status_rejected') || 'Rejected';
                 } else {
                     statusClass = 'pending';
-                    statusText = 'Pending';
+                    statusText = t('home.status_pending') || 'Pending';
                 }
 
                 const html = `
@@ -529,8 +651,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                 </svg>
-                <h4>No Requests Yet</h4>
-                <p>You haven't submitted any clinic deployment requests.</p>
+                <h4>${t('home.no_requests_yet') || 'No Requests Yet'}</h4>
+                <p>${t('home.no_requests_desc') || "You haven't submitted any clinic deployment requests."}</p>
             </div>`;
         }
     }
@@ -544,7 +666,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── 3. Organization-Specific UI Changes ──
     if (isOrg) {
-        // Change "Services" to "Requested Services"
+        // Update hero description for org role
+        const heroDesc = document.getElementById('heroDynamicDesc');
+        if (heroDesc) {
+            heroDesc.textContent = 'ادر طلبات نشر العيادات، وراقب حالة الوباء، واستجب بسرعة لتقارير المجتمع';
+        }
+
         const servicesLabel = document.getElementById('navServicesLabel');
         const servicesTitle = document.getElementById('servicesViewTitle');
         const navServicesBtn = document.getElementById('navServicesBtn');
@@ -552,7 +679,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (servicesLabel) servicesLabel.textContent = 'Requested Services';
         if (servicesTitle) servicesTitle.textContent = 'Requested Services';
 
-        // Change the services nav target to requested-services view
         if (navServicesBtn) {
             navServicesBtn.setAttribute('data-target', 'view-requested-services');
             navServicesBtn.setAttribute('href', '#requested-services');
@@ -642,32 +768,50 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ── 7. Assignation Modal ──
+    // ── 7. Assignation Modal — with FocusTrap & aria-hidden ──
     const modal = document.getElementById('assignationModal');
     const btnRequestAssignation = document.getElementById('btnRequestAssignation');
     const assignationForm = document.getElementById('assignationForm');
 
-    if (btnRequestAssignation && modal) {
-        btnRequestAssignation.addEventListener('click', function () {
+    // Build a FocusTrap instance for each modal
+    const assignTrap = window.wasilA11y ? new wasilA11y.FocusTrap(modal) : null;
+    const notifTrapEl = document.getElementById('notificationsModal');
+    const notifTrap = window.wasilA11y && notifTrapEl ? new wasilA11y.FocusTrap(notifTrapEl) : null;
+    const svcModalEl = document.getElementById('serviceRequestModal');
+    const svcTrap = window.wasilA11y && svcModalEl ? new wasilA11y.FocusTrap(svcModalEl) : null;
+
+    function openAssignModal() {
+        if (!modal) return;
+        if (window.wasilA11y && assignTrap) {
+            wasilA11y.openModal(modal, assignTrap);
+        } else {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
-        });
+        }
     }
 
-    // Close modal on overlay click
-    if (modal) {
-        modal.addEventListener('click', function (e) {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-    }
-
-    function closeModal() {
-        if (modal) {
+    function closeAssignModal() {
+        if (!modal) return;
+        if (window.wasilA11y && assignTrap) {
+            wasilA11y.closeModal(modal, assignTrap);
+        } else {
             modal.classList.remove('active');
             document.body.style.overflow = '';
         }
+    }
+
+    // Keep legacy closeModal alias for backward compat
+    function closeModal() { closeAssignModal(); }
+
+    if (btnRequestAssignation && modal) {
+        btnRequestAssignation.addEventListener('click', openAssignModal);
+    }
+
+    // Close on overlay backdrop click
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) closeAssignModal();
+        });
     }
 
     // ── Notifications Modal (Org Only) ──
@@ -676,9 +820,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (btnNotifs && notifModal) {
         btnNotifs.addEventListener('click', function () {
-            notifModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
+            if (window.wasilA11y && notifTrap) {
+                wasilA11y.openModal(notifModal, notifTrap);
+            } else {
+                notifModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
             // hide badge when opened
             const badge = document.getElementById('headerNotifBadge');
             if (badge) badge.style.display = 'none';
@@ -686,9 +834,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
         notifModal.addEventListener('click', function (e) {
             if (e.target === notifModal) {
-                notifModal.classList.remove('active');
-                document.body.style.overflow = '';
+                if (window.wasilA11y && notifTrap) {
+                    wasilA11y.closeModal(notifModal, notifTrap);
+                } else {
+                    notifModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
             }
+        });
+    }
+
+    // ── Locality → Area Dependent Dropdown ──
+    const AREAS_BY_LOCALITY = {
+        'الخرطوم': ['وسط الخرطوم', 'جبل اولياء', 'الخرطوم 1', 'الخرطوم 2', 'الخرطوم 3', 'جنوب الحزام', 'الشجرة', 'حاج يوسف'],
+        'بحري': ['بحري المدينة', 'بحري وسط', 'بحري شمال', 'ريفي بحري', 'شرق النيل', 'جبرونة'],
+        'امدرمان': ['امدرمان المدينة', 'امدرمان القديمة', 'كرري', 'امبدة', 'سوق امدرمان', 'ابو روف']
+    };
+
+    const localitySelect = document.getElementById('assignLocality');
+    const areaSelect = document.getElementById('assignArea');
+
+    if (localitySelect && areaSelect) {
+        localitySelect.addEventListener('change', function () {
+            const areas = AREAS_BY_LOCALITY[this.value] || [];
+            areaSelect.innerHTML = '<option value="" disabled selected>اختر المنطقة...</option>';
+            areas.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a;
+                opt.textContent = a;
+                areaSelect.appendChild(opt);
+            });
+            areaSelect.disabled = false;
         });
     }
 
@@ -697,84 +873,86 @@ document.addEventListener('DOMContentLoaded', function () {
         assignationForm.addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            // Collect form data
-            const checkedAreas = [];
-            document.querySelectorAll('input[name="target_areas"]:checked').forEach(cb => {
-                checkedAreas.push(cb.value);
+            const locality = document.getElementById('assignLocality')?.value || '';
+            const area = document.getElementById('assignArea')?.value || '';
+            const targetArea = area ? `${locality}, ${area}` : locality;
+
+            const checkedDiseases = [];
+            document.querySelectorAll('input[name="target_diseases"]:checked').forEach(cb => {
+                checkedDiseases.push(cb.value);
             });
 
-            const supplies = document.getElementById('suppliesField').value;
-            const deployDate = document.getElementById('deploymentDate').value;
-            const opTime = document.getElementById('operationTime').value;
+            const supplies = document.getElementById('suppliesField')?.value?.trim() || '';
+            const capacity = document.getElementById('clinicCapacity')?.value || '';
+            const deployDate = document.getElementById('deploymentDate')?.value || '';
+            const deployEndDate = document.getElementById('deploymentEndDate')?.value || '';
+            const opTime = document.getElementById('operationTime')?.value || '';
 
-            if (checkedAreas.length === 0) {
-                alert(t('home.select_area_err') || 'Please select at least one target area.');
+            if (!locality) {
+                alert('يرجى اختيار المحلية المستهدفة.');
+                return;
+            }
+            if (!area) {
+                alert('يرجى اختيار المنطقة المستهدفة.');
+                return;
+            }
+            if (checkedDiseases.length === 0) {
+                alert('يرجى تحديد مرض واحد على الأقل.');
+                return;
+            }
+            if (!capacity) {
+                alert('يرجى إدخال الطاقة الاستيعابية للعيادة.');
+                return;
+            }
+            if (!deployDate || !deployEndDate) {
+                alert('يرجى إدخال تاريخ النشر وتاريخ انتهائه.');
+                return;
+            }
+            if (!opTime) {
+                alert('يرجى تحديد وقت التشغيل.');
                 return;
             }
 
-            if (!supplies.trim()) {
-                alert('Please describe the supplies and offerings.');
-                return;
-            }
+            const schedule = `تاريخ النشر: ${deployDate} | تاريخ الانتهاء: ${deployEndDate} | وقت التشغيل: ${opTime} | الإمدادات: ${supplies || '—'}`;
 
-            if (!deployDate || !opTime.trim()) {
-                alert('Please select a deployment date and operation time.');
-                return;
-            }
-            
-            const combinedSchedule = `${deployDate} (${opTime})`;
-
-            // Get current user
             const { data: { user } } = await supabase.auth.getUser();
-
             if (!user) {
-                alert('You must be logged in to assign a clinic.');
+                alert('يجب تسجيل الدخول لتقديم الطلب.');
                 return;
             }
 
-            // Fetch org name from organization_profiles
-            let orgName = user.email; // fallback
+            let orgName = user.email;
             try {
                 const { data: orgProfile } = await supabase
                     .from('organization_profiles')
                     .select('org_name')
                     .eq('id', user.id)
                     .single();
-                if (orgProfile && orgProfile.org_name) {
-                    orgName = orgProfile.org_name;
-                }
+                if (orgProfile?.org_name) orgName = orgProfile.org_name;
             } catch (e) { /* use fallback */ }
 
-            // Build diseases array from supplies text (split by comma)
-            const diseasesArray = supplies
-                .split(',')
-                .map(s => s.trim())
-                .filter(s => s.length > 0);
-
-            // Insert into clinic_requests (what the admin panel reads)
             const { error } = await supabase
                 .from('clinic_requests')
                 .insert({
                     org_id: user.id,
                     org_name: orgName,
-                    target_area: checkedAreas.join(', '),
-                    diseases: diseasesArray.length > 0 ? diseasesArray : [supplies.trim()],
-                    schedule: combinedSchedule,
+                    target_area: targetArea,
+                    diseases: checkedDiseases,
+                    capacity: parseInt(capacity),
+                    schedule: schedule,
                     status: 'pending'
                 });
 
             if (error) {
                 console.error('Error submitting clinic request:', error);
-                alert('Failed to submit request: ' + error.message);
+                alert('فشل تقديم الطلب: ' + error.message);
                 return;
             }
 
-            // Close modal and show success
             closeModal();
-            showToast('Request submitted successfully!');
-
-            // Reset form
+            showToast('تم تقديم طلب تعيين العيادة بنجاح ✔');
             assignationForm.reset();
+            if (areaSelect) { areaSelect.innerHTML = '<option value="" disabled selected>اختر المنطقة أولاً...</option>'; areaSelect.disabled = true; }
         });
     }
 
@@ -790,6 +968,11 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => {
             toast.classList.remove('show');
         }, 3000);
+
+        // Announce to screen readers via live region
+        if (window.wasilA11y) {
+            wasilA11y.announce(message, 'polite');
+        }
     }
 
     // ── 9. Service Card Interactions ──
@@ -826,12 +1009,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Show/hide service-specific fields — use card id for reliability
                     const isVaccination = cardId.includes('vaccination');
-                    const isAmbulance   = cardId.includes('ambulance');
+                    const isAmbulance = cardId.includes('ambulance');
 
                     const vacFields = document.getElementById('vaccinationFields');
                     const ambFields = document.getElementById('ambulanceFields');
                     if (vacFields) vacFields.style.display = isVaccination ? 'block' : 'none';
-                    if (ambFields) ambFields.style.display = isAmbulance   ? 'block' : 'none';
+                    if (ambFields) ambFields.style.display = isAmbulance ? 'block' : 'none';
 
                     // Reset dropdowns on each open
                     const vacType = document.getElementById('vaccinationTypeInput');
@@ -845,7 +1028,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (otherVacGroup) otherVacGroup.style.display = 'none';
                     if (otherVacInput) otherVacInput.value = '';
 
-                    modal.classList.add('active');
+                    // Open service request modal with focus trap
+                    if (window.wasilA11y && svcTrap) {
+                        wasilA11y.openModal(svcModalEl, svcTrap);
+                    } else {
+                        modal.classList.add('active');
+                    }
                 }
             }
         });
@@ -890,12 +1078,20 @@ document.addEventListener('DOMContentLoaded', function () {
         deploymentDate.value = today;
     }
 
-    // ── 13. Keyboard Shortcut: Escape to close modal ──
+    // ── 13. Keyboard: Escape closes any open modal ──
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-            closeModal();
-            const srm = document.getElementById('serviceRequestModal');
-            if (srm) srm.classList.remove('active');
+        if (e.key !== 'Escape') return;
+        // Assignation modal
+        if (modal && modal.classList.contains('active')) closeAssignModal();
+        // Notifications modal
+        if (notifModal && notifModal.classList.contains('active')) {
+            if (window.wasilA11y && notifTrap) wasilA11y.closeModal(notifModal, notifTrap);
+            else { notifModal.classList.remove('active'); document.body.style.overflow = ''; }
+        }
+        // Service request modal
+        if (svcModalEl && svcModalEl.classList.contains('active')) {
+            if (window.wasilA11y && svcTrap) wasilA11y.closeModal(svcModalEl, svcTrap);
+            else { svcModalEl.classList.remove('active'); }
         }
     });
 
@@ -919,9 +1115,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!user) throw new Error('Not logged in');
 
                 // Collect extra fields
-                const mobile   = document.getElementById('serviceMobileInput')?.value.trim() || null;
-                let   vacType  = document.getElementById('vaccinationTypeInput')?.value || null;
-                const ambCase  = document.getElementById('ambulanceCaseTypeInput')?.value || null;
+                const mobile = document.getElementById('serviceMobileInput')?.value.trim() || null;
+                let vacType = document.getElementById('vaccinationTypeInput')?.value || null;
+                const ambCase = document.getElementById('ambulanceCaseTypeInput')?.value || null;
 
                 // If 'Other' was chosen, use the custom text field value instead
                 if (vacType === 'Other') {
@@ -931,7 +1127,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Build notes string from extra fields
                 let notes = '';
-                if (mobile)  notes += `Contact: ${mobile}. `;
+                if (mobile) notes += `Contact: ${mobile}. `;
                 if (vacType) notes += `Vaccine Type: ${vacType}. `;
                 if (ambCase) notes += `Case Type: ${ambCase}. `;
 
@@ -960,9 +1156,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         document.getElementById('cancelServiceBtn')?.addEventListener('click', () => {
-            serviceRequestModal.classList.remove('active');
+            if (window.wasilA11y && svcTrap) {
+                wasilA11y.closeModal(svcModalEl, svcTrap);
+            } else {
+                serviceRequestModal.classList.remove('active');
+            }
             serviceRequestForm.reset();
         });
     }
 
 });
+

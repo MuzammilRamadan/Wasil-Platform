@@ -1,5 +1,5 @@
 -- ============================================
--- WASIL — add diseases table
+--  wasil — add diseases table
 -- ============================================
 -- Run this script in your Supabase SQL Editor
 -- to add support for dynamic diseases.

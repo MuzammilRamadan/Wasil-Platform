@@ -1,5 +1,5 @@
 // ============================================
-// WASIL ADMIN JS — Ministry of Health Panel
+//  wasil ADMIN JS — Ministry of Health Panel
 // ============================================
 
 // ── AUTH GUARD ──
@@ -137,8 +137,8 @@ async function loadDashboardStats() {
                         <div class="severity-pill ${sevClass}">${sevLabel}</div>
                     </div>
                     <div class="disease-card-stats">
-                        <div class="stat"><span class="stat-num">${count.toLocaleString()}</span><span class="stat-label">Cases</span></div>
-                        <div class="stat"><span class="stat-num" style="font-size:0.75rem;color:#64748B;">${count===0?'–':count<=10?'1–10':count<=30?'11–30':count<=60?'31–60':'61+'}</span><span class="stat-label">Range</span></div>
+                        <div class="stat"><span class="stat-num">${count.toLocaleString()}</span><span class="stat-label">${t('admin.cases')}</span></div>
+                        <div class="stat"><span class="stat-num" style="font-size:0.75rem;color:#64748B;">${count === 0 ? '–' : count <= 10 ? '1–10' : count <= 30 ? '11–30' : count <= 60 ? '31–60' : '61+'}</span><span class="stat-label">${t('admin.range')}</span></div>
                     </div>
                 </div>`;
             }).join('');
@@ -163,52 +163,81 @@ async function loadDeployedClinics() {
     if (!tbody) return;
 
     if (!window.supabase) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#7F8C8D;padding:24px;">Supabase not initialized.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#7F8C8D;padding:24px;">Supabase not initialized.</td></tr>`;
         return;
     }
 
     try {
         const { data: clinics, error } = await window.supabase
             .from('clinic_requests')
-            .select('id, org_name, target_area, capacity, diseases, schedule, created_at, clinic_name')
+            .select('*')
             .eq('status', 'approved')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
 
         if (!clinics || clinics.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#7F8C8D;padding:32px;">
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#7F8C8D;padding:32px;">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#BDC3C7" stroke-width="1.5" style="display:block;margin:0 auto 10px;">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
                 </svg>
-                No deployed clinics yet. Approve a clinic request to see it here.
+                ${t('admin.no_deployed')}
             </td></tr>`;
-            if (countEl) countEl.textContent = '0 active deployments';
+            if (countEl) countEl.textContent = `0 ${t('admin.active_deployments')}`;
             return;
         }
 
-        if (countEl) countEl.textContent = `${clinics.length} active deployment${clinics.length !== 1 ? 's' : ''}`;
+        if (countEl) countEl.textContent = `${clinics.length} ${t('admin.active_deployments')}`;
 
         tbody.innerHTML = clinics.map(c => {
+            // Clinic name
+            const name = c.clinic_name || (c.org_name ? `${c.org_name} عيادة` : 'عيادة');
+
+            // Diseases as tags
             const diseases = Array.isArray(c.diseases)
                 ? c.diseases.map(d => `<span class="tag">${d}</span>`).join('')
                 : (c.diseases ? `<span class="tag">${c.diseases}</span>` : '—');
-            const name = c.clinic_name || (c.org_name ? `${c.org_name} Clinic` : 'Clinic');
+
+            // Extract supplies from schedule string if embedded
+            let supplies = '—';
+            if (c.supplies) supplies = c.supplies; // legacy fallback
+
+            let scheduleDisplay = c.schedule || '—';
+            if (c.schedule && c.schedule.includes('|')) {
+                const parts = c.schedule.split('|').map(s => s.trim());
+                
+                // Extract "الإمدادات:" if present
+                const suppliesPartIdx = parts.findIndex(p => p.startsWith('الإمدادات:'));
+                if (suppliesPartIdx !== -1) {
+                    supplies = parts[suppliesPartIdx].replace('الإمدادات:', '').trim();
+                    parts.splice(suppliesPartIdx, 1); // remove from schedule display
+                }
+                
+                scheduleDisplay = parts.map(p => `<div style="font-size:0.78rem;white-space:nowrap;">${p}</div>`).join('');
+            }
+            supplies = `<span style="font-size:0.78rem;color:#475569;">${supplies}</span>`;
+
+            // Formatted submission date
+            const submittedDate = c.created_at
+                ? new Date(c.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' })
+                : '—';
+
             return `
             <tr>
-                <td><strong>${name}</strong></td>
-                <td>${c.target_area || '—'}</td>
-                <td>${c.capacity ? `${c.capacity}/day` : '—'}</td>
-                <td>${diseases}</td>
-                <td>${c.schedule || '—'}</td>
+                <td><strong>${name}</strong><br><span style="font-size:0.72rem;color:#94A3B8;">${submittedDate}</span></td>
                 <td>${c.org_name || '—'}</td>
-                <td><span class="severity-pill stable" data-i18n="admin.status_active">t('admin.status_active') || 'Active'</span></td>
+                <td>${c.target_area || '—'}</td>
+                <td>${c.capacity ? `<strong style="color:#1e293b;">${c.capacity}</strong> <span style="font-size:0.72rem;color:#94A3B8;">مريض/يوم</span>` : '—'}</td>
+                <td>${diseases}</td>
+                <td>${supplies}</td>
+                <td>${scheduleDisplay}</td>
+                <td><span class="severity-pill stable">${t('admin.status_active')}</span></td>
             </tr>`;
         }).join('');
 
     } catch (err) {
         console.error('loadDeployedClinics error:', err);
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#E74C3C;padding:24px;">Failed to load clinics: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#E74C3C;padding:24px;">Failed to load clinics: ${err.message}</td></tr>`;
     }
 }
 
@@ -242,7 +271,7 @@ async function loadClinicRequests() {
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#BDC3C7" stroke-width="1.5" style="display:block;margin:0 auto 12px;">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
                 </svg>
-                No pending clinic requests.
+                ${t('admin.no_pending_requests')}
             </div>`;
             return;
         }
@@ -265,19 +294,19 @@ async function loadClinicRequests() {
                     </div>
                 </div>
                 <div class="request-details">
-                    <div class="detail-row"><span class="detail-key">Target Area</span><span class="detail-val">${req.target_area || '—'}</span></div>
-                    <div class="detail-row"><span class="detail-key">Capacity</span><span class="detail-val">${req.capacity ? req.capacity + ' patients/day' : '—'}</span></div>
-                    <div class="detail-row"><span class="detail-key">Diseases</span><span class="detail-val">${diseases}</span></div>
-                    <div class="detail-row"><span class="detail-key">Schedule</span><span class="detail-val">${req.schedule || '—'}</span></div>
+                    <div class="detail-row"><span class="detail-key">${t('admin.detail_target_area')}</span><span class="detail-val">${req.target_area || '—'}</span></div>
+                    <div class="detail-row"><span class="detail-key">${t('admin.detail_capacity')}</span><span class="detail-val">${req.capacity ? req.capacity + ' ' + t('admin.capacity_per_day') : '—'}</span></div>
+                    <div class="detail-row"><span class="detail-key">${t('admin.detail_diseases')}</span><span class="detail-val">${diseases}</span></div>
+                    <div class="detail-row"><span class="detail-key">${t('admin.detail_schedule')}</span><span class="detail-val">${req.schedule || '—'}</span></div>
                 </div>
                 <div class="request-actions">
                     <button class="btn-approve" onclick="handleRequest('${req.id}','approve',this)">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span data-i18n="admin.btn_approve" data-i18n="admin.btn_approve">t('admin.btn_approve') || 'Approve'</span>
+                        <span>${t('admin.btn_approve')}</span>
                     </button>
                     <button class="btn-reject" onclick="handleRequest('${req.id}','reject',this)">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        <span data-i18n="admin.btn_reject" data-i18n="admin.btn_reject">t('admin.btn_reject') || 'Reject'</span>
+                        <span>${t('admin.btn_reject')}</span>
                     </button>
                 </div>
             </div>`;
@@ -301,7 +330,7 @@ async function handleRequest(requestId, action, btn) {
             const updateProps = { status: newStatus };
 
             if (action === 'reject') {
-                const reason = prompt("Enter a brief reason for rejecting this clinic request:");
+                const reason = prompt(t('admin.confirm_reject_reason'));
                 if (reason === null) {
                     card.querySelectorAll('button').forEach(b => b.disabled = false);
                     return; // user cancelled
@@ -316,7 +345,7 @@ async function handleRequest(requestId, action, btn) {
 
             if (error) {
                 console.warn('Supabase update error:', error.message);
-                showToast('Error updating request: ' + error.message, 'error');
+                showToast(t('admin.error_occurred') + ' ' + error.message, 'error');
                 card.querySelectorAll('button').forEach(b => b.disabled = false);
                 return;
             }
@@ -329,7 +358,7 @@ async function handleRequest(requestId, action, btn) {
         actionsDiv.innerHTML = `
             <div style="text-align:center;padding:10px 0;">
                 <span style="font-size:0.9rem;font-weight:700;color:${isApprove ? '#1a7a4a' : '#C0392B'}">
-                    ${isApprove ? '✓ Approved / تمت الموافقة' : '✗ Rejected / تم الرفض'}
+                    ${isApprove ? t('admin.approved_label') : t('admin.rejected_label')}
                 </span>
             </div>`;
 
@@ -340,14 +369,14 @@ async function handleRequest(requestId, action, btn) {
 
         updateRequestsBadge();
         showToast(isApprove
-            ? 'Request approved! / تمت الموافقة على الطلب!'
-            : 'Request rejected. / تم رفض الطلب.',
+            ? t('admin.approve_toast')
+            : t('admin.reject_toast'),
             isApprove ? 'success' : 'error');
 
     } catch (err) {
         console.error('Request action error:', err);
         card.querySelectorAll('button').forEach(b => b.disabled = false);
-        showToast('An error occurred. / حدث خطأ.', 'error');
+        showToast(t('admin.error_occurred'), 'error');
     }
 }
 
@@ -384,7 +413,7 @@ function showToast(message, type = 'success') {
 // ══════════════════════════════════════════════
 async function removeUser(userId, tableName, btn) {
     const userName = btn.closest('tr').querySelector('td')?.textContent || 'this user';
-    const confirmed = confirm(`Are you sure you want to remove ${userName}?\nهل أنت متأكد من حذف هذا المستخدم؟`);
+    const confirmed = confirm(t('admin.confirm_remove_user') + '\n(' + userName + ')');
     if (!confirmed) return;
 
     if (!window.supabase) {
@@ -416,13 +445,13 @@ async function removeUser(userId, tableName, btn) {
             setTimeout(() => row.remove(), 400);
         }
 
-        showToast('User removed successfully! / تم حذف المستخدم بنجاح!', 'success');
+        showToast(t('admin.remove_success'), 'success');
 
     } catch (err) {
         console.error('removeUser error:', err);
         btn.disabled = false;
-        btn.textContent = 'Remove';
-        showToast('Failed to remove user: ' + err.message, 'error');
+        btn.textContent = t('admin.remove_user_btn');
+        showToast(t('admin.error_occurred') + ' ' + err.message, 'error');
     }
 }
 
@@ -443,7 +472,7 @@ async function loadSystemUsers() {
         if (orgsBody) {
             if (orgErr || !orgs || orgs.length === 0) {
                 orgsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#7F8C8D;padding:32px;">
-                    No registered organizations found.
+                    ${t('admin.no_orgs')}
                 </td></tr>`;
             } else {
                 // For each org, get approved/rejected counts from clinic_requests
@@ -468,9 +497,9 @@ async function loadSystemUsers() {
                         <td>${org.email || '—'}</td>
                         <td><span class="count-badge green">${approved}</span></td>
                         <td><span class="count-badge red">${rejected}</span></td>
-                        <td><button class="btn-remove" onclick="removeUser('${org.id}','organization_profiles',this)" title="Remove user">
+                        <td><button class="btn-remove" onclick="removeUser('${org.id}','organization_profiles',this)" title="${t('admin.remove_user_btn')}">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            Remove
+                            ${t('admin.remove_user_btn')}
                         </button></td>
                     </tr>`;
                 }).join('');
@@ -514,7 +543,7 @@ async function loadSystemUsers() {
                     </tr>`).join('');
                 } else {
                     communityBody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#7F8C8D;padding:32px;">
-                        No registered community users found.
+                        ${t('admin.no_community')}
                     </td></tr>`;
                 }
             } else {
@@ -525,9 +554,9 @@ async function loadSystemUsers() {
                     <td>${u.email || '—'}</td>
                     <td>${u.location || '—'}</td>
                     <td>${u.reported_disease ? `<span class="tag">${u.reported_disease}</span>` : '—'}</td>
-                    <td><button class="btn-remove" onclick="removeUser('${u.id}','community_profiles',this)" title="Remove user">
+                    <td><button class="btn-remove" onclick="removeUser('${u.id}','community_profiles',this)" title="${t('admin.remove_user_btn')}">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        Remove
+                        ${t('admin.remove_user_btn')}
                     </button></td>
                 </tr>`).join('');
             }
@@ -558,8 +587,8 @@ async function loadOutbreakDashboard() {
             .order('created_at', { ascending: false });
 
         if (error || !cases || cases.length === 0) {
-            areaEl.innerHTML = '<p style="text-align:center;padding:32px;color:#94A3B8;">No cases submitted yet.</p>';
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:#94A3B8;">No cases yet.</td></tr>';
+            areaEl.innerHTML = `<p style="text-align:center;padding:32px;color:#94A3B8;">${t('admin.no_cases')}</p>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:#94A3B8;">${t('admin.no_cases_row')}</td></tr>`;
             if (chipsEl) chipsEl.innerHTML = '';
             return;
         }
@@ -589,15 +618,14 @@ async function loadOutbreakDashboard() {
             totals[sev]++;
         });
 
-        // Chips
         if (chipsEl) {
             chipsEl.innerHTML = [
-                `<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#1e293b;">${cases.length} Total Cases</span>`,
-                `<span style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#EF4444;">${totals.critical} Areas Critical</span>`,
-                `<span style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#F59E0B;">${totals.high} Areas High</span>`,
-                `<span style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#3B82F6;">${totals.moderate} Areas Moderate</span>`,
-                `<span style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#10B981;">${totals.low} Areas Low</span>`,
-                `<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:600;color:#64748B;">${Object.keys(areaMap).length} Areas</span>`
+                `<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#1e293b;">${cases.length} ${t('admin.chip_total_cases')}</span>`,
+                `<span style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#EF4444;">${totals.critical} ${t('admin.chip_critical')}</span>`,
+                `<span style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#F59E0B;">${totals.high} ${t('admin.chip_high')}</span>`,
+                `<span style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#3B82F6;">${totals.moderate} ${t('admin.chip_moderate')}</span>`,
+                `<span style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:#10B981;">${totals.low} ${t('admin.chip_low')}</span>`,
+                `<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:5px 14px;font-size:0.8rem;font-weight:600;color:#64748B;">${Object.keys(areaMap).length} ${t('admin.chip_areas')}</span>`
             ].join('');
         }
 
@@ -617,18 +645,18 @@ async function loadOutbreakDashboard() {
                     <span style="font-weight:600;color:#1e293b;">${l.disease || ''}</span>
                 </div>`;
             }).join('');
-            const moreLocs = info.locations.length > 5 ? `<div style="text-align:center;font-size:0.7rem;color:#94a3b8;margin-top:4px;">+ ${info.locations.length - 5} more cases</div>` : '';
+            const moreLocs = info.locations.length > 5 ? `<div style="text-align:center;font-size:0.7rem;color:#94a3b8;margin-top:4px;">+ ${info.locations.length - 5} ${t('admin.more_cases')}</div>` : '';
 
             areaEl.insertAdjacentHTML('beforeend', `
             <div style="border-left:4px solid ${color};background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.05);">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                     <span style="font-weight:700;font-size:0.95rem;color:#1e293b;">${area}</span>
-                    <span style="background:${riskBg[dom]};color:${color};border-radius:20px;padding:3px 10px;font-size:0.65rem;font-weight:800;letter-spacing:0.5px;">${riskLabel[dom]}</span>
+                    <span style="background:${riskBg[dom]};color:${color};border-radius:20px;padding:3px 10px;font-size:0.65rem;font-weight:800;letter-spacing:0.5px;">${t(`admin.sev_${dom}`)}</span>
                 </div>
-                <p style="font-size:0.82rem;color:#64748B;margin-bottom:6px;"><strong style="color:#1e293b;font-size:0.95rem;">${info.count}</strong> case${info.count !== 1 ? 's' : ''} &nbsp;<span style="font-size:0.68rem;color:#94a3b8;">(${info.count<=10?'1–10 Low':info.count<=30?'11–30 Moderate':info.count<=60?'31–60 High':'61+ Critical'})</span></p>
+                <p style="font-size:0.82rem;color:#64748B;margin-bottom:6px;"><strong style="color:#1e293b;font-size:0.95rem;">${info.count}</strong> ${t('home.cases_label')} &nbsp;<span style="font-size:0.68rem;color:#94a3b8;">(${info.count <= 10 ? t('admin.case_range_low') : info.count <= 30 ? t('admin.case_range_mod') : info.count <= 60 ? t('admin.case_range_high') : t('admin.case_range_crit')})</span></p>
                 ${info.diseases.size > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">${tags}</div>` : ''}
                 <div style="background:#f8fafc;padding:8px 12px;border-radius:8px;">
-                    <strong style="font-size:0.75rem;color:#1e293b;margin-bottom:4px;display:block;">Specific Locations</strong>
+                    <strong style="font-size:0.75rem;color:#1e293b;margin-bottom:4px;display:block;">${t('admin.specific_locations')}</strong>
                     ${locsList}
                     ${moreLocs}
                 </div>
@@ -636,18 +664,18 @@ async function loadOutbreakDashboard() {
         });
 
         // Cases table with admin actions
-        if (countEl) countEl.textContent = `${cases.length} cases total`;
+        if (countEl) countEl.textContent = `${cases.length} ${t('admin.cases_total')}`;
         const sevPill = (s, count) => {
             const computed = computeSeverityFromCount(count || 0);
             const cls = computed === 'critical' ? 'critical' : computed === 'high' ? 'high' : computed === 'moderate' ? 'moderate' : 'stable';
-            return `<span class="severity-pill ${cls}">${computed.toUpperCase()}</span>`;
+            return `<span class="severity-pill ${cls}">${t(`admin.sev_${computed}`)}</span>`;
         };
         function timeAgo(d) {
             const diff = Math.floor((Date.now() - new Date(d)) / 1000);
-            if (diff < 60) return diff + 's ago';
-            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-            return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            if (diff < 60) return diff + ' ' + t('admin.time_s_ago');
+            if (diff < 3600) return Math.floor(diff / 60) + ' ' + t('admin.time_m_ago');
+            if (diff < 86400) return Math.floor(diff / 3600) + ' ' + t('admin.time_h_ago');
+            return new Date(d).toLocaleDateString(localStorage.getItem('wasil_lang') === 'ar' ? 'ar-EG' : 'en-GB', { day: 'numeric', month: 'short' });
         }
 
         // Build a per-disease running count to assign severity
@@ -663,7 +691,7 @@ async function loadOutbreakDashboard() {
             const dCount = diseaseCountMap[(c.disease || '').toLowerCase()] || 1;
             const caseStatus = c.status || 'reported';
             const statusStyle = caseStatus === 'cured' ? 'color:#10B981;font-weight:700;' :
-                                caseStatus === 'treating' ? 'color:#3B82F6;font-weight:700;' : 'color:#94A3B8;';
+                caseStatus === 'treating' ? 'color:#3B82F6;font-weight:700;' : 'color:#94A3B8;';
             return `
             <tr id="case-row-${c.id}">
                 <td>${c.location || '—'}</td>
@@ -672,14 +700,14 @@ async function loadOutbreakDashboard() {
                 <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(c.description || '').replace(/"/g, '&quot;')}">${c.description || '—'}</td>
                 <td style="white-space:nowrap;">${timeAgo(c.created_at)}</td>
                 <td style="white-space:nowrap;">
-                    <span style="${statusStyle};font-size:0.75rem;display:block;margin-bottom:4px;">${caseStatus.toUpperCase()}</span>
+                    <span style="${statusStyle};font-size:0.75rem;display:block;margin-bottom:4px;">${t(`admin.btn_${caseStatus}`) || caseStatus.toUpperCase()}</span>
                     <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                        <button onclick="updateCaseStatus('${c.id}','treating')" title="Mark as Treating"
-                            style="font-size:0.68rem;padding:3px 7px;border-radius:4px;border:1px solid #3B82F6;color:#3B82F6;background:transparent;cursor:pointer;font-weight:600;">Treating</button>
-                        <button onclick="updateCaseStatus('${c.id}','cured')" title="Mark as Cured"
-                            style="font-size:0.68rem;padding:3px 7px;border-radius:4px;border:1px solid #10B981;color:#10B981;background:transparent;cursor:pointer;font-weight:600;">Cured</button>
-                        <button onclick="deleteCase('${c.id}')" title="Remove Case"
-                            style="font-size:0.68rem;padding:3px 7px;border-radius:4px;border:1px solid #EF4444;color:#EF4444;background:transparent;cursor:pointer;font-weight:600;">Remove</button>
+                        <button onclick="updateCaseStatus('${c.id}','treating')" title="${t('admin.btn_treating')}"
+                            style="font-size:0.68rem;padding:3px 7px;border-radius:4px;border:1px solid #3B82F6;color:#3B82F6;background:transparent;cursor:pointer;font-weight:600;">${t('admin.btn_treating')}</button>
+                        <button onclick="updateCaseStatus('${c.id}','cured')" title="${t('admin.btn_cured')}"
+                            style="font-size:0.68rem;padding:3px 7px;border-radius:4px;border:1px solid #10B981;color:#10B981;background:transparent;cursor:pointer;font-weight:600;">${t('admin.btn_cured')}</button>
+                        <button onclick="deleteCase('${c.id}')" title="${t('admin.btn_remove_case')}"
+                            style="font-size:0.68rem;padding:3px 7px;border-radius:4px;border:1px solid #EF4444;color:#EF4444;background:transparent;cursor:pointer;font-weight:600;">${t('admin.btn_remove_case')}</button>
                     </div>
                 </td>
             </tr>`;
@@ -717,13 +745,13 @@ async function updateCaseStatus(caseId, newStatus) {
             .update({ status: newStatus })
             .eq('id', caseId);
         if (error) throw error;
-        showToast(`Case marked as ${newStatus}!`, 'success');
+        showToast(`${t('admin.case_marked')} ${t(`admin.btn_${newStatus}`)}!`, 'success');
         // Update the status label in the row immediately
         const row = document.getElementById('case-row-' + caseId);
         if (row) {
             const statusSpan = row.querySelector('td:last-child span');
             if (statusSpan) {
-                statusSpan.textContent = newStatus.toUpperCase();
+                statusSpan.textContent = t(`admin.btn_${newStatus}`);
                 statusSpan.style.color = newStatus === 'cured' ? '#10B981' : '#3B82F6';
             }
         }
@@ -734,7 +762,7 @@ async function updateCaseStatus(caseId, newStatus) {
 }
 
 async function deleteCase(caseId) {
-    if (!confirm('Remove this case? This cannot be undone.\nحذف هذه الحالة؟')) return;
+    if (!confirm(t('admin.confirm_delete_case'))) return;
     if (!window.supabase) return;
     try {
         const { error } = await window.supabase
@@ -750,10 +778,10 @@ async function deleteCase(caseId) {
             row.style.transform = 'translateX(20px)';
             setTimeout(() => { row.remove(); loadOutbreakDashboard(); }, 350);
         }
-        showToast('Case removed successfully!', 'success');
+        showToast(t('admin.case_removed'), 'success');
     } catch (err) {
         console.error('deleteCase error:', err);
-        showToast('Error removing case: ' + err.message, 'error');
+        showToast(t('admin.error_occurred') + ' ' + err.message, 'error');
     }
 }
 
@@ -790,16 +818,16 @@ async function loadDiseasesSettings() {
             return `
             <tr>
                 <td><strong>${d.name}</strong></td>
-                <td><span class="severity-pill ${sevClass}">${(d.default_severity || 'moderate').toUpperCase()}</span></td>
-                <td><span class="tag" style="background:${d.is_active ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'}; color:${d.is_active ? '#10B981' : '#EF4444'}">${d.is_active ? 'Active' : 'Inactive'}</span></td>
+                <td><span class="severity-pill ${sevClass}">${t(`admin.sev_${d.default_severity}`) || 'MODERATE'}</span></td>
+                <td><span class="tag" style="background:${d.is_active ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'}; color:${d.is_active ? '#10B981' : '#EF4444'}">${d.is_active ? t('admin.disease_active') : t('admin.disease_inactive')}</span></td>
                 <td>
-                    <button class="btn-remove" onclick="removeDisease('${d.id}')" title="Delete Disease">
+                    <button class="btn-remove" onclick="removeDisease('${d.id}')" title="${t('admin.btn_delete')}">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
-                        Delete
+                        ${t('admin.btn_delete')}
                     </button>
                     ${d.is_active ?
-                    `<button class="btn-approve" style="background:transparent; color:#E67E22; border:1px solid #E67E22; margin-left:6px;" onclick="toggleDiseaseActive('${d.id}', false)">Deactivate</button>` :
-                    `<button class="btn-approve" style="background:transparent; color:#10B981; border:1px solid #10B981; margin-left:6px;" onclick="toggleDiseaseActive('${d.id}', true)">Activate</button>`
+                    `<button class="btn-approve" style="background:transparent; color:#E67E22; border:1px solid #E67E22; margin-left:6px;" onclick="toggleDiseaseActive('${d.id}', false)">${t('admin.disease_inactive')}</button>` :
+                    `<button class="btn-approve" style="background:transparent; color:#10B981; border:1px solid #10B981; margin-left:6px;" onclick="toggleDiseaseActive('${d.id}', true)">${t('admin.disease_active')}</button>`
                 }
                 </td>
             </tr>`;
@@ -837,20 +865,16 @@ async function toggleDiseaseActive(id, isActive) {
 
 
 // ══════════════════════════════════════════════
-// ── EPIDEMIC AREAS — Interactive Tabs + Sub-area Ranking ──
+// ── EPIDEMIC AREAS — 3 Main Localities (Dashboard) ──
 // ══════════════════════════════════════════════
 
-function computeSeverityFromCount(count) {
-    if (count <= 10) return 'low';
-    if (count <= 30) return 'moderate';
-    if (count <= 60) return 'high';
-    return 'critical';
-}
+// The three main Khartoum-state localities tracked platform-wide
+const MAIN_LOCALITIES = ['الخرطوم', 'بحري', 'امدرمان'];
 
 /**
- * Build main-area → sub-area map from cases array,
- * then render the area tabs and the default sub-area panel.
- * Location format expected: "MainArea, SubArea"
+ * Build locality → sub-locality → disease map from cases array,
+ * then render the 3 locality cards (clickable to expand sub-localities).
+ * Location format: "MainLocality, SubArea"
  */
 function renderEpicAreasFromCases(cases) {
     const tabsEl = document.getElementById('epicAreaTabs');
@@ -858,111 +882,167 @@ function renderEpicAreasFromCases(cases) {
     if (!tabsEl || !panelEl) return;
 
     if (!cases || cases.length === 0) {
-        tabsEl.innerHTML = '<div class="area-tabs-loading">No epidemic data yet.</div>';
+        tabsEl.innerHTML = '<div class="area-tabs-loading">لا توجد بيانات وبائية بعد.</div>';
         panelEl.innerHTML = '';
         return;
     }
 
-    const sevPriority = { critical: 0, high: 1, moderate: 2, low: 3 };
-
-    // Build mainAreaMap
-    const mainAreaMap = {};
-    cases.forEach(c => {
-        if (!c.location) return;
-        const parts = c.location.split(',');
-        const mainArea = parts[0].trim();
-        const subArea = parts.length > 1 ? parts.slice(1).join(',').trim() : mainArea;
-
-        if (!mainAreaMap[mainArea]) mainAreaMap[mainArea] = { total: 0, subAreas: {} };
-        mainAreaMap[mainArea].total++;
-
-        const subs = mainAreaMap[mainArea].subAreas;
-        if (!subs[subArea]) subs[subArea] = { count: 0, diseases: new Set() };
-        subs[subArea].count++;
-        if (c.disease) subs[subArea].diseases.add(c.disease);
+    // ── Build locality data map ──
+    // localityMap[locality] = { total: N, subAreas: { subName: { count: N, diseases: { disName: count } } } }
+    const localityMap = {};
+    MAIN_LOCALITIES.forEach(l => {
+        localityMap[l] = { total: 0, subAreas: {} };
     });
 
-    // Sort main areas by total cases (desc)
-    const sortedMainAreas = Object.entries(mainAreaMap)
-        .sort(([, a], [, b]) => b.total - a.total);
+    cases.forEach(c => {
+        if (!c.location) return;
+        const loc = c.location.trim();
+        const matchedLocality = MAIN_LOCALITIES.find(l => loc.startsWith(l));
+        if (!matchedLocality) return;
 
-    // Store globally so selectEpicArea can access
-    window._epicAreaData = mainAreaMap;
+        // Extract sub-area (everything after the locality name + optional comma/space)
+        let subArea = loc.slice(matchedLocality.length).replace(/^[,\s]+/, '').trim();
+        if (!subArea) subArea = matchedLocality; // fallback: same name
 
-    // Tab accent colour from count-based severity
-    const areaTabColor = { critical: '#EF4444', high: '#F59E0B', moderate: '#3B82F6', low: '#10B981' };
+        localityMap[matchedLocality].total++;
 
-    // Render tab buttons
-    tabsEl.innerHTML = sortedMainAreas.map(([area, info], i) => {
-        const sev = computeSeverityFromCount(info.total);
-        const color = areaTabColor[sev] || '#10B981';
-        // Use data-area attribute to avoid quote escaping issues in onclick
-        const safeArea = area.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        const subs = localityMap[matchedLocality].subAreas;
+        if (!subs[subArea]) subs[subArea] = { count: 0, diseases: {} };
+        subs[subArea].count++;
+
+        const dis = c.disease || 'غير محدد';
+        subs[subArea].diseases[dis] = (subs[subArea].diseases[dis] || 0) + 1;
+    });
+
+    // Store globally for selectEpicArea
+    window._epicLocalityData = localityMap;
+
+    const riskColor = { critical: '#EF4444', high: '#F59E0B', moderate: '#3B82F6', low: '#10B981' };
+    const riskBg   = { critical: 'rgba(239,68,68,0.08)', high: 'rgba(245,158,11,0.08)', moderate: 'rgba(59,130,246,0.08)', low: 'rgba(16,185,129,0.08)' };
+
+    // ── Render 3 locality cards as tab buttons ──
+    tabsEl.innerHTML = MAIN_LOCALITIES.map((locality, i) => {
+        const info = localityMap[locality];
+        const sev  = computeSeverityFromCount(info.total);
+        const color = riskColor[sev];
         return `
         <button class="area-tab-btn${i === 0 ? ' active' : ''}"
-                data-area="${safeArea}"
-                onclick="selectEpicArea(this)"
+                data-locality="${locality}"
+                onclick="selectEpicLocality(this)"
                 style="--tab-accent:${color};">
-            <span class="area-tab-name">${area}</span>
+            <span class="area-tab-name">${locality}</span>
             <span class="area-tab-count">${info.total}</span>
         </button>`;
     }).join('');
 
-    // Show first area by default
-    if (sortedMainAreas.length > 0) {
-        _renderEpicSubAreas(sortedMainAreas[0][0], sortedMainAreas[0][1], panelEl);
-    }
+    // Show first locality sub-areas by default
+    _renderLocalitySubAreas(MAIN_LOCALITIES[0], localityMap[MAIN_LOCALITIES[0]], panelEl);
 }
 
-/** Called when admin clicks an area tab button */
-function selectEpicArea(btn) {
-    const areaName = btn.getAttribute('data-area');
-    if (!areaName) return;
+/** Called when admin clicks a locality tab */
+function selectEpicLocality(btn) {
+    const locality = btn.getAttribute('data-locality');
+    if (!locality) return;
     document.querySelectorAll('#epicAreaTabs .area-tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const panelEl = document.getElementById('epicSubAreasPanel');
-    if (!panelEl || !window._epicAreaData) return;
-    const areaInfo = window._epicAreaData[areaName];
-    if (areaInfo) _renderEpicSubAreas(areaName, areaInfo, panelEl);
+    if (!panelEl || !window._epicLocalityData) return;
+    _renderLocalitySubAreas(locality, window._epicLocalityData[locality], panelEl);
 }
 
-/** Render ranked sub-areas inside the panel for a selected main area */
-function _renderEpicSubAreas(areaName, areaInfo, panelEl) {
+/** Render sub-localities for a selected main locality, sorted by case count */
+function _renderLocalitySubAreas(locality, info, panelEl) {
     const riskColor = { critical: '#EF4444', high: '#F59E0B', moderate: '#3B82F6', low: '#10B981' };
+    const riskBg   = { critical: 'rgba(239,68,68,0.08)', high: 'rgba(245,158,11,0.08)', moderate: 'rgba(59,130,246,0.08)', low: 'rgba(16,185,129,0.08)' };
 
-    const sortedSubs = Object.entries(areaInfo.subAreas)
+    // Sort sub-localities by case count descending
+    const sortedSubs = Object.entries(info.subAreas)
         .sort(([, a], [, b]) => b.count - a.count);
+
+    const sevLabel = computeSeverityFromCount(info.total);
+    const sevColor = riskColor[sevLabel];
 
     panelEl.innerHTML = `
     <div class="subareas-header">
         <span class="subareas-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:5px;vertical-align:-2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            ${areaName}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 style="margin-right:5px;vertical-align:-2px;">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+            </svg>
+            ${locality}
         </span>
-        <span class="subareas-total">${areaInfo.total} total case${areaInfo.total !== 1 ? 's' : ''} — <span style="font-weight:700;color:${riskColor[computeSeverityFromCount(areaInfo.total)]}">${computeSeverityFromCount(areaInfo.total).toUpperCase()}</span></span>
+        <span class="subareas-total">
+            ${info.total} حالة إجمالية —
+            <span style="font-weight:700;color:${sevColor}">${t('admin.sev_' + sevLabel) || sevLabel.toUpperCase()}</span>
+        </span>
     </div>
     <div class="subareas-list">
-        ${sortedSubs.length === 0
-            ? '<div class="subarea-empty">No sub-area data available.</div>'
-            : sortedSubs.map(([sub, info], i) => {
-                const sev = computeSeverityFromCount(info.count);
-                const color = riskColor[sev] || riskColor.low;
-                const diseases = [...info.diseases].slice(0, 2).join(', ');
+        ${
+            sortedSubs.length === 0
+            ? '<div class="subarea-empty">لا توجد بيانات للمناطق الفرعية.</div>'
+            : sortedSubs.map(([sub, subInfo], i) => {
+                const sev   = computeSeverityFromCount(subInfo.count);
+                const color = riskColor[sev];
+
+                // Per-disease breakdown sorted by count descending
+                const diseaseBreakdown = Object.entries(subInfo.diseases)
+                    .sort(([,a],[,b]) => b - a)
+                    .map(([dis, cnt]) =>
+                        `<div style="display:flex;justify-content:space-between;align-items:center;
+                                    padding:3px 0;border-bottom:1px solid #f1f5f9;font-size:0.76rem;">
+                            <span style="color:#475569;">
+                                <span style="color:${color};margin-left:4px;">●</span>${dis}
+                            </span>
+                            <span style="font-weight:700;color:#1e293b;background:${riskBg[computeSeverityFromCount(cnt)]};
+                                         padding:1px 7px;border-radius:10px;font-size:0.7rem;">
+                                ${cnt} حالة
+                            </span>
+                        </div>`
+                    ).join('');
+
                 return `
                 <div class="subarea-row">
-                    <div class="subarea-rank-badge" style="background:${i === 0 ? color : '#f1f5f9'};color:${i === 0 ? '#fff' : '#64748b'}">${i + 1}</div>
-                    <div class="subarea-info">
-                        <span class="subarea-name">${sub}</span>
-                        ${diseases ? `<span class="subarea-disease">${diseases}</span>` : ''}
+                    <div class="subarea-rank-badge"
+                         style="background:${i === 0 ? color : '#f1f5f9'};color:${i === 0 ? '#fff' : '#64748b'}">
+                        ${i + 1}
                     </div>
-                    <div class="subarea-right">
-                        <span class="subarea-cases">${info.count} case${info.count !== 1 ? 's' : ''}</span>
-                        <span class="severity-pill ${sev === 'critical' ? 'critical' : sev === 'high' ? 'high' : sev === 'moderate' ? 'moderate' : 'stable'}">${sev.toUpperCase()}</span>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <span class="subarea-name">${sub}</span>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span class="subarea-cases">${subInfo.count} حالة</span>
+                                <span class="severity-pill ${
+                                    sev === 'critical' ? 'critical' :
+                                    sev === 'high'     ? 'high'     :
+                                    sev === 'moderate' ? 'moderate' : 'stable'}"
+                                >${t('admin.sev_' + sev) || sev.toUpperCase()}</span>
+                            </div>
+                        </div>
+                        ${
+                            diseaseBreakdown
+                            ? `<div style="background:#f8fafc;border-radius:8px;padding:6px 10px;">${diseaseBreakdown}</div>`
+                            : ''
+                        }
                     </div>
                 </div>`;
             }).join('')
         }
     </div>`;
+}
+
+// Keep old selectEpicArea as alias so outbreak section still works
+function selectEpicArea(btn) {
+    const areaName = btn.getAttribute('data-area') || btn.getAttribute('data-locality');
+    if (!areaName) return;
+    document.querySelectorAll('#epicAreaTabs .area-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const panelEl = document.getElementById('epicSubAreasPanel');
+    if (!panelEl) return;
+    // Try both data stores
+    const data = (window._epicLocalityData && window._epicLocalityData[areaName])
+               || (window._epicAreaData    && window._epicAreaData[areaName]);
+    if (data) _renderLocalitySubAreas(areaName, data, panelEl);
 }
 
 
@@ -1036,5 +1116,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    console.log('WASIL Admin Panel Initialized ✓');
+    console.log('wasil Admin Panel Initialized ✓');
 });
+

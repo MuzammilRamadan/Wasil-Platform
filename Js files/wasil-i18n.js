@@ -1,8 +1,8 @@
 // ============================================
-// WASIL i18n – Centralized Translation System
+//  wasil i18n – Centralized Translation System
 // ============================================
 
-const WASIL_TRANSLATIONS = {
+const wasil_TRANSLATIONS = {
 
     // ── Language Page ──
     "lang.title": { en: "Choose Your Language", ar: "اختر لغتك" },
@@ -10,7 +10,7 @@ const WASIL_TRANSLATIONS = {
     "lang.arabic": { en: "العربية", ar: "العربية" },
 
     // ── Role Select Page ──
-    "role.title": { en: "How will you use WASIL?", ar: "كيف ستستخدم واصل؟" },
+    "role.title": { en: "How will you use  wasil?", ar: "كيف ستستخدم واصل؟" },
     "role.community": { en: "Community Member", ar: "عضو مجتمع" },
     "role.community_desc": { en: "Report cases, find nearby clinics, and access health instructions.", ar: "الإبلاغ عن الحالات، البحث عن العيادات القريبة، والوصول للتعليمات الصحية." },
     "role.organization": { en: "Organization", ar: "منظمة" },
@@ -19,15 +19,14 @@ const WASIL_TRANSLATIONS = {
     "role.admin_desc": { en: "Ministry of Health: manage epidemic response, review clinic requests, and monitor all users.", ar: "وزارة الصحة: إدارة الاستجابة للأوبئة، مراجعة طلبات العيادات، ومراقبة المستخدمين." },
 
     // ── Login Page ──
-    "login.logo": { en: "WASIL", ar: "واصل" },
-    "login.tagline": { en: "With you everywhere", ar: "معك في كل مكان" },
+    "login.logo": { en: "wasil", ar: "واصل" },
+    "login.tagline": { en: " ", ar: " " },
     "login.email_label": { en: "Phone Number or Email", ar: "رقم الهاتف أو البريد الإلكتروني" },
     "login.email_ph": { en: "Enter phone or email", ar: "أدخل رقم الهاتف أو البريد الإلكتروني" },
     "login.pass_label": { en: "Password", ar: "كلمة السر" },
     "login.pass_ph": { en: "Enter your password", ar: "أدخل كلمة السر" },
     "login.signin": { en: "Sign In", ar: "تسجيل الدخول" },
     "login.forgot": { en: "Forgot Password?", ar: "نسيت كلمة السر؟" },
-    "login.demo": { en: "Demo Login:", ar: "تسجيل تجريبي:" },
     "login.no_account": { en: "Don't have an account?", ar: "ليس لديك حساب؟" },
     "login.signup_link": { en: "Sign Up", ar: "إنشاء حساب" },
     "login.role_admin": { en: "Ministry of Health – Admin Login", ar: "وزارة الصحة – تسجيل دخول المدير" },
@@ -35,7 +34,7 @@ const WASIL_TRANSLATIONS = {
     "login.role_community": { en: "Community Member Login", ar: "تسجيل دخول عضو المجتمع" },
 
     // ── Sign Up Page ──
-    "signup.logo": { en: "WASIL", ar: "واصل" },
+    "signup.logo": { en: "wasil", ar: "واصل" },
     "signup.tagline": { en: "Create Your Account", ar: "أنشئ حسابك" },
     "signup.name_label": { en: "Full Name", ar: "الاسم الكامل" },
     "signup.name_ph": { en: "Enter your full name", ar: "أدخل اسمك الكامل" },
@@ -64,8 +63,8 @@ const WASIL_TRANSLATIONS = {
     "signup.phone_intl_ph": { en: "Phone number", ar: "رقم الهاتف" },
 
     // ── Forgot Password Page ──
-    "forgot.logo": { en: "WASIL", ar: "واصل" },
-    "forgot.tagline": { en: "With you everywhere", ar: "معك في كل مكان" },
+    "forgot.logo": { en: "wasil", ar: "واصل" },
+    "forgot.tagline": { en: " ", ar: " " },
     "forgot.step1_label": { en: "Enter Email", ar: "أدخل البريد" },
     "forgot.step2_label": { en: "Verify Code", ar: "تحقق من الرمز" },
     "forgot.step3_label": { en: "New Password", ar: "كلمة سر جديدة" },
@@ -92,13 +91,13 @@ const WASIL_TRANSLATIONS = {
     "forgot.strength_weak": { en: "Weak", ar: "ضعيفة" },
 
     // ── Home Page ──
-    "app-name": { en: "WASIL", ar: "واصل" },
+    "app-name": { en: "wasil", ar: "واصل" },
     "app-slogan": { en: "YOUR HEALTH COMPANION", ar: "رفيقك الصحي" },
     "home.welcome": { en: "Welcome back,", ar: "مرحباً،" },
 
     // Hero & Actions
-    "hero-title": { en: "Outbreak Response", ar: "استجابة للأوبئة" },
-    "hero-desc": { en: "Check nearby mobile clinics, report symptoms, or request urgent assistance.", ar: "تحقق من العيادات المتنقلة القريبة، أبلغ عن الأعراض، أو اطلب مساعدة عاجلة." },
+    "hero-title": { en: "Outbreak Response", ar: "الاستجابة الوبائية" },
+    "hero-desc": { en: "Access mobile clinics, report symptoms, request services, or manage epidemic response operations.", ar: "سجل أعراضك وموقعك الحالي حتى تستطيع السلطات الصحية الوصول إليك" },
     "btn-report": { en: "Report Case", ar: "الإبلاغ عن حالة" },
     "btn-clinics": { en: "Nearby Clinics", ar: "العيادات القريبة" },
     "btn-assign-clinic": { en: "Assign Clinic", ar: "تعيين عيادة" },
@@ -208,7 +207,7 @@ const WASIL_TRANSLATIONS = {
 
     // ── Admin Page ──
     "admin.title": { en: "Ministry of Health", ar: "وزارة الصحة" },
-    "admin.subtitle": { en: "WASIL System Admin", ar: "مدير نظام واصل" },
+    "admin.subtitle": { en: "wasil System Admin", ar: "مدير نظام واصل" },
     "admin.dashboard": { en: "Dashboard", ar: "لوحة التحكم" },
     "admin.deployed_clinics": { en: "Deployed Clinics", ar: "العيادات المنتشرة" },
     "admin.clinic_requests": { en: "Clinic Requests", ar: "طلبات العيادات" },
@@ -237,6 +236,7 @@ const WASIL_TRANSLATIONS = {
     "admin.clinic_name": { en: "Clinic Name", ar: "اسم العيادة" },
     "admin.capacity": { en: "Capacity", ar: "الطاقة الاستيعابية" },
     "admin.diseases_treated": { en: "Diseases Treated", ar: "الأمراض المعالجة" },
+    "admin.supplies": { en: "Supplies", ar: "الإمدادات" },
     "admin.schedule": { en: "Schedule", ar: "الجدول الزمني" },
     "admin.operating_party": { en: "Operating Party", ar: "الجهة المشغلة" },
     "admin.deployed_by_moh": { en: "MOH", ar: "وزارة الصحة" },
@@ -257,7 +257,7 @@ const WASIL_TRANSLATIONS = {
     "admin.no_requests": { en: "No pending requests", ar: "لا توجد طلبات معلقة" },
 
     // Admin – System Users
-    "admin.system_user_sub": { en: "All registered users in the WASIL platform", ar: "جميع المستخدمين المسجلين في منصة واصل" },
+    "admin.system_user_sub": { en: "All registered users in the  wasil platform", ar: "جميع المستخدمين المسجلين في منصة واصل" },
     "admin.organizations": { en: "Organizations", ar: "المنظمات" },
     "admin.community_users": { en: "Community Users", ar: "مستخدمو المجتمع" },
     "admin.contact": { en: "Contact", ar: "التواصل" },
@@ -332,9 +332,9 @@ const WASIL_TRANSLATIONS = {
 
     // ── Landing Page ──
     "landing.navCta": { en: "Enter Platform", ar: "دخول المنصة" },
-    "landing.heroBadgeText": { en: "Live Epidemic Monitoring", ar: "مراقبة الأوبئة لحظة بلحظة" },
-    "landing.heroTitleAr": { en: "WASIL — Epidemic Response Platform", ar: "واصِل — منصة الاستجابة الوبائية" },
-    "landing.heroTitleEn": { en: "Connecting communities to mobile clinics in real-time", ar: "تربط المجتمعات بالعيادات المتنقلة في الوقت الفعلي" },
+    "landing.heroBadgeText": { en: "Live Epidemic Monitoring", ar: "مراقبة الحالة الوبائية لحظة بلحظة" },
+    "landing.heroTitleAr": { en: "wasil — Epidemic Response Platform", ar: "واصِل — منصة الاستجابة الوبائية" },
+    "landing.heroTitleEn": { en: "Connecting communities to mobile clinics in real-time", ar: "ربط المجتمعات بالعيادات المتنقلة القريبة" },
     "landing.heroGetStarted": { en: "Get Started", ar: "ابدأ الآن" },
     "landing.heroLogin": { en: "Login", ar: "تسجيل الدخول" },
     "landing.statCases": { en: "Cases Reported", ar: "حالة مُبلَّغ عنها" },
@@ -343,12 +343,12 @@ const WASIL_TRANSLATIONS = {
     "landing.statAlerts": { en: "Real-time Alerts", ar: "تنبيهات فورية" },
     "landing.hiwLabel": { en: "How It Works", ar: "كيف يعمل" },
     "landing.hiwHeading": { en: "One platform, three roles", ar: "منصة واحدة، ثلاثة أدوار" },
-    "landing.roleCommunityTitle": { en: "Community Member", ar: "عضو المجتمع" },
-    "landing.roleCommunityDesc": { en: "Report disease cases, find nearby mobile clinics, and access emergency health instructions for your family.", ar: "أبلغ عن حالات الأمراض، جد العيادات المتنقلة القريبة، واحصل على تعليمات صحية طارئة لعائلتك." },
-    "landing.roleOrgTitle": { en: "Organization", ar: "منظمة صحية" },
-    "landing.roleOrgDesc": { en: "Deploy mobile clinics, manage field operations, and respond to community service requests in affected areas.", ar: "انشر العيادات المتنقلة، وأدر العمليات الميدانية، واستجب لطلبات خدمة المجتمع في المناطق المتضررة." },
-    "landing.roleAdminTitle": { en: "MOH System Admin", ar: "مدير نظام وزارة الصحة" },
-    "landing.roleAdminDesc": { en: "Monitor the entire epidemic response system, approve clinic requests, and oversee all registered users.", ar: "راقب نظام الاستجابة الوبائية بالكامل، وافق على طلبات العيادات، وأشرف على جميع المستخدمين المسجلين." },
+    "landing.roleCommunityTitle": { en: "Community Member", ar: "فرد المجتمع" },
+    "landing.roleCommunityDesc": { en: "Report disease cases, find nearby mobile clinics, and access emergency health instructions for your family.", ar: "الابلاغ عن الحالات المرضية واستكشاف والتسجيل على العيادات القريبة , الحصول على التعليمات الصحية المهمة" },
+    "landing.roleOrgTitle": { en: "Organization", ar: "المنظمات الصحية" },
+    "landing.roleOrgDesc": { en: "Deploy mobile clinics, manage field operations, and respond to community service requests in affected areas.", ar: "نشر العيادات المتنقلة  بناءً على الحوجة الوبائية , الاستجابة للخدمات الصحية المطلوبة" },
+    "landing.roleAdminTitle": { en: "MOH System Admin", ar: "وزارة الصحة" },
+    "landing.roleAdminDesc": { en: "Monitor the entire epidemic response system, approve clinic requests, and oversee all registered users.", ar: "الرقابة على النظام ومستخدميه  ومتابعة الحالة الوبائية وإدارة ومراجعة طلبات نشر العيادات " },
     "landing.featLabel": { en: "Platform Features", ar: "مميزات المنصة" },
     "landing.featHeading": { en: "Everything you need for epidemic response", ar: "كل ما تحتاجه للاستجابة للأوبئة" },
     "landing.feat1Title": { en: "Real-time Epidemic Map", ar: "خريطة الأوبئة المباشرة" },
@@ -364,7 +364,7 @@ const WASIL_TRANSLATIONS = {
     "landing.feat6Title": { en: "Secure Authentication", ar: "مصادقة آمنة" },
     "landing.feat6Desc": { en: "Role-based access with Supabase authentication, keeping data safe and private.", ar: "وصول قائم على الأدوار مع مصادقة Supabase، للحفاظ على أمان البيانات وخصوصيتها." },
     "landing.ctaHeading": { en: "Join the response today", ar: "انضم إلى الاستجابة اليوم" },
-    "landing.ctaDesc": { en: "Whether you're a community member, an organization, or MOH — WASIL connects you to save lives.", ar: "سواء كنت عضواً في المجتمع أو منظمة أو وزارة الصحة — واصِل يربطك لإنقاذ الأرواح." },
+    "landing.ctaDesc": { en: "Whether you're a community member, an organization, or MOH —  wasil connects you to save lives.", ar: "سواء كنت عضواً في المجتمع أو منظمة أو وزارة الصحة — واصِل يربطك لإنقاذ الأرواح." },
     "landing.ctaGetStarted": { en: "Get Started", ar: "ابدأ الآن" },
     "landing.ctaLogin": { en: "Login", ar: "تسجيل الدخول" },
     "landing.footerTagline": { en: "Electronic Health Platform — Sudan", ar: "منصة الصحة الإلكترونية — السودان" },
@@ -380,7 +380,7 @@ const WASIL_TRANSLATIONS = {
     "landing.ticker3": { en: "Jabarona — Cholera Alert (HIGH RISK)", ar: "جبرونا — تحذير كوليرا (خطر مرتفع)" },
     "landing.ticker4": { en: "Bahri — Dengue Fever Detected", ar: "بحري — رصد حمى الضنك" },
     "landing.ticker5": { en: "Haj Yousif — Malaria Cluster Reported", ar: "حاج يوسف — تقارير عن تجمع ملاريا" },
-    "landing.footerCopy": { en: "© 2026 WASIL. All rights reserved.", ar: "© 2026 واصل. جميع الحقوق محفوظة." },
+    "landing.footerCopy": { en: "© 2026  wasil. All rights reserved.", ar: "© 2026 واصل. جميع الحقوق محفوظة." },
 
     "page.last_updated": { en: "Last updated:", ar: "آخر تحديث:" },
 
@@ -403,22 +403,22 @@ const WASIL_TRANSLATIONS = {
     "whoarewe.title": { en: "Who Are We?", ar: "من نحن؟" },
     "whoarewe.subtitle": { en: "A dedicated team bridging the gap between communities in need and life-saving health services during epidemics in Sudan.", ar: "فريق متخصص يسد الفجوة بين المجتمعات المحتاجة وخدمات الصحة المنقذة خلال الأوبئة في السودان." },
     "whoarewe.mission_title": { en: "Our Mission", ar: "رسالتنا" },
-    "whoarewe.mission_text": { en: "WASIL \u2014 Arabic for \"the one who connects\" \u2014 is an electronic health platform built to bridge the gap between affected communities and mobile health services during epidemic crises in Sudan. We believe that timely access to medical information and emergency response can save lives.", ar: "واصل منصة صحة إلكترونية بنيت لسد الفجوة بين المجتمعات المتضررة وخدمات الصحة المتنقلة خلال أزمات الوباء في السودان. نؤمن بأن الوصول في الوقت المناسب إلى المعلومات الطبية ينقذ الأرواح." },
+    "whoarewe.mission_text": { en: "wasil \u2014 Arabic for \"the one who connects\" \u2014 is an electronic health platform built to bridge the gap between affected communities and mobile health services during epidemic crises in Sudan. We believe that timely access to medical information and emergency response can save lives.", ar: "واصل منصة صحة إلكترونية بنيت لسد الفجوة بين المجتمعات المتضررة وخدمات الصحة المتنقلة خلال أزمات الوباء في السودان. نؤمن بأن الوصول في الوقت المناسب إلى المعلومات الطبية ينقذ الأرواح." },
     "whoarewe.what_we_do": { en: "What Our Platform Does", ar: "ماذا تفعل منصتنا" },
     "whoarewe.our_story": { en: "Our Story", ar: "قصتنا" },
     "whoarewe.our_values": { en: "Our Values", ar: "قيمنا" },
     "whoarewe.cta_title": { en: "Ready to Join the Response?", ar: "هل أنت مستعد للانضمام إلى الاستجابة؟" },
-    "whoarewe.cta_desc": { en: "Whether you're a community member, a health organization, or MOH \u2014 WASIL is built for you.", ar: "سواء كنت عضوًا في المجتمع أو منظمة صحية أو وزارة الصحة — واصل بُني لك." },
+    "whoarewe.cta_desc": { en: "Whether you're a community member, a health organization, or MOH \u2014  wasil is built for you.", ar: "سواء كنت عضوًا في المجتمع أو منظمة صحية أو وزارة الصحة — واصل بُني لك." },
     "whoarewe.cta_btn": { en: "Get Started Now", ar: "ابدأ الآن" },
 
     // ── Contact Page ──
     "contact.badge": { en: "Contact", ar: "تواصل معنا" },
     "contact.title": { en: "Contact Information", ar: "معلومات الاتصال" },
-    "contact.subtitle": { en: "We're here to help. Reach out to the WASIL team for support, partnerships, or any inquiries.", ar: "نحن هنا لمساعدتك. تواصل مع فريق واصل للدعم أو الشراكات أو أي استفسار." },
+    "contact.subtitle": { en: "We're here to help. Reach out to the  wasil team for support, partnerships, or any inquiries.", ar: "نحن هنا لمساعدتك. تواصل مع فريق واصل للدعم أو الشراكات أو أي استفسار." },
     "contact.email_title": { en: "Reach Us by Email", ar: "تواصل معنا بالبريد" },
     "contact.email_desc": { en: "For all inquiries \u2014 technical support, partnerships, health data requests, or general questions \u2014 email us directly.", ar: "لجميع الاستفسارات \u2014 الدعم الفني، الشراكات، طلبات البيانات الصحية، أو الأسئلة العامة \u2014 راسلنا مباشرة عبر البريد الإلكتروني." },
     "contact.general_inq": { en: "General Inquiries", ar: "استفسارات عامة" },
-    "contact.general_desc": { en: "Questions about the platform or how to use WASIL?", ar: "هل لديك أسئلة حول المنصة أو كيفية استخدام واصل؟" },
+    "contact.general_desc": { en: "Questions about the platform or how to use  wasil?", ar: "هل لديك أسئلة حول المنصة أو كيفية استخدام واصل؟" },
     "contact.partnerships": { en: "Partnerships", ar: "الشراكات" },
     "contact.partnerships_desc": { en: "NGOs, health organizations, or government bodies looking to collaborate?", ar: "المنظمات غير الحكومية، المنظمات الصحية، أو الهيئات الحكومية التي تتطلع للتعاون؟" },
     "contact.tech_support": { en: "Technical Support", ar: "الدعم الفني" },
@@ -432,7 +432,7 @@ const WASIL_TRANSLATIONS = {
     "contact.faq3_q": { en: "Is my health data kept confidential?", ar: "هل تبقى بياناتي الصحية سرية؟" },
     "contact.faq3_a": { en: "Yes. All personal health data is encrypted and only accessible to authorized health personnel. Case reports are aggregated and anonymized for epidemiological analysis.", ar: "نعم. يتم تشفير جميع البيانات الصحية الشخصية ولا يمكن الوصول إليها إلا للموظفين الصحيين المصرح لهم. يتم تجميع تقارير الحالات وإخفاء هويتها للتحليل الوبائي." },
     "contact.faq4_q": { en: "The platform is available in Arabic?", ar: "هل المنصة متاحة باللغة العربية؟" },
-    "contact.faq4_a": { en: "Yes! WASIL supports full Arabic and English localization. You can toggle between languages using the language button in the top navigation bar across the platform.", ar: "نعم! يدعم واصل التعريب الكامل باللغتين العربية والإنجليزية. يمكنك التبديل بين اللغات باستخدام زر اللغة في شريط التنقل العلوي عبر المنصة." },
+    "contact.faq4_a": { en: "Yes!  wasil supports full Arabic and English localization. You can toggle between languages using the language button in the top navigation bar across the platform.", ar: "نعم! يدعم واصل التعريب الكامل باللغتين العربية والإنجليزية. يمكنك التبديل بين اللغات باستخدام زر اللغة في شريط التنقل العلوي عبر المنصة." },
     "contact.faq5_q": { en: "I forgot my password. How do I reset it?", ar: "نسيت كلمة المرور الخاصة بي. كيف يمكنني إعادة تعيينها؟" },
     "contact.faq5_a": { en: "On the login page, click \"Forgot Password\" and enter your registered email. You will receive a password reset link within a few minutes. If you don't receive it, check your spam folder.", ar: "في صفحة تسجيل الدخول، انقر على \"نسيت كلمة المرور\" وأدخل بريدك الإلكتروني المسجل. ستتلقى رابط إعادة تعيين كلمة المرور في غضون بضع دقائق. إذا لم تستلمه، تحقق من مجلد البريد العشوائي." },
 
@@ -469,7 +469,94 @@ const WASIL_TRANSLATIONS = {
     "footer.about": { en: "Who Are We", ar: "من نحن" },
     "footer.contact": { en: "Contact", ar: "اتصل بنا" },
     "footer.privacy": { en: "Privacy Policy", ar: "سياسة الخصوصية" },
-    "footer.copyright": { en: "\u00a9 2026 WASIL. All rights reserved.", ar: "\u00a9 2026 واصل. جميع الحقوق محفوظة." }
+    "footer.copyright": { en: "\u00a9 2026  wasil. All rights reserved.", ar: "\u00a9 2026 واصل. جميع الحقوق محفوظة." },
+
+    // ── A11y ──
+    "a11y.skip_link": { en: "Skip to main content", ar: "انتقل إلى المحتوى الرئيسي" },
+
+    // ── Admin: Dynamic strings (injected via JS innerHTML) ──
+    "admin.cases": { en: "Cases", ar: "الحالات" },
+    "admin.range": { en: "Range", ar: "النطاق" },
+    "admin.no_deployed": { en: "No deployed clinics yet. Approve a clinic request to see it here.", ar: "لا توجد عيادات منتشرة بعد. وافق على طلب عيادة لرؤيته هنا." },
+    "admin.active_deployments": { en: "active deployments", ar: "انتشارات نشطة" },
+    "admin.no_pending_requests": { en: "No pending clinic requests.", ar: "لا توجد طلبات عيادات معلقة." },
+    "admin.detail_target_area": { en: "Target Area", ar: "المنطقة المستهدفة" },
+    "admin.detail_capacity": { en: "Capacity", ar: "الطاقة الاستيعابية" },
+    "admin.detail_diseases": { en: "Diseases", ar: "الأمراض" },
+    "admin.detail_schedule": { en: "Schedule", ar: "الجدول الزمني" },
+    "admin.approved_label": { en: "✓ Approved", ar: "✓ تمت الموافقة" },
+    "admin.rejected_label": { en: "✗ Rejected", ar: "✗ تم الرفض" },
+    "admin.no_orgs": { en: "No registered organizations found.", ar: "لا توجد منظمات مسجلة." },
+    "admin.no_community": { en: "No registered community users found.", ar: "لا يوجد مستخدمو مجتمع مسجلون." },
+    "admin.remove_user_btn": { en: "Remove", ar: "حذف" },
+    "admin.no_cases": { en: "No cases submitted yet.", ar: "لم يتم تقديم أي حالات بعد." },
+    "admin.no_cases_row": { en: "No cases yet.", ar: "لا توجد حالات بعد." },
+    "admin.chip_total_cases": { en: "Total Cases", ar: "إجمالي الحالات" },
+    "admin.chip_critical": { en: "Areas Critical", ar: "مناطق حرجة" },
+    "admin.chip_high": { en: "Areas High Risk", ar: "مناطق عالية الخطورة" },
+    "admin.chip_moderate": { en: "Areas Moderate", ar: "مناطق متوسطة" },
+    "admin.chip_low": { en: "Areas Low Risk", ar: "مناطق منخفضة الخطورة" },
+    "admin.chip_areas": { en: "Areas", ar: "مناطق" },
+    "admin.more_cases": { en: "more cases", ar: "حالة إضافية" },
+    "admin.specific_locations": { en: "Specific Locations", ar: "مواقع محددة" },
+    "admin.cases_total": { en: "cases total", ar: "إجمالي الحالات" },
+    "admin.btn_treating": { en: "Treating", ar: "تحت العلاج" },
+    "admin.btn_cured": { en: "Cured", ar: "تعافى" },
+    "admin.btn_remove_case": { en: "Remove", ar: "حذف" },
+    "admin.btn_delete": { en: "Delete", ar: "حذف" },
+    "admin.disease_active": { en: "Active", ar: "نشط" },
+    "admin.disease_inactive": { en: "Inactive", ar: "غير نشط" },
+    "admin.capacity_per_day": { en: "patients/day", ar: "مريض/يوم" },
+    "admin.clinic_label": { en: "Clinic", ar: "عيادة" },
+    "admin.approve_toast": { en: "Request approved!", ar: "تمت الموافقة على الطلب!" },
+    "admin.reject_toast": { en: "Request rejected.", ar: "تم رفض الطلب." },
+    "admin.remove_success": { en: "User removed successfully!", ar: "تم حذف المستخدم بنجاح!" },
+    "admin.case_removed": { en: "Case removed successfully!", ar: "تمت إزالة الحالة بنجاح!" },
+    "admin.error_occurred": { en: "An error occurred.", ar: "حدث خطأ." },
+    "admin.confirm_remove_user": { en: "Are you sure you want to remove this user?", ar: "هل أنت متأكد من حذف هذا المستخدم؟" },
+    "admin.confirm_delete_case": { en: "Remove this case? This cannot be undone.", ar: "حذف هذه الحالة؟ لا يمكن التراجع عن هذا." },
+    "admin.confirm_reject_reason": { en: "Enter a brief reason for rejecting this clinic request:", ar: "أدخل سبباً موجزاً لرفض طلب العيادة:" },
+    "admin.time_s_ago": { en: "s ago", ar: "ث مضت" },
+    "admin.time_m_ago": { en: "m ago", ar: "د مضت" },
+    "admin.time_h_ago": { en: "h ago", ar: "س مضت" },
+    "admin.case_marked": { en: "Case marked as", ar: "تم تصنيف الحالة كـ" },
+    "admin.sev_critical": { en: "CRITICAL", ar: "حرج" },
+    "admin.sev_high": { en: "HIGH", ar: "مرتفع" },
+    "admin.sev_moderate": { en: "MODERATE", ar: "متوسط" },
+    "admin.sev_low": { en: "LOW", ar: "منخفض" },
+    "admin.sev_stable": { en: "STABLE", ar: "مستقر" },
+    "admin.case_range_low": { en: "1–10 Low", ar: "منخفض ١–١٠" },
+    "admin.case_range_mod": { en: "11–30 Moderate", ar: "متوسط ١١–٣٠" },
+    "admin.case_range_high": { en: "31–60 High", ar: "مرتفع ٣١–٦٠" },
+    "admin.case_range_crit": { en: "61+ Critical", ar: "حرج +٦١" },
+    "admin.unknown_sub": { en: "Unknown Sub-area", ar: "منطقة فرعية غير معروفة" },
+
+    // ── Home: Dynamic strings (injected via JS innerHTML) ──
+    "home.no_deployed_clinics": { en: "No Deployed Clinics", ar: "لا توجد عيادات منتشرة" },
+    "home.no_deployed_desc": { en: "Deployed clinics will appear here once available.", ar: "ستظهر العيادات المنتشرة هنا فور إتاحتها." },
+    "home.no_requests_yet": { en: "No Requests Yet", ar: "لا توجد طلبات بعد" },
+    "home.no_requests_desc": { en: "Submitted service requests will appear here.", ar: "ستظهر طلبات الخدمة المقدمة هنا." },
+    "home.total_cases_label": { en: "Total Cases", ar: "إجمالي الحالات" },
+    "home.deployed_clinic_label": { en: "DEPLOYED CLINIC", ar: "عيادة منتشرة" },
+    "home.operative_hours": { en: "Operation Hours", ar: "ساعات التشغيل" },
+    "home.status_active": { en: "Active", ar: "نشط" },
+    "home.status_pending": { en: "Pending", ar: "قيد الانتظار" },
+    "home.status_rejected": { en: "Rejected", ar: "مرفوض" },
+    "home.new_service_req": { en: "New service request", ar: "طلب خدمة جديد" },
+    "home.sev_high_risk": { en: "HIGH RISK", ar: "خطر مرتفع" },
+    "home.sev_critical": { en: "CRITICAL", ar: "حرج" },
+    "home.sev_high": { en: "HIGH", ar: "مرتفع" },
+    "home.sev_moderate": { en: "MODERATE", ar: "متوسط" },
+    "home.sev_low": { en: "LOW", ar: "منخفض" },
+    "home.cases_label": { en: "cases", ar: "حالات" },
+    "home.case_label": { en: "case", ar: "حالة" },
+    "home.view_details": { en: "View Details", ar: "عرض التفاصيل" },
+    "home.no_cases_reported": { en: "No cases reported yet in this area.", ar: "لم يتم الإبلاغ عن أي حالات في هذه المنطقة بعد." },
+    "home.clinic_num": { en: "Clinic #", ar: "عيادة #" },
+    "home.supplies_label": { en: "Supplies", ar: "المستلزمات" },
+    "home.loading": { en: "Loading...", ar: "جارٍ التحميل..." },
+    "home.notif_approved": { en: "Your clinic request was approved!", ar: "تمت الموافقة على طلب عيادتك!" },
+    "home.notif_rejected": { en: "Your clinic request was rejected.", ar: "تم رفض طلب عيادتك." }
 };
 
 
@@ -488,8 +575,8 @@ function applyLanguage() {
     var textElements = document.querySelectorAll('[data-i18n]');
     for (var i = 0; i < textElements.length; i++) {
         var key = textElements[i].getAttribute('data-i18n');
-        if (WASIL_TRANSLATIONS[key] && WASIL_TRANSLATIONS[key][lang]) {
-            textElements[i].textContent = WASIL_TRANSLATIONS[key][lang];
+        if (wasil_TRANSLATIONS[key] && wasil_TRANSLATIONS[key][lang]) {
+            textElements[i].textContent = wasil_TRANSLATIONS[key][lang];
         }
     }
 
@@ -497,8 +584,8 @@ function applyLanguage() {
     var phElements = document.querySelectorAll('[data-i18n-placeholder]');
     for (var j = 0; j < phElements.length; j++) {
         var phKey = phElements[j].getAttribute('data-i18n-placeholder');
-        if (WASIL_TRANSLATIONS[phKey] && WASIL_TRANSLATIONS[phKey][lang]) {
-            phElements[j].setAttribute('placeholder', WASIL_TRANSLATIONS[phKey][lang]);
+        if (wasil_TRANSLATIONS[phKey] && wasil_TRANSLATIONS[phKey][lang]) {
+            phElements[j].setAttribute('placeholder', wasil_TRANSLATIONS[phKey][lang]);
         }
     }
 }
@@ -506,11 +593,31 @@ function applyLanguage() {
 // Helper to get a single translation
 function t(key) {
     var lang = localStorage.getItem('wasil_lang') || 'ar';
-    if (WASIL_TRANSLATIONS[key] && WASIL_TRANSLATIONS[key][lang]) {
-        return WASIL_TRANSLATIONS[key][lang];
+    if (wasil_TRANSLATIONS[key] && wasil_TRANSLATIONS[key][lang]) {
+        return wasil_TRANSLATIONS[key][lang];
     }
     return key;
 }
 
 // Auto-apply on DOM ready
 document.addEventListener('DOMContentLoaded', applyLanguage);
+
+// ── Disease Name Translator ──
+// Maps English DB names → Arabic display names
+const DISEASE_AR_NAMES = {
+    'cholera':      'الكوليرا',
+    'typhoid':      'التيفوئيد',
+    'dengue':       'حمى الضنك',
+    'dengue fever': 'حمى الضنك',
+    'malaria':      'الملاريا',
+    'unknown':      'غير معروف',
+    'other':        'أخرى'
+};
+
+function translateDisease(name) {
+    if (!name) return name;
+    var lang = localStorage.getItem('wasil_lang') || 'ar';
+    if (lang !== 'ar') return name;
+    var ar = DISEASE_AR_NAMES[name.toLowerCase().trim()];
+    return ar || name;
+}

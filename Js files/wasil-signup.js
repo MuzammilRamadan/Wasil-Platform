@@ -1,5 +1,5 @@
 // ============================================
-// WASIL SIGN UP PAGE - INTERACTIVE FEATURES
+//  wasil SIGN UP PAGE - INTERACTIVE FEATURES
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -62,6 +62,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize based on stored role
     setAccountType(accountType);
+
+    // === ROLE-LOCKED SIGNUP ===
+    // If the user arrived from the role-select page with a specific role,
+    // hide the toggle so they only see the form for their chosen role.
+    const toggle = document.getElementById('accountTypeToggle');
+    const preSelectedRole = localStorage.getItem('wasil_role');
+
+    if (preSelectedRole === 'community' || preSelectedRole === 'organization') {
+        // Hide the toggle — role is already locked from role-select
+        if (toggle) toggle.style.display = 'none';
+
+        // Add a compact role badge below the tagline so the user knows which form they're on
+        const logoSection = document.querySelector('.logo-section');
+        if (logoSection && !document.getElementById('roleBadge')) {
+            const badge = document.createElement('div');
+            badge.id = 'roleBadge';
+
+            const isOrg = preSelectedRole === 'organization';
+            badge.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-inline-end:5px;">
+                    ${isOrg
+                    ? '<rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="6" x2="15" y2="6"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/>'
+                    : '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'}
+                </svg>
+                ${isOrg ? 'حساب منظمة' : 'حساب أفراد المجتمع'}
+            `;
+
+            Object.assign(badge.style, {
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: '10px',
+                padding: '5px 14px',
+                borderRadius: '20px',
+                fontSize: '12px',
+                fontWeight: '600',
+                background: isOrg ? 'rgba(243,156,18,0.12)' : 'rgba(74,144,226,0.12)',
+                color: isOrg ? '#F39C12' : '#4A90E2',
+                border: isOrg ? '1px solid rgba(243,156,18,0.3)' : '1px solid rgba(74,144,226,0.3)',
+                letterSpacing: '0.3px'
+            });
+
+            logoSection.appendChild(badge);
+        }
+    }
 
     // === FORM ELEMENTS ===
     const signupForm = document.getElementById('signupForm');
@@ -438,5 +483,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return digitsOnly.startsWith('09') && digitsOnly.length === 10;
     }
 
-    console.log('Wasil Sign Up Page Initialized ✓');
+    console.log('wasil Sign Up Page Initialized ✓');
 });
+
