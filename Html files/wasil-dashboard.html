@@ -471,9 +471,12 @@
                 <h1 data-i18n="dash.title">Outbreak Dashboard</h1>
                 <p data-i18n="dash.subtitle">Cases submitted by community users</p>
             </div>
-            <div class="live-badge">
-                <span class="live-dot"></span>
-                <span data-i18n="landing.tickerLive">LIVE</span>
+            <div style="display:flex; gap:10px; margin-left:auto; align-items:center;">
+                <button class="lang-btn" id="langToggleBtn" onclick="toggleLang()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:10px;padding:4px 10px;color:#fff;font-weight:600;font-size:0.75rem;cursor:pointer;font-family:inherit;transition:background 0.2s;">English</button>
+                <div class="live-badge" style="margin-left:0;">
+                    <span class="live-dot"></span>
+                    <span data-i18n="landing.tickerLive">LIVE</span>
+                </div>
             </div>
         </div>
 

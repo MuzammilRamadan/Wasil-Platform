@@ -81,6 +81,7 @@
                 <span id="headerNotifBadge" aria-live="polite" aria-label="notification count"
                     style="position:absolute;top:2px;right:4px;background:#E74C3C;color:#fff;border-radius:50%;width:16px;height:16px;font-size:0.65rem;font-weight:700;display:none;align-items:center;justify-content:center;">0</span>
             </button>
+            <button class="lang-btn" id="langToggleBtn" onclick="toggleLang()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-weight:600;font-size:0.75rem;cursor:pointer;font-family:inherit;">English</button>
             <button class="icon-btn logout-btn" id="logoutBtn" aria-label="Logout" onclick="handleLogout()"
                 style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:rgba(231,76,60,0.08);color:#E74C3C;border:1px solid rgba(231,76,60,0.2);font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -169,16 +170,16 @@
             <!-- Org-only: Epidemic Status by Locality -->
             <div data-role="organization" style="margin-top:1.5rem;">
                 <div class="section-header">
-                    <span class="section-title">حالة الوباء</span>
+                    <span class="section-title" data-i18n="sec-outbreak">حالة الوباء</span>
                     <span style="font-size:0.72rem;color:var(--text-light);display:flex;align-items:center;gap:4px;">
                         <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;animation:pulse-dot 1.5s infinite;"></span>
-                        مباشر
+                        <span data-i18n="home.live">مباشر</span>
                     </span>
                 </div>
                 <div class="disease-guide-list" id="localityOutbreakList">
                     <div style="text-align:center;padding:12px;color:var(--text-light);font-size:0.85rem;">
                         <div class="loading-spinner" style="margin:0 auto 8px;"></div>
-                        جاري تحميل...
+                        <span data-i18n="home.loading_outbreak">جاري تحميل...</span>
                     </div>
                 </div>
             </div>
@@ -287,13 +288,13 @@
         <!-- ═══════════ VIEW: NOTIFICATIONS (Community) ═══════════ -->
         <div id="view-notifications" class="view-section" style="display: none;">
             <div class="section-header">
-                <span class="section-title" data-i18n="sec-notifications">الإشعارات</span>
+                <span class="section-title" data-i18n="home.notifications">الإشعارات</span>
             </div>
 
             <div class="notifications-list" id="communityNotificationsList">
                 <div class="clinics-loading">
                     <div class="loading-spinner"></div>
-                    <p>جاري تحميل الإشعارات...</p>
+                    <p data-i18n="home.loading_notifications">جاري تحميل الإشعارات...</p>
                 </div>
             </div>
         </div>
@@ -326,7 +327,7 @@
                 <div id="localityCaseCards" class="cases-list">
                     <div class="clinics-loading" style="padding:24px;text-align:center;color:var(--text-light);">
                         <div class="loading-spinner" style="margin:0 auto 10px;"></div>
-                        <p style="font-size:0.85rem;">جاري تحميل الحالات...</p>
+                        <p style="font-size:0.85rem;" data-i18n="home.grouping_cases">جاري تحميل الحالات...</p>
                     </div>
                 </div>
             </div>
@@ -354,11 +355,11 @@
                         </svg>
                     </div>
                     <div class="request-content">
-                        <h5>Rapid Ambulance Requested</h5>
-                        <p>Khartoum North, Block 7 — Emergency case, suspected cholera dehydration</p>
-                        <span class="request-time">2 minutes ago</span>
+                        <h5 data-i18n="dummy.req1_title">Rapid Ambulance Requested</h5>
+                        <p data-i18n="dummy.req1_desc">Khartoum North, Block 7 — Emergency case, suspected cholera dehydration</p>
+                        <span class="request-time" data-i18n="dummy.req1_time">2 minutes ago</span>
                     </div>
-                    <span class="new-badge">NEW</span>
+                    <span class="new-badge" data-i18n="home.new_badge">NEW</span>
                 </div>
 
                 <div class="service-request-item">
@@ -371,11 +372,11 @@
                         </svg>
                     </div>
                     <div class="request-content">
-                        <h5>Vaccination Request</h5>
-                        <p>Omdurman, Market Area — Family of 6 requesting cholera vaccination</p>
-                        <span class="request-time">15 minutes ago</span>
+                        <h5 data-i18n="dummy.req2_title">Vaccination Request</h5>
+                        <p data-i18n="dummy.req2_desc">Omdurman, Market Area — Family of 6 requesting cholera vaccination</p>
+                        <span class="request-time" data-i18n="dummy.req2_time">15 minutes ago</span>
                     </div>
-                    <span class="new-badge">NEW</span>
+                    <span class="new-badge" data-i18n="home.new_badge">NEW</span>
                 </div>
 
                 <div class="service-request-item">
@@ -386,9 +387,9 @@
                         </svg>
                     </div>
                     <div class="request-content">
-                        <h5>Medical Consultation</h5>
-                        <p>Bahri, Industrial Area — Persistent fever and stomach pain, 3 patients</p>
-                        <span class="request-time">32 minutes ago</span>
+                        <h5 data-i18n="dummy.req3_title">Medical Consultation</h5>
+                        <p data-i18n="dummy.req3_desc">Bahri, Industrial Area — Persistent fever and stomach pain, 3 patients</p>
+                        <span class="request-time" data-i18n="dummy.req3_time">32 minutes ago</span>
                     </div>
                 </div>
 
@@ -400,9 +401,9 @@
                         </svg>
                     </div>
                     <div class="request-content">
-                        <h5>Water & Sanitation Report</h5>
-                        <p>Jabarona, South Camp — Contaminated water source affecting 50+ families</p>
-                        <span class="request-time">1 hour ago</span>
+                        <h5 data-i18n="dummy.req4_title">Water & Sanitation Report</h5>
+                        <p data-i18n="dummy.req4_desc">Jabarona, South Camp — Contaminated water source affecting 50+ families</p>
+                        <span class="request-time" data-i18n="dummy.req4_time">1 hour ago</span>
                     </div>
                 </div>
 
@@ -416,9 +417,9 @@
                         </svg>
                     </div>
                     <div class="request-content">
-                        <h5>Nutrition Support Request</h5>
-                        <p>Haj Yousif — 12 children showing signs of malnutrition in camp</p>
-                        <span class="request-time">2 hours ago</span>
+                        <h5 data-i18n="dummy.req5_title">Nutrition Support Request</h5>
+                        <p data-i18n="dummy.req5_desc">Haj Yousif — 12 children showing signs of malnutrition in camp</p>
+                        <span class="request-time" data-i18n="dummy.req5_time">2 hours ago</span>
                     </div>
                 </div>
             </div>
@@ -559,100 +560,100 @@
         aria-labelledby="assignModalTitle">
         <div class="modal-content" role="document" style="max-height:92vh;overflow-y:auto;">
             <div class="modal-handle"></div>
-            <h3 class="modal-title" id="assignModalTitle">طلب تعيين عيادة</h3>
+            <h3 class="modal-title" id="assignModalTitle" data-i18n="home.request_assignation">طلب تعيين عيادة</h3>
 
             <form id="assignationForm">
 
                 <!-- 1. المحلية المستهدفة -->
                 <div class="form-group">
-                    <label class="form-label">المحلية المستهدفة</label>
-                    <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;">حدد المحلية التي تريد نشر العيادة فيها</p>
+                    <label class="form-label" data-i18n="home.assign_locality">المحلية المستهدفة</label>
+                    <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;" data-i18n="home.assign_locality_desc">حدد المحلية التي تريد نشر العيادة فيها</p>
                     <select id="assignLocality" class="form-input" required>
-                        <option value="" disabled selected>اختر المحلية...</option>
-                        <option value="الخرطوم">الخرطوم</option>
-                        <option value="بحري">بحري</option>
-                        <option value="امدرمان">امدرمان</option>
+                        <option value="" disabled selected data-i18n="home.select_locality">اختر المحلية...</option>
+                        <option value="الخرطوم" data-i18n="area.khartoum_center">الخرطوم</option>
+                        <option value="بحري" data-i18n="area.bahri">بحري</option>
+                        <option value="امدرمان" data-i18n="area.omdurman">امدرمان</option>
                     </select>
                 </div>
 
                 <!-- 2. المنطقة المستهدفة -->
                 <div class="form-group" style="margin-top:10px;">
-                    <label class="form-label">المنطقة المستهدفة للعيادة</label>
-                    <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;">حدد المنطقة التي تعاني من تفشي الوباء</p>
+                    <label class="form-label" data-i18n="home.clinic_target">المنطقة المستهدفة للعيادة</label>
+                    <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;" data-i18n="home.select_areas">حدد المنطقة التي تعاني من تفشي الوباء</p>
                     <select id="assignArea" class="form-input" required disabled>
-                        <option value="" disabled selected>اختر المنطقة أولاً...</option>
+                        <option value="" disabled selected data-i18n="home.select_areas">اختر المنطقة أولاً...</option>
                     </select>
                 </div>
 
                 <!-- 3. الأمراض المستهدفة -->
                 <div class="form-group" style="margin-top:10px;">
-                    <label class="form-label">الأمراض المستهدفة بالعلاج</label>
-                    <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;">حدد الأمراض التي ستعالجها العيادة (يمكن تحديد أكثر من مرض)</p>
+                    <label class="form-label" data-i18n="home.target_diseases">الأمراض المستهدفة بالعلاج</label>
+                    <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;" data-i18n="home.target_diseases_desc">حدد الأمراض التي ستعالجها العيادة (يمكن تحديد أكثر من مرض)</p>
                     <div class="checkbox-grid">
                         <div class="checkbox-item">
                             <input type="checkbox" id="dis-cholera" name="target_diseases" value="الكوليرا">
-                            <label for="dis-cholera">الكوليرا</label>
+                            <label for="dis-cholera" data-i18n="dis-cholera">الكوليرا</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="dis-typhoid" name="target_diseases" value="التيفوئيد">
-                            <label for="dis-typhoid">التيفوئيد</label>
+                            <label for="dis-typhoid" data-i18n="dis-typhoid">التيفوئيد</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="dis-dengue" name="target_diseases" value="حمى الضنك">
-                            <label for="dis-dengue">حمى الضنك</label>
+                            <label for="dis-dengue" data-i18n="dis-dengue">حمى الضنك</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="dis-malaria" name="target_diseases" value="الملاريا">
-                            <label for="dis-malaria">الملاريا</label>
+                            <label for="dis-malaria" data-i18n="dis-malaria">الملاريا</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="dis-other" name="target_diseases" value="أخرى">
-                            <label for="dis-other">أخرى</label>
+                            <label for="dis-other" data-i18n="dis.other">أخرى</label>
                         </div>
                     </div>
                 </div>
 
                 <!-- 4. الموارد والامدادات -->
                 <div class="form-group" style="margin-top:10px;">
-                    <label class="form-label">الموارد والامدادات</label>
+                    <label class="form-label" data-i18n="home.supplies">الموارد والامدادات</label>
                     <textarea class="form-textarea" id="suppliesField"
-                        placeholder="مثال: لقاحات الكوليرا، أكياس المحاليل الفموية، محاليل وريدية، كوادر طبية..."></textarea>
+                        data-i18n-placeholder="home.supplies_ph" placeholder="مثال: لقاحات الكوليرا، أكياس المحاليل الفموية، محاليل وريدية، كوادر طبية..."></textarea>
                 </div>
 
                 <!-- 5. الطاقة الاستيعابية -->
                 <div class="form-group" style="margin-top:10px;">
-                    <label class="form-label">الطاقة الاستيعابية للعيادة</label>
-                    <input type="number" class="form-input" id="clinicCapacity" min="1" placeholder="عدد المرضى المتوقعين يومياً" required>
+                    <label class="form-label" data-i18n="home.clinic_capacity">الطاقة الاستيعابية للعيادة</label>
+                    <input type="number" class="form-input" id="clinicCapacity" min="1" data-i18n-placeholder="home.clinic_capacity_ph" placeholder="عدد المرضى المتوقعين يومياً" required>
                 </div>
 
                 <!-- 6. تواريخ النشر -->
                 <div style="display:flex;gap:10px;margin-top:10px;">
                     <div class="form-group" style="flex:1;">
-                        <label class="form-label">تاريخ النشر</label>
+                        <label class="form-label" data-i18n="home.deploy_date">تاريخ النشر</label>
                         <input type="date" class="form-input" id="deploymentDate" required>
                     </div>
                     <div class="form-group" style="flex:1;">
-                        <label class="form-label">تاريخ انتهاء النشر</label>
+                        <label class="form-label" data-i18n="home.deploy_end_date">تاريخ انتهاء النشر</label>
                         <input type="date" class="form-input" id="deploymentEndDate" required>
                     </div>
                 </div>
 
                 <!-- 7. وقت التشغيل -->
                 <div class="form-group" style="margin-top:10px;">
-                    <label class="form-label">وقت التشغيل</label>
+                    <label class="form-label" data-i18n="home.operation_time">وقت التشغيل</label>
                     <select class="form-input" id="operationTime" required>
-                        <option value="" disabled selected>اختر وقت التشغيل...</option>
-                        <option value="24 ساعة">24 ساعة (طوال اليوم)</option>
-                        <option value="صباحاً (08:00 - 14:00)">صباحاً (08:00 - 14:00)</option>
-                        <option value="مساءً (14:00 - 20:00)">مساءً (14:00 - 20:00)</option>
-                        <option value="نهاري (08:00 - 17:00)">نهاري (08:00 - 17:00)</option>
-                        <option value="ليلي (20:00 - 08:00)">ليلي (20:00 - 08:00)</option>
-                        <option value="متواصل (12 ساعة)">متواصل (12 ساعة)</option>
+                        <option value="" disabled selected data-i18n="home.select_operation_time">اختر وقت التشغيل...</option>
+                        <option value="24 ساعة" data-i18n="time.24h">24 ساعة (طوال اليوم)</option>
+                        <option value="صباحاً (08:00 - 14:00)" data-i18n="time.morning">صباحاً (08:00 - 14:00)</option>
+                        <option value="مساءً (14:00 - 20:00)" data-i18n="time.evening">مساءً (14:00 - 20:00)</option>
+                        <option value="نهاري (08:00 - 17:00)" data-i18n="time.day">نهاري (08:00 - 17:00)</option>
+                        <option value="ليلي (20:00 - 08:00)" data-i18n="time.night">ليلي (20:00 - 08:00)</option>
+                        <option value="متواصل (12 ساعة)" data-i18n="time.continuous">متواصل (12 ساعة)</option>
                     </select>
                 </div>
 
                 <!-- Submit -->
-                <button type="submit" class="submit-assign-btn" style="margin-top:16px;">تقديم طلب التعيين</button>
+                <button type="submit" class="submit-assign-btn" style="margin-top:16px;" data-i18n="home.confirm_request">تقديم طلب التعيين</button>
             </form>
         </div>
     </div>

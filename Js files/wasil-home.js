@@ -244,12 +244,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     </svg>
                 </div>
                 <div class="request-content" style="flex: 1;">
-                    <h5 style="margin: 0 0 4px 0; font-size: 0.95rem; color: var(--text);">تم نشر عيادة جديدة</h5>
+                    <h5 style="margin: 0 0 4px 0; font-size: 0.95rem; color: var(--text);">${t('home.new_clinic_published') || 'تم نشر عيادة جديدة'}</h5>
                     <p style="margin: 0; font-size: 0.82rem; color: var(--text-light); line-height: 1.4;">
-                        عيادة <strong>${clinicName}</strong> متوفرة الآن في منطقة <strong>${area}</strong>.
+                        ${(t('home.clinic_now_available') || 'عيادة {clinic} متوفرة الآن في منطقة {area}').replace('{clinic}', '<strong>'+clinicName+'</strong>').replace('{area}', '<strong>'+area+'</strong>')}
                     </p>
                 </div>
-                <span class="new-badge" style="background: #10B981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold;">جديد</span>
+                <span class="new-badge" style="background: #10B981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold;">${t('home.new_badge_text') || 'جديد'}</span>
             </div>`;
             notifContainer.insertAdjacentHTML('beforeend', html);
         });
@@ -350,11 +350,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const count = countMap[d];
             const ratio = count / maxCount;
             let sevLabel, sevColor;
-            if (ratio >= 0.75) { sevLabel = 'خطورة حرجة'; sevColor = '#EF4444'; }
-            else if (ratio >= 0.5) { sevLabel = 'خطورة عالية'; sevColor = '#F59E0B'; }
-            else if (ratio >= 0.25) { sevLabel = 'خطورة متوسطة'; sevColor = '#3B82F6'; }
-            else { sevLabel = 'مستوى منخفض'; sevColor = '#10B981'; }
-            el.textContent = `${sevLabel} — ${count} حالة`;
+            if (ratio >= 0.75) { sevLabel = t('sev.critical') || 'CRITICAL'; sevColor = '#EF4444'; }
+            else if (ratio >= 0.5) { sevLabel = t('sev.high') || 'HIGH'; sevColor = '#F59E0B'; }
+            else if (ratio >= 0.25) { sevLabel = t('sev.moderate') || 'MODERATE'; sevColor = '#3B82F6'; }
+            else { sevLabel = t('sev.low') || 'LOW'; sevColor = '#10B981'; }
+            el.textContent = `${sevLabel} — ${count} ${t('home.cases') || 'Cases'}`;
             el.style.color = sevColor;
         });
 
@@ -378,17 +378,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         const totalAll = Object.values(localityMap).reduce((a, b) => a + b, 0) || 1;
+        const getLocalityKey = (loc) => {
+            if (loc === 'الخرطوم') return 'khartoum_center';
+            if (loc === 'بحري') return 'bahri';
+            if (loc === 'امدرمان') return 'omdurman';
+            return loc;
+        };
+
         localityEl.innerHTML = LOCALITIES.map(l => {
             const cnt = localityMap[l];
-            const pct = Math.round((cnt / totalAll) * 100);
             const color = cnt > 20 ? '#EF4444' : cnt > 10 ? '#F59E0B' : '#10B981';
             return `
             <div class="disease-item">
                 <div class="disease-header">
-                    <h4 style="font-size:0.95rem;">${l}</h4>
+                    <h4 style="font-size:0.95rem;">${t('area.' + getLocalityKey(l)) || l}</h4>
                     <span class="risk-dot" style="background:${color};"></span>
                 </div>
-                <p class="disease-symptoms" style="color:${color};font-weight:600;">${cnt} حالة مبلغة (${pct}%)</p>
+                <p class="disease-symptoms" style="color:${color};font-weight:600;">${cnt} ${t('home.reported_cases') || 'Reported Cases'}</p>
             </div>`;
         }).join('');
     }
@@ -449,17 +455,25 @@ document.addEventListener('DOMContentLoaded', function () {
             container.innerHTML = LOCALITIES.map((locality, li) => {
                 const lData = localityData[locality];
                 const sevColor = lData.total > 20 ? '#EF4444' : lData.total > 10 ? '#F59E0B' : '#10B981';
+                
+                const getLocalityKey = (loc) => {
+                    if (loc === 'الخرطوم') return 'khartoum_center';
+                    if (loc === 'بحري') return 'bahri';
+                    if (loc === 'امدرمان') return 'omdurman';
+                    return loc;
+                };
+
                 const areaCards = Object.entries(lData.areas).map(([areaName, aData]) => {
                     if (aData.total === 0) return '';
                     const disBreakdown = Object.entries(aData.diseases)
                         .filter(([, cnt]) => cnt > 0)
-                        .map(([dis, cnt]) => `<span style="font-size:0.72rem;background:rgba(37,99,235,0.08);color:var(--primary);border-radius:12px;padding:2px 8px;margin:2px;display:inline-block;">${dis}: ${cnt}</span>`)
+                        .map(([dis, cnt]) => `<span style="font-size:0.72rem;background:rgba(37,99,235,0.08);color:var(--primary);border-radius:12px;padding:2px 8px;margin:2px;display:inline-block;">${t('dis.' + dis) || dis}: ${cnt}</span>`)
                         .join('');
                     return `
                     <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-top:8px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                            <span style="font-size:0.88rem;font-weight:700;color:var(--text);">${areaName}</span>
-                            <span style="font-size:0.78rem;font-weight:700;color:var(--primary);background:rgba(37,99,235,0.08);padding:2px 8px;border-radius:20px;">${aData.total} حالة</span>
+                            <span style="font-size:0.88rem;font-weight:700;color:var(--text);">${t('area.' + areaName.replace(/ /g, '_')) || areaName}</span>
+                            <span style="font-size:0.78rem;font-weight:700;color:var(--primary);background:rgba(37,99,235,0.08);padding:2px 8px;border-radius:20px;">${aData.total} ${t('home.cases') || 'Cases'}</span>
                         </div>
                         <div>${disBreakdown || '<span style="font-size:0.75rem;color:var(--text-light);">-</span>'}</div>
                     </div>`;
@@ -470,8 +484,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'; this.querySelector('.expand-arrow').style.transform=this.nextElementSibling.style.display==='block'?'rotate(180deg)':'rotate(0deg)';"
                         style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;background:var(--white);">
                         <div>
-                            <h5 style="margin:0;font-size:0.95rem;color:var(--text);">${locality}</h5>
-                            <p style="margin:4px 0 0;font-size:0.78rem;color:${sevColor};font-weight:700;">${lData.total} حالة مبلغة</p>
+                            <h5 style="margin:0;font-size:0.95rem;color:var(--text);">${t('area.' + getLocalityKey(locality)) || locality}</h5>
+                            <p style="margin:4px 0 0;font-size:0.78rem;color:${sevColor};font-weight:700;">${lData.total} ${t('home.reported_cases') || 'Reported Cases'}</p>
                         </div>
                         <div style="display:flex;align-items:center;gap:10px;">
                             <span style="width:12px;height:12px;border-radius:50%;background:${sevColor};display:inline-block;"></span>
@@ -479,7 +493,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                     </div>
                     <div style="display:none;padding:12px 14px 14px;background:#fafafa;border-top:1px solid var(--border);">
-                        ${areaCards || '<p style="font-size:0.82rem;color:var(--text-light);text-align:center;">لا توجد حالات محددة لهذه المحلية</p>'}
+                        ${areaCards || '<p style="font-size:0.82rem;color:var(--text-light);text-align:center;">' + (t('home.no_cases_for_locality') || 'No specific cases for this locality') + '</p>'}
                     </div>
                 </div>`;
             }).join('');
@@ -522,11 +536,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
             </div>
             <div class="request-content">
-                <h5>${req.service_type} Request</h5>
-                <p>${req.location} — ${req.status}</p>
+                <h5>${req.service_type} ${t('home.request_word') || 'Request'}</h5>
+                <p>${req.location} — ${t('home.status_' + req.status) || req.status}</p>
                 <span class="request-time">${timeAgo}</span>
             </div>
-            ${isNew ? '<span class="new-badge">NEW</span>' : ''}
+            ${isNew ? '<span class="new-badge">' + (t('home.new_badge_text') || 'NEW') + '</span>' : ''}
         </div>`;
 
         if (isNew) {
@@ -607,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div style="font-weight:700;color:#E74C3C;margin-bottom:4px;">${t('home.status_rejected') || 'Request Rejected'} - ${n.clinic_name || n.target_area || 'Clinic'}</div>
                         <div style="color:var(--text);margin-bottom:6px;">${t('home.notif_rejected') || 'Your clinic request was rejected'} (${reqDate})</div>
                         <div style="background:#fff;padding:8px;border-radius:4px;font-size:0.8rem;color:var(--text-light);font-style:italic;">
-                            " ${n.rejection_reason || 'No specific reason provided by reviewer.'} "
+                            " ${n.rejection_reason || t('home.no_reason') || 'No specific reason provided by reviewer.'} "
                         </div>
                     </div>`;
                 }).join('');
@@ -639,7 +653,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="assigned-clinic-item">
                     <div class="assigned-info">
                         <h5>${clinicName}</h5>
-                        <p>Requested: ${displayDate} — ${diseasesOverview}</p>
+                        <p>${t('home.requested_on') || 'Requested:'} ${displayDate} — ${diseasesOverview}</p>
                     </div>
                     <span class="assigned-status ${statusClass}">${statusText}</span>
                 </div>`;
@@ -669,15 +683,15 @@ document.addEventListener('DOMContentLoaded', function () {
         // Update hero description for org role
         const heroDesc = document.getElementById('heroDynamicDesc');
         if (heroDesc) {
-            heroDesc.textContent = 'ادر طلبات نشر العيادات، وراقب حالة الوباء، واستجب بسرعة لتقارير المجتمع';
+            heroDesc.textContent = t('home.hero_org_desc') || 'ادر طلبات نشر العيادات، وراقب حالة الوباء، واستجب بسرعة لتقارير المجتمع';
         }
 
         const servicesLabel = document.getElementById('navServicesLabel');
         const servicesTitle = document.getElementById('servicesViewTitle');
         const navServicesBtn = document.getElementById('navServicesBtn');
 
-        if (servicesLabel) servicesLabel.textContent = 'Requested Services';
-        if (servicesTitle) servicesTitle.textContent = 'Requested Services';
+        if (servicesLabel) servicesLabel.textContent = t('home.requested_services') || 'Requested Services';
+        if (servicesTitle) servicesTitle.textContent = t('home.requested_services') || 'Requested Services';
 
         if (navServicesBtn) {
             navServicesBtn.setAttribute('data-target', 'view-requested-services');

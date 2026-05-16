@@ -187,16 +187,115 @@ const wasil_TRANSLATIONS = {
 
     // Assignation Modal
     "home.clinic_target": { en: "Clinic Target Area", ar: "المنطقة المستهدفة للعيادة" },
-    "home.select_areas": { en: "Select areas affected by epidemic", ar: "اختر المناطق المتضررة من الوباء" },
-    "home.supplies": { en: "Supplies & Offerings", ar: "المستلزمات والعروض" },
-    "home.supplies_ph": { en: "List what your organization will provide (e.g., Cholera vaccines, ORS packets, IV fluids...)", ar: "اذكر ما ستقدمه منظمتك (مثل لقاحات الكوليرا، محاليل الإماهة، السوائل الوريدية...)" },
-    "home.deploy_date": { en: "Deployment Date", ar: "تاريخ الانتشار" },
+    "home.select_areas": { en: "Select areas affected by epidemic", ar: "حدد المنطقة التي تعاني من تفشي الوباء" },
+    "home.supplies": { en: "Supplies & Offerings", ar: "الموارد والامدادات" },
+    "home.supplies_ph": { en: "List what your organization will provide (e.g., Cholera vaccines, ORS packets, IV fluids...)", ar: "مثال: لقاحات الكوليرا، أكياس المحاليل الفموية، محاليل وريدية، كوادر طبية..." },
+    "home.deploy_date": { en: "Deployment Date", ar: "تاريخ النشر" },
+    "home.deploy_end_date": { en: "Deployment End Date", ar: "تاريخ انتهاء النشر" },
     "home.operation_time": { en: "Operation Time", ar: "وقت التشغيل" },
+    "home.select_operation_time": { en: "Select operation time...", ar: "اختر وقت التشغيل..." },
     "home.operation_ph": { en: "e.g. 09:00 AM - 05:00 PM", ar: "مثال: 09:00 صباحاً - 05:00 مساءً" },
+    "home.assign_locality": { en: "Target Locality", ar: "المحلية المستهدفة" },
+    "home.assign_locality_desc": { en: "Select the locality where you want to deploy the clinic", ar: "حدد المحلية التي تريد نشر العيادة فيها" },
+    "home.select_locality": { en: "Select locality...", ar: "اختر المحلية..." },
+    "home.target_diseases": { en: "Target Diseases", ar: "الأمراض المستهدفة بالعلاج" },
+    "home.target_diseases_desc": { en: "Select diseases the clinic will treat (multiple can be selected)", ar: "حدد الأمراض التي ستعالجها العيادة (يمكن تحديد أكثر من مرض)" },
+    "home.clinic_capacity": { en: "Clinic Capacity", ar: "الطاقة الاستيعابية للعيادة" },
+    "home.clinic_capacity_ph": { en: "Expected patients per day", ar: "عدد المرضى المتوقعين يومياً" },
+    "time.24h": { en: "24 Hours (All Day)", ar: "24 ساعة (طوال اليوم)" },
+    "time.morning": { en: "Morning (08:00 - 14:00)", ar: "صباحاً (08:00 - 14:00)" },
+    "time.evening": { en: "Evening (14:00 - 20:00)", ar: "مساءً (14:00 - 20:00)" },
+    "time.day": { en: "Daytime (08:00 - 17:00)", ar: "نهاري (08:00 - 17:00)" },
+    "time.night": { en: "Nighttime (20:00 - 08:00)", ar: "ليلي (20:00 - 08:00)" },
+    "time.continuous": { en: "Continuous (12 Hours)", ar: "متواصل (12 ساعة)" },
+    
+    // Requested Services Dummy Data
+    "dummy.req1_title": { en: "Rapid Ambulance Requested", ar: "مطلوب إسعاف سريع" },
+    "dummy.req1_desc": { en: "Khartoum North, Block 7 — Emergency case, suspected cholera dehydration", ar: "الخرطوم بحري، المربع 7 — حالة طارئة، اشتباه بجفاف كوليرا" },
+    "dummy.req1_time": { en: "2 minutes ago", ar: "منذ دقيقتين" },
+    "dummy.req2_title": { en: "Vaccination Request", ar: "طلب تطعيم" },
+    "dummy.req2_desc": { en: "Omdurman, Market Area — Family of 6 requesting cholera vaccination", ar: "أم درمان، منطقة السوق — عائلة من 6 أفراد تطلب تطعيم الكوليرا" },
+    "dummy.req2_time": { en: "15 minutes ago", ar: "منذ 15 دقيقة" },
+    "dummy.req3_title": { en: "Medical Consultation", ar: "استشارة طبية" },
+    "dummy.req3_desc": { en: "Bahri, Industrial Area — Persistent fever and stomach pain, 3 patients", ar: "بحري، المنطقة الصناعية — حمى مستمرة وألم في المعدة، 3 مرضى" },
+    "dummy.req3_time": { en: "32 minutes ago", ar: "منذ 32 دقيقة" },
+    "dummy.req4_title": { en: "Water & Sanitation Report", ar: "تقرير المياه والصرف الصحي" },
+    "dummy.req4_desc": { en: "Jabarona, South Camp — Contaminated water source affecting 50+ families", ar: "جبرونا، المخيم الجنوبي — مصدر مياه ملوث يؤثر على أكثر من 50 عائلة" },
+    "dummy.req4_time": { en: "1 hour ago", ar: "منذ ساعة" },
+    "dummy.req5_title": { en: "Nutrition Support Request", ar: "طلب دعم تغذية" },
+    "dummy.req5_desc": { en: "Haj Yousif — 12 children showing signs of malnutrition in camp", ar: "حاج يوسف — 12 طفلاً تظهر عليهم علامات سوء التغذية في المخيم" },
+    "dummy.req5_time": { en: "2 hours ago", ar: "منذ ساعتين" },
+    "home.new_badge": { en: "NEW", ar: "جديد" },
+
+    // Report Case Page
+    "report.back": { en: "Back", ar: "رجوع" },
+    "report.title": { en: "Report a Case", ar: "الإبلاغ عن حالة" },
+    "report.success": { en: "Case reported successfully!", ar: "تم الإبلاغ عن الحالة بنجاح!" },
+    "report.info": { en: "Your report helps health authorities deploy mobile clinics faster. All reports are confidential.", ar: "تقريرك يساعد السلطات الصحية على نشر العيادات المتنقلة بشكل أسرع. جميع التقارير سرية." },
+    "report.sec_symptoms": { en: "Select your symptoms", ar: "اختر أعراضك" },
+    "report.optional": { en: "Optional", ar: "اختياري" },
+    "report.symptom_hint": { en: "Diseases are filtered based on your symptoms ↓", ar: "يتم تصفية الأمراض بناءً على أعراضك ↓" },
+    "report.sec_disease": { en: "Suspected Disease", ar: "المرض المشتبه به" },
+    "report.other_disease_ph": { en: "Enter disease name...", ar: "أدخل اسم المرض..." },
+    "report.sec_location": { en: "Your Location", ar: "موقعك" },
+    "report.locality": { en: "Locality", ar: "المحلية" },
+    "report.select_locality": { en: "Select locality...", ar: "اختر المحلية..." },
+    "report.area": { en: "Area / Neighborhood", ar: "المنطقة / الحي" },
+    "report.select_area": { en: "Select area...", ar: "اختر المنطقة..." },
+    "report.location_specify": { en: "Specify Location", ar: "حدد الموقع" },
+    "report.location_ph": { en: "Enter your area or address...", ar: "أدخل منطقتك أو عنوانك..." },
+    "report.specific_address": { en: "Specific Address / Block", ar: "العنوان الدقيق / المربع" },
+    "report.specific_address_ph": { en: "e.g., Block 7, near the school...", ar: "مثال: مربع ٧، بالقرب من المدرسة..." },
+    "report.sec_desc": { en: "Description", ar: "الوصف" },
+    "report.symptoms": { en: "Symptoms & Details", ar: "الأعراض والتفاصيل" },
+    "report.symptoms_ph": { en: "Describe symptoms, number of people affected, any relevant details...", ar: "صف الأعراض، وعدد الأشخاص المتأثرين، وأي تفاصيل ذات صلة..." },
+    "report.submit": { en: "Submit Report", ar: "إرسال التقرير" },
+    "report.submitting": { en: "Submitting...", ar: "جاري الإرسال..." },
+
+    // JS Inserted Dashboard UI
+    "home.cases": { en: "Cases", ar: "حالة" },
+    "home.reported_cases": { en: "Reported Cases", ar: "حالة مبلغة" },
+    "home.no_cases_for_locality": { en: "No specific cases for this locality", ar: "لا توجد حالات محددة لهذه المحلية" },
+    "home.unspecified": { en: "Unspecified", ar: "غير محدد" },
+    "home.hero_org_desc": { en: "Manage clinic deployment requests, monitor epidemic status, and respond quickly to community reports", ar: "أدر طلبات نشر العيادات، وراقب حالة الوباء، واستجب بسرعة لتقارير المجتمع" },
+    "home.requested_services": { en: "Requested Services", ar: "الخدمات المطلوبة" },
+    "home.new_service_req": { en: "New Service Request Received", ar: "تم استلام طلب خدمة جديد" },
+    "home.new_clinic_published": { en: "New Clinic Deployed", ar: "تم نشر عيادة جديدة" },
+    "home.clinic_now_available": { en: "Clinic {clinic} is now available in {area}.", ar: "عيادة {clinic} متوفرة الآن في منطقة {area}." },
+    "home.new_badge_text": { en: "NEW", ar: "جديد" },
+    "home.req_rejected": { en: "Request Rejected", ar: "تم رفض الطلب" },
+    "home.notif_rejected": { en: "Your clinic request was rejected", ar: "تم رفض طلب عيادتك" },
+    "home.no_reason": { en: "No specific reason provided by reviewer.", ar: "لم يتم تقديم سبب محدد من قبل المراجع." },
+    "home.grouping_cases": { en: "Loading cases...", ar: "جاري تحميل الحالات..." },
+    "home.request_word": { en: "Request", ar: "طلب" },
+    "home.status_pending": { en: "Pending", ar: "قيد الانتظار" },
+    "home.status_approved": { en: "Approved", ar: "تمت الموافقة" },
+    "home.status_rejected": { en: "Rejected", ar: "مرفوض" },
+    "home.requested_on": { en: "Requested:", ar: "تاريخ الطلب:" },
+    
+    // Detailed Localities (JS generated)
+    "area.وسط_الخرطوم": { en: "Central Khartoum", ar: "وسط الخرطوم" },
+    "area.جبل_اولياء": { en: "Jebel Aulia", ar: "جبل اولياء" },
+    "area.الخرطوم_1": { en: "Khartoum 1", ar: "الخرطوم 1" },
+    "area.الخرطوم_2": { en: "Khartoum 2", ar: "الخرطوم 2" },
+    "area.الخرطوم_3": { en: "Khartoum 3", ar: "الخرطوم 3" },
+    "area.جنوب_الحزام": { en: "South Belt", ar: "جنوب الحزام" },
+    "area.الشجرة": { en: "Al-Shajara", ar: "الشجرة" },
+    "area.امدرمان": { en: "Omdurman", ar: "امدرمان" },
+    "area.امدرمان_القديمة": { en: "Old Omdurman", ar: "امدرمان القديمة" },
+    "area.كرري": { en: "Karari", ar: "كرري" },
+    "area.امبدة": { en: "Umbadda", ar: "امبدة" },
+    "area.بحري_المدينة": { en: "Bahri City", ar: "بحري المدينة" },
+    "area.بحري_وسط": { en: "Central Bahri", ar: "بحري وسط" },
+    "area.بحري_شمال": { en: "North Bahri", ar: "بحري شمال" },
+    "area.ريفي_بحري": { en: "Rural Bahri", ar: "ريفي بحري" },
+    "area.شرق_النيل": { en: "East Nile", ar: "شرق النيل" },
+    "area.غير_محدد": { en: "Unspecified", ar: "غير محدد" },
 
     // Notifications Modal
     "home.notifications": { en: "Notifications", ar: "الإشعارات" },
     "home.no_notifications": { en: "No new notifications", ar: "لا توجد إشعارات جديدة" },
+    "home.loading_notifications": { en: "Loading notifications...", ar: "جاري تحميل الإشعارات..." },
 
     // Navigation
     "nav-home": { en: "Home", ar: "الرئيسية" },
@@ -599,8 +698,32 @@ function t(key) {
     return key;
 }
 
+// Global toggle language function
+window.toggleLang = function() {
+    var currentLang = localStorage.getItem('wasil_lang') || 'ar';
+    var newLang = currentLang === 'ar' ? 'en' : 'ar';
+    localStorage.setItem('wasil_lang', newLang);
+    applyLanguage();
+    
+    // Update any language toggle buttons text on the page
+    var langBtns = document.querySelectorAll('.lang-toggle, .lang-btn, #langToggleBtn, #langBtnText');
+    langBtns.forEach(function(btn) {
+        if(btn.tagName.toLowerCase() === 'span' || btn.tagName.toLowerCase() === 'button' || btn.tagName.toLowerCase() === 'a') {
+            // Usually button shows the *other* language you can switch to
+            btn.textContent = newLang === 'ar' ? 'English' : 'العربية';
+        }
+    });
+};
+
 // Auto-apply on DOM ready
-document.addEventListener('DOMContentLoaded', applyLanguage);
+document.addEventListener('DOMContentLoaded', function() {
+    applyLanguage();
+    var currentLang = localStorage.getItem('wasil_lang') || 'ar';
+    var langBtns = document.querySelectorAll('.lang-toggle, .lang-btn, #langToggleBtn, #langBtnText');
+    langBtns.forEach(function(btn) {
+        btn.textContent = currentLang === 'ar' ? 'English' : 'العربية';
+    });
+});
 
 // ── Disease Name Translator ──
 // Maps English DB names → Arabic display names

@@ -505,7 +505,7 @@
             <span data-i18n="report.back">Back</span>
         </button>
         <h1 data-i18n="report.title">Report a Case</h1>
-        <div style="width:64px;" aria-hidden="true"></div>
+        <button class="lang-btn" id="langToggleBtn" onclick="toggleLang()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:4px 8px;color:var(--text);font-weight:600;font-size:0.75rem;cursor:pointer;font-family:inherit;">English</button>
     </header>
 
     <!-- Toast (aria-live so screen readers announce success) -->
@@ -569,12 +569,12 @@
                 <h2 class="section-title" data-i18n="report.sec_location">موقعك</h2>
                 
                 <div class="form-group">
-                    <label class="form-label">المحلية</label>
+                    <label class="form-label" data-i18n="report.locality">المحلية</label>
                     <select id="locationLocality" class="form-input" required>
-                        <option value="" disabled selected>اختر المحلية...</option>
-                        <option value="الخرطوم">الخرطوم</option>
-                        <option value="بحري">بحري</option>
-                        <option value="امدرمان">امدرمان</option>
+                        <option value="" disabled selected data-i18n="report.select_locality">اختر المحلية...</option>
+                        <option value="الخرطوم" data-i18n="area.khartoum_center">الخرطوم</option>
+                        <option value="بحري" data-i18n="area.bahri">بحري</option>
+                        <option value="امدرمان" data-i18n="area.omdurman">امدرمان</option>
                     </select>
                 </div>
 
