@@ -463,6 +463,44 @@
         </main>
     </div>
 
+    <!-- ═══ REJECTION MODAL ═══ -->
+    <div class="modal-overlay" id="rejectModalOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+        <div class="modal-content" style="background:#fff; border-radius:12px; padding:24px; width:90%; max-width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="margin-top:0; color:#1E293B; font-size:1.2rem;" data-i18n="admin.reject_title">Reject Request</h3>
+            <p style="color:#64748B; font-size:0.9rem; margin-bottom:16px;" data-i18n="admin.reject_subtitle">Please provide a reason for rejecting this clinic request.</p>
+            
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:0.85rem; font-weight:600; color:#475569; margin-bottom:8px;" data-i18n="admin.reject_reason">Reason</label>
+                <select id="rejectReasonSelect" style="width:100%; padding:10px; border:1px solid #CBD5E1; border-radius:6px; outline:none; margin-bottom:10px;" onchange="toggleCustomReason()">
+                    <option value="" disabled selected data-i18n="admin.select_reason">-- Select a reason --</option>
+                    <option value="Insufficient capacity" data-i18n="admin.reason_capacity">Insufficient capacity</option>
+                    <option value="Area already covered" data-i18n="admin.reason_area">Area already covered</option>
+                    <option value="Incomplete information" data-i18n="admin.reason_info">Incomplete information</option>
+                    <option value="custom" data-i18n="admin.reason_custom">Other (Specify)</option>
+                </select>
+                <textarea id="rejectReasonCustom" style="display:none; width:100%; padding:10px; border:1px solid #CBD5E1; border-radius:6px; outline:none; min-height:80px; resize:vertical; box-sizing:border-box;" placeholder="Enter custom reason..." data-i18n-placeholder="admin.custom_reason_ph"></textarea>
+            </div>
+            
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+                <button type="button" onclick="closeRejectModal()" style="padding:8px 16px; background:#F1F5F9; color:#475569; border:none; border-radius:6px; font-weight:600; cursor:pointer;" data-i18n="admin.cancel">Cancel</button>
+                <button type="button" id="confirmRejectBtn" style="padding:8px 16px; background:#EF4444; color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;" data-i18n="admin.confirm_reject">Reject</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleCustomReason() {
+            const select = document.getElementById('rejectReasonSelect');
+            const custom = document.getElementById('rejectReasonCustom');
+            if (select.value === 'custom') {
+                custom.style.display = 'block';
+                custom.focus();
+            } else {
+                custom.style.display = 'none';
+            }
+        }
+    </script>
+
     <!-- Toast Notification (aria-live for screen readers) -->
     <div class="admin-toast" id="adminToast" role="status" aria-live="polite" aria-atomic="true"></div>
 

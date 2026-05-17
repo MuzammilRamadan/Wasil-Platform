@@ -1,9 +1,6 @@
 -- ============================================
 --  wasil — add diseases table
 -- ============================================
--- Run this script in your Supabase SQL Editor
--- to add support for dynamic diseases.
-
 CREATE TABLE IF NOT EXISTS diseases (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL UNIQUE,

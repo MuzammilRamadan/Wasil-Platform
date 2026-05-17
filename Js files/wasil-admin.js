@@ -318,25 +318,29 @@ async function loadClinicRequests() {
 }
 
 // ── CLINIC REQUEST: APPROVE / REJECT ──
+let pendingRejectId = null;
+
 async function handleRequest(requestId, action, btn) {
     const card = document.querySelector(`.request-card[data-id="${requestId}"]`);
     if (!card) return;
 
     card.querySelectorAll('button').forEach(b => b.disabled = true);
 
+    if (action === 'reject') {
+        pendingRejectId = requestId;
+        const overlay = document.getElementById('rejectModalOverlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            document.getElementById('rejectReasonSelect').value = '';
+            document.getElementById('rejectReasonCustom').style.display = 'none';
+            document.getElementById('rejectReasonCustom').value = '';
+        }
+        return; // Wait for modal
+    }
+
     try {
         if (window.supabase) {
-            const newStatus = action === 'approve' ? 'approved' : 'rejected';
-            const updateProps = { status: newStatus };
-
-            if (action === 'reject') {
-                const reason = prompt(t('admin.confirm_reject_reason'));
-                if (reason === null) {
-                    card.querySelectorAll('button').forEach(b => b.disabled = false);
-                    return; // user cancelled
-                }
-                updateProps.rejection_reason = reason;
-            }
+            const updateProps = { status: 'approved' };
 
             const { error } = await window.supabase
                 .from('clinic_requests')
@@ -351,27 +355,19 @@ async function handleRequest(requestId, action, btn) {
             }
         }
 
-        const isApprove = action === 'approve';
-        card.classList.add(isApprove ? 'approved' : 'rejected');
+        card.classList.add('approved');
 
         const actionsDiv = card.querySelector('.request-actions');
         actionsDiv.innerHTML = `
             <div style="text-align:center;padding:10px 0;">
-                <span style="font-size:0.9rem;font-weight:700;color:${isApprove ? '#1a7a4a' : '#C0392B'}">
-                    ${isApprove ? t('admin.approved_label') : t('admin.rejected_label')}
+                <span style="font-size:0.9rem;font-weight:700;color:#1a7a4a">
+                    ${t('admin.approved_label')}
                 </span>
             </div>`;
 
-        // If approved, refresh deployed clinics table from Supabase
-        if (isApprove) {
-            await loadDeployedClinics();
-        }
-
+        await loadDeployedClinics();
         updateRequestsBadge();
-        showToast(isApprove
-            ? t('admin.approve_toast')
-            : t('admin.reject_toast'),
-            isApprove ? 'success' : 'error');
+        showToast(t('admin.approve_toast'), 'success');
 
     } catch (err) {
         console.error('Request action error:', err);
@@ -379,6 +375,85 @@ async function handleRequest(requestId, action, btn) {
         showToast(t('admin.error_occurred'), 'error');
     }
 }
+
+function closeRejectModal() {
+    const overlay = document.getElementById('rejectModalOverlay');
+    if (overlay) overlay.style.display = 'none';
+    if (pendingRejectId) {
+        const card = document.querySelector(`.request-card[data-id="${pendingRejectId}"]`);
+        if (card) {
+            card.querySelectorAll('button').forEach(b => b.disabled = false);
+        }
+        pendingRejectId = null;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const confirmRejectBtn = document.getElementById('confirmRejectBtn');
+    if (confirmRejectBtn) {
+        confirmRejectBtn.addEventListener('click', async () => {
+            if (!pendingRejectId) return;
+            
+            const select = document.getElementById('rejectReasonSelect');
+            const custom = document.getElementById('rejectReasonCustom');
+            
+            let reason = select.value;
+            if (reason === 'custom') {
+                reason = custom.value.trim();
+                if (!reason) {
+                    showToast(t('admin.custom_reason_ph') || 'Please enter a custom reason.', 'error');
+                    return;
+                }
+            } else if (!reason) {
+                showToast(t('admin.select_reason') || 'Please select a reason.', 'error');
+                return;
+            }
+            
+            document.getElementById('rejectModalOverlay').style.display = 'none';
+            
+            const requestId = pendingRejectId;
+            pendingRejectId = null;
+            
+            const card = document.querySelector(`.request-card[data-id="${requestId}"]`);
+            if (!card) return;
+            
+            try {
+                if (window.supabase) {
+                    const updateProps = { status: 'rejected', rejection_reason: reason };
+                    
+                    const { error } = await window.supabase
+                        .from('clinic_requests')
+                        .update(updateProps)
+                        .eq('id', requestId);
+
+                    if (error) {
+                        console.warn('Supabase update error:', error.message);
+                        showToast(t('admin.error_occurred') + ' ' + error.message, 'error');
+                        card.querySelectorAll('button').forEach(b => b.disabled = false);
+                        return;
+                    }
+                }
+                
+                card.classList.add('rejected');
+                const actionsDiv = card.querySelector('.request-actions');
+                actionsDiv.innerHTML = `
+                    <div style="text-align:center;padding:10px 0;">
+                        <span style="font-size:0.9rem;font-weight:700;color:#C0392B">
+                            ${t('admin.rejected_label')}
+                        </span>
+                    </div>`;
+                    
+                updateRequestsBadge();
+                showToast(t('admin.reject_toast'), 'success');
+
+            } catch (err) {
+                console.error('Request action error:', err);
+                card.querySelectorAll('button').forEach(b => b.disabled = false);
+                showToast(t('admin.error_occurred'), 'error');
+            }
+        });
+    }
+});
 
 // ── USERS TAB SWITCH ──
 function switchUsersTab(tab, btn) {

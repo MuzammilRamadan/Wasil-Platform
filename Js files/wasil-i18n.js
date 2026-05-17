@@ -202,6 +202,13 @@ const wasil_TRANSLATIONS = {
     "home.target_diseases_desc": { en: "Select diseases the clinic will treat (multiple can be selected)", ar: "حدد الأمراض التي ستعالجها العيادة (يمكن تحديد أكثر من مرض)" },
     "home.clinic_capacity": { en: "Clinic Capacity", ar: "الطاقة الاستيعابية للعيادة" },
     "home.clinic_capacity_ph": { en: "Expected patients per day", ar: "عدد المرضى المتوقعين يومياً" },
+    "home.specific_location": { en: "Specific Clinic Location", ar: "الموقع المحدد للعيادة" },
+    "home.specific_location_desc": { en: "Optional: exact address or landmark within the selected area", ar: "اختياري: العنوان الدقيق أو معلم داخل المنطقة المختارة" },
+    "home.specific_location_ph": { en: "e.g. Block 7, near the mosque, main road...", ar: "مثال: مربع 7، بالقرب من المسجد، الشارع الرئيسي..." },
+    "home.sev_label_critical": { en: "CRITICAL", ar: "حرج" },
+    "home.sev_label_high": { en: "HIGH RISK", ar: "خطر مرتفع" },
+    "home.sev_label_moderate": { en: "MODERATE", ar: "متوسط" },
+    "home.sev_label_low": { en: "LOW RISK", ar: "خطر منخفض" },
     "time.24h": { en: "24 Hours (All Day)", ar: "24 ساعة (طوال اليوم)" },
     "time.morning": { en: "Morning (08:00 - 14:00)", ar: "صباحاً (08:00 - 14:00)" },
     "time.evening": { en: "Evening (14:00 - 20:00)", ar: "مساءً (14:00 - 20:00)" },
@@ -303,6 +310,7 @@ const wasil_TRANSLATIONS = {
     "nav-clinic": { en: "Assign Clinic", ar: "تعيين عيادة" },
     "nav-logout": { en: "Logout", ar: "تسجيل الخروج" },
     "nav-assigned": { en: "Assigned Clinics", ar: "العيادات المعينة" },
+    "nav-notifications": { en: "Notifications", ar: "الإشعارات" },
 
     // ── Admin Page ──
     "admin.title": { en: "Ministry of Health", ar: "وزارة الصحة" },
@@ -479,11 +487,15 @@ const wasil_TRANSLATIONS = {
     "landing.ticker3": { en: "Jabarona — Cholera Alert (HIGH RISK)", ar: "جبرونا — تحذير كوليرا (خطر مرتفع)" },
     "landing.ticker4": { en: "Bahri — Dengue Fever Detected", ar: "بحري — رصد حمى الضنك" },
     "landing.ticker5": { en: "Haj Yousif — Malaria Cluster Reported", ar: "حاج يوسف — تقارير عن تجمع ملاريا" },
+    "landing.loadingTicker": { en: "Loading live alerts...", ar: "جاري تحميل التنبيهات المباشرة..." },
+    "landing.no_alerts": { en: "No active critical alerts.", ar: "لا توجد تنبيهات حرجة نشطة." },
     "landing.footerCopy": { en: "© 2026  wasil. All rights reserved.", ar: "© 2026 واصل. جميع الحقوق محفوظة." },
 
     "page.last_updated": { en: "Last updated:", ar: "آخر تحديث:" },
 
     // ── Dashboard ──
+    "home.nearby_badge": { en: "Nearby", ar: "قريب منك" },
+    "report.best_match": { en: "Best Match", ar: "الأكثر مطابقة" },
     "dash.title": { en: "Outbreak Dashboard", ar: "لوحة تتبع الأوبئة" },
     "dash.subtitle": { en: "Cases submitted by community users", ar: "الحالات المرسلة من قبل مستخدمي المجتمع" },
     "dash.by_area": { en: "📍 By Area", ar: "📍 حسب المنطقة" },
@@ -585,6 +597,18 @@ const wasil_TRANSLATIONS = {
     "admin.detail_schedule": { en: "Schedule", ar: "الجدول الزمني" },
     "admin.approved_label": { en: "✓ Approved", ar: "✓ تمت الموافقة" },
     "admin.rejected_label": { en: "✗ Rejected", ar: "✗ تم الرفض" },
+    "admin.reject_title": { en: "Reject Request", ar: "رفض الطلب" },
+    "admin.reject_subtitle": { en: "Please provide a reason for rejecting this clinic request.", ar: "يرجى تقديم سبب لرفض طلب العيادة هذا." },
+    "admin.reject_reason": { en: "Reason", ar: "السبب" },
+    "admin.select_reason": { en: "-- Select a reason --", ar: "-- اختر سبباً --" },
+    "admin.reason_capacity": { en: "Insufficient capacity", ar: "طاقة استيعابية غير كافية" },
+    "admin.reason_area": { en: "Area already covered", ar: "المنطقة مغطاة بالفعل" },
+    "admin.reason_info": { en: "Incomplete information", ar: "معلومات غير مكتملة" },
+    "admin.reason_custom": { en: "Other (Specify)", ar: "أخرى (حدد)" },
+    "admin.custom_reason_ph": { en: "Enter custom reason...", ar: "أدخل سبباً مخصصاً..." },
+    "admin.cancel": { en: "Cancel", ar: "إلغاء" },
+    "admin.confirm_reject": { en: "Reject", ar: "رفض" },
+    "admin.select_reason_error": { en: "Please select a reason.", ar: "يرجى اختيار سبب." },
     "admin.no_orgs": { en: "No registered organizations found.", ar: "لا توجد منظمات مسجلة." },
     "admin.no_community": { en: "No registered community users found.", ar: "لا يوجد مستخدمو مجتمع مسجلون." },
     "admin.remove_user_btn": { en: "Remove", ar: "حذف" },
@@ -687,6 +711,20 @@ function applyLanguage() {
             phElements[j].setAttribute('placeholder', wasil_TRANSLATIONS[phKey][lang]);
         }
     }
+
+    // Re-label dynamically rendered symptom chips (data-symptom = canonical Arabic key)
+    var symptomChips = document.querySelectorAll('.symptom-chip[data-symptom]');
+    for (var k = 0; k < symptomChips.length; k++) {
+        var arKey = symptomChips[k].getAttribute('data-symptom');
+        var wasSelected = symptomChips[k].classList.contains('selected');
+        if (lang === 'en' && window.WASIL_SYMPTOM_EN && window.WASIL_SYMPTOM_EN[arKey]) {
+            symptomChips[k].textContent = window.WASIL_SYMPTOM_EN[arKey];
+        } else {
+            symptomChips[k].textContent = arKey;
+        }
+        // Restore selected tick (textContent wipe clears the ::before pseudo, class is enough)
+        if (wasSelected) symptomChips[k].classList.add('selected');
+    }
 }
 
 // Helper to get a single translation
@@ -724,6 +762,28 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.textContent = currentLang === 'ar' ? 'English' : 'العربية';
     });
 });
+
+// ── Global Symptom Name Map (Arabic canonical → English) ──
+// Used by applyLanguage() to re-label chips and by the report-case page
+window.WASIL_SYMPTOM_EN = {
+    'إسهال مائي':       'Watery diarrhea',
+    'قيء':               'Vomiting',
+    'جفاف':             'Dehydration',
+    'تشنجات عضلية':   'Muscle cramps',
+    'غثيان':            'Nausea',
+    'حمى شديدة':      'High fever',
+    'ألم في البطن':     'Abdominal pain',
+    'صداع':             'Headache',
+    'ضعف عام':          'General weakness',
+    'طفح جلدي':        'Skin rash',
+    'صداع حاد':         'Severe headache',
+    'ألم في المفاصل':    'Joint pain',
+    'ألم عضلي':         'Muscle pain',
+    'ألم خلف العينين':  'Eye pain',
+    'حمى':               'Fever',
+    'قشعريرة':           'Chills',
+    'تعرق':             'Sweating'
+};
 
 // ── Disease Name Translator ──
 // Maps English DB names → Arabic display names

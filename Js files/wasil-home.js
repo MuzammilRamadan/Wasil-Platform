@@ -114,6 +114,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const listContainer = document.getElementById('clinicsList');
         if (!listContainer) return;
 
+        let userLocation = null;
+        try {
+            const localUser = JSON.parse(localStorage.getItem('wasil_user') || '{}');
+            if (localUser.id && localStorage.getItem('wasil_role') !== 'organization') {
+                const { data: profile } = await supabase
+                    .from('community_profiles')
+                    .select('location')
+                    .eq('id', localUser.id)
+                    .single();
+                if (profile && profile.location) userLocation = profile.location.split(',')[0].trim();
+            }
+        } catch (e) {
+            console.warn('Could not fetch user location for proximity sorting', e);
+        }
+
         let { data: clinics, error } = await supabase
             .from('clinic_requests')
             .select('*')
@@ -136,17 +151,30 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (clinics && clinics.length > 0) {
+            if (userLocation) {
+                clinics.sort((a, b) => {
+                    const aMatches = (a.target_area || '').includes(userLocation);
+                    const bMatches = (b.target_area || '').includes(userLocation);
+                    if (aMatches && !bMatches) return -1;
+                    if (!aMatches && bMatches) return 1;
+                    return 0;
+                });
+            }
+
             listContainer.innerHTML = ''; // Clear loading content
             clinics.forEach((clinic, index) => {
                 const diseasesArray = Array.isArray(clinic.diseases) ? clinic.diseases : (clinic.diseases ? [clinic.diseases] : []);
                 const vaccines = diseasesArray.map(v => `<span class="vaccine-tag">${translateDisease(v)}</span>`).join('');
                 const clinicName = clinic.clinic_name || `${clinic.org_name || 'Organization'} Clinic`;
+                
+                const isNearby = userLocation && (clinic.target_area || '').includes(userLocation);
+                const nearbyBadge = isNearby ? `<span class="clinic-org-badge" style="background:#10B981;color:#fff;margin-left:8px;padding:2px 6px;">${t('home.nearby_badge') || 'Nearby'}</span>` : '';
 
                 const html = `
                 <div class="clinic-card" style="cursor:pointer;" data-clinic-id="${index}">
                     <span class="clinic-number">${t('home.clinic_num') || 'CLINIC #'} ${index + 1}</span>
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                        <h4 style="margin: 0; padding-right: 10px;">${clinicName}</h4>
+                        <h4 style="margin: 0; padding-right: 10px; display:flex; align-items:center;">${clinicName} ${nearbyBadge}</h4>
                         <span class="clinic-org-badge">${clinic.org_name || 'Admin'}</span>
                     </div>
                     <div class="clinic-details">
@@ -402,7 +430,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Function: Fetch Dashboard Stats (Organization) ──
     async function fetchDashboardStats() {
         if (!window.supabase) return;
-
         try {
             const { data: cases, error } = await window.supabase.from('cases').select('*');
             if (error) throw error;
@@ -413,34 +440,54 @@ document.addEventListener('DOMContentLoaded', function () {
                 'امدرمان': ['امدرمان', 'امدرمان القديمة', 'كرري', 'امبدة'],
                 'بحري': ['بحري المدينة', 'بحري وسط', 'بحري شمال', 'ريفي بحري', 'شرق النيل']
             };
-            const DISEASE_NAMES = ['الكوليرا', 'التيفوئيد', 'حمى الضنك', 'الملاريا'];
 
-            // Build data structure: locality -> area -> disease -> count
+            // English canonical names for reliable DB matching
+            const DISEASE_EN = ['Cholera', 'Typhoid', 'Dengue Fever', 'Malaria'];
+
+            // Helper: resolve any disease string → English canonical key
+            function toEnKey(raw) {
+                if (!raw) return null;
+                const r = raw.trim().toLowerCase();
+                if (r === 'الكوليرا' || r === 'cholera') return 'Cholera';
+                if (r === 'التيفوئيد' || r === 'typhoid' || r === 'التايفود') return 'Typhoid';
+                if (r === 'حمى الضنك' || r === 'dengue fever' || r === 'dengue') return 'Dengue Fever';
+                if (r === 'الملاريا' || r === 'malaria') return 'Malaria';
+                return null;
+            }
+
+            const getLocalityKey = (loc) => {
+                if (loc === 'الخرطوم') return 'khartoum_center';
+                if (loc === 'بحري') return 'bahri';
+                if (loc === 'امدرمان') return 'omdurman';
+                return loc;
+            };
+
+            // Build data structure
             const localityData = {};
             LOCALITIES.forEach(l => {
                 localityData[l] = { total: 0, areas: {} };
                 LOCALITY_AREAS[l].forEach(a => {
                     localityData[l].areas[a] = { total: 0, diseases: {} };
-                    DISEASE_NAMES.forEach(d => localityData[l].areas[a].diseases[d] = 0);
+                    DISEASE_EN.forEach(d => localityData[l].areas[a].diseases[d] = 0);
                 });
             });
 
             (cases || []).forEach(c => {
                 const loc = (c.location || '').trim();
-                const dis = translateDisease(c.disease) || c.disease || 'غير محدد';
                 const matchedLocality = LOCALITIES.find(l => loc.startsWith(l));
                 if (!matchedLocality) return;
                 const rest = loc.slice(matchedLocality.length).replace(/^[,\s]+/, '');
-                const matchedArea = LOCALITY_AREAS[matchedLocality].find(a => rest.startsWith(a)) || 'غير محدد';
+                const matchedArea = LOCALITY_AREAS[matchedLocality].find(a => rest.startsWith(a)) || null;
 
                 localityData[matchedLocality].total++;
-                if (!localityData[matchedLocality].areas[matchedArea]) {
-                    localityData[matchedLocality].areas[matchedArea] = { total: 0, diseases: {} };
-                    DISEASE_NAMES.forEach(d => localityData[matchedLocality].areas[matchedArea].diseases[d] = 0);
-                }
-                localityData[matchedLocality].areas[matchedArea].total++;
-                if (DISEASE_NAMES.includes(dis)) {
-                    localityData[matchedLocality].areas[matchedArea].diseases[dis]++;
+                if (matchedArea) {
+                    if (!localityData[matchedLocality].areas[matchedArea]) {
+                        localityData[matchedLocality].areas[matchedArea] = { total: 0, diseases: {} };
+                        DISEASE_EN.forEach(d => localityData[matchedLocality].areas[matchedArea].diseases[d] = 0);
+                    }
+                    localityData[matchedLocality].areas[matchedArea].total++;
+                    const enKey = toEnKey(c.disease);
+                    if (enKey) localityData[matchedLocality].areas[matchedArea].diseases[enKey]++;
                 }
             });
 
@@ -448,52 +495,78 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!container) return;
 
             if (!cases || cases.length === 0) {
-                container.innerHTML = `<p style="text-align:center;color:var(--text-light);padding:20px;">لا توجد حالات مبلغة حتى الآن.</p>`;
+                container.innerHTML = `<p style="text-align:center;color:var(--text-light);padding:24px;font-size:0.9rem;">${t('home.no_cases_for_locality') || 'لا توجد حالات مبلغة حتى الآن.'}</p>`;
                 return;
             }
 
-            container.innerHTML = LOCALITIES.map((locality, li) => {
+            container.innerHTML = LOCALITIES.map(locality => {
                 const lData = localityData[locality];
-                const sevColor = lData.total > 20 ? '#EF4444' : lData.total > 10 ? '#F59E0B' : '#10B981';
-                
-                const getLocalityKey = (loc) => {
-                    if (loc === 'الخرطوم') return 'khartoum_center';
-                    if (loc === 'بحري') return 'bahri';
-                    if (loc === 'امدرمان') return 'omdurman';
-                    return loc;
-                };
+                const cnt = lData.total;
 
+                // Severity thresholds → gradient colours
+                let gc1, gc2, gBorder, gShadow, sevLabel;
+                if (cnt >= 61) {
+                    gc1 = '#EF4444'; gc2 = '#DC2626';
+                    gBorder = 'rgba(239,68,68,0.25)'; gShadow = 'rgba(239,68,68,0.10)';
+                    sevLabel = t('home.sev_label_critical') || 'CRITICAL';
+                } else if (cnt >= 31) {
+                    gc1 = '#F59E0B'; gc2 = '#D97706';
+                    gBorder = 'rgba(245,158,11,0.25)'; gShadow = 'rgba(245,158,11,0.10)';
+                    sevLabel = t('home.sev_label_high') || 'HIGH RISK';
+                } else if (cnt >= 11) {
+                    gc1 = '#3B82F6'; gc2 = '#2563EB';
+                    gBorder = 'rgba(59,130,246,0.25)'; gShadow = 'rgba(59,130,246,0.10)';
+                    sevLabel = t('home.sev_label_moderate') || 'MODERATE';
+                } else {
+                    gc1 = '#10B981'; gc2 = '#059669';
+                    gBorder = 'rgba(16,185,129,0.25)'; gShadow = 'rgba(16,185,129,0.10)';
+                    sevLabel = t('home.sev_label_low') || 'LOW RISK';
+                }
+
+                const localityLabel = t('area.' + getLocalityKey(locality)) || locality;
+
+                // Area sub-cards
                 const areaCards = Object.entries(lData.areas).map(([areaName, aData]) => {
                     if (aData.total === 0) return '';
-                    const disBreakdown = Object.entries(aData.diseases)
-                        .filter(([, cnt]) => cnt > 0)
-                        .map(([dis, cnt]) => `<span style="font-size:0.72rem;background:rgba(37,99,235,0.08);color:var(--primary);border-radius:12px;padding:2px 8px;margin:2px;display:inline-block;">${t('dis.' + dis) || dis}: ${cnt}</span>`)
+                    const ac = aData.total >= 31 ? '#EF4444' : aData.total >= 11 ? '#F59E0B' : '#3B82F6';
+                    const disTags = DISEASE_EN
+                        .filter(d => aData.diseases[d] > 0)
+                        .map(d => `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.7rem;background:rgba(37,99,235,0.07);color:var(--primary);border-radius:20px;padding:3px 9px;margin:2px;font-weight:600;">${translateDisease(d) || d} · ${aData.diseases[d]}</span>`)
                         .join('');
+                    const areaLabel = t('area.' + areaName.replace(/ /g, '_')) || areaName;
                     return `
-                    <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-top:8px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                            <span style="font-size:0.88rem;font-weight:700;color:var(--text);">${t('area.' + areaName.replace(/ /g, '_')) || areaName}</span>
-                            <span style="font-size:0.78rem;font-weight:700;color:var(--primary);background:rgba(37,99,235,0.08);padding:2px 8px;border-radius:20px;">${aData.total} ${t('home.cases') || 'Cases'}</span>
+                    <div style="background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border);border-right:4px solid ${ac};box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+                            <span style="font-size:0.87rem;font-weight:700;color:var(--text);">${areaLabel}</span>
+                            <span style="font-size:0.72rem;font-weight:700;color:#fff;background:${ac};padding:3px 10px;border-radius:20px;">${aData.total} ${t('home.cases') || 'حالة'}</span>
                         </div>
-                        <div>${disBreakdown || '<span style="font-size:0.75rem;color:var(--text-light);">-</span>'}</div>
+                        <div>${disTags || `<span style="font-size:0.78rem;color:var(--text-light);">${t('home.unspecified') || 'غير محدد'}</span>`}</div>
                     </div>`;
                 }).join('');
 
                 return `
-                <div class="case-item" style="flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;border-radius:12px;border:1.5px solid var(--border);margin-bottom:10px;">
-                    <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'; this.querySelector('.expand-arrow').style.transform=this.nextElementSibling.style.display==='block'?'rotate(180deg)':'rotate(0deg)';"
-                        style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;background:var(--white);">
-                        <div>
-                            <h5 style="margin:0;font-size:0.95rem;color:var(--text);">${t('area.' + getLocalityKey(locality)) || locality}</h5>
-                            <p style="margin:4px 0 0;font-size:0.78rem;color:${sevColor};font-weight:700;">${lData.total} ${t('home.reported_cases') || 'Reported Cases'}</p>
+                <div style="border-radius:16px;overflow:hidden;border:1.5px solid ${gBorder};margin-bottom:14px;box-shadow:0 2px 14px ${gShadow};">
+                    <div onclick="(function(h){var b=h.nextElementSibling;var a=h.querySelector('.ea');b.style.display=b.style.display==='none'?'block':'none';a.style.transform=b.style.display==='block'?'rotate(180deg)':'rotate(0deg)';})(this)"
+                        style="display:flex;justify-content:space-between;align-items:center;padding:16px 18px;cursor:pointer;background:linear-gradient(135deg,${gc1},${gc2});">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h5 style="margin:0;font-size:0.98rem;color:#fff;font-weight:700;">${localityLabel}</h5>
+                                <span style="font-size:0.72rem;color:rgba(255,255,255,0.85);font-weight:600;">${sevLabel}</span>
+                            </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:10px;">
-                            <span style="width:12px;height:12px;border-radius:50%;background:${sevColor};display:inline-block;"></span>
-                            <span class="expand-arrow" style="font-size:1.1rem;color:var(--text-light);transition:transform 0.2s;">&#8964;</span>
+                            <div style="width:48px;height:48px;border-radius:50%;border:3px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.12);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                                <span style="font-size:1.1rem;font-weight:800;color:#fff;line-height:1;">${cnt}</span>
+                                <span style="font-size:0.52rem;color:rgba(255,255,255,0.8);font-weight:600;">${t('home.cases') || 'حالة'}</span>
+                            </div>
+                            <span class="ea" style="font-size:1.3rem;color:rgba(255,255,255,0.8);transition:transform 0.25s;line-height:1;">⌄</span>
                         </div>
                     </div>
-                    <div style="display:none;padding:12px 14px 14px;background:#fafafa;border-top:1px solid var(--border);">
-                        ${areaCards || '<p style="font-size:0.82rem;color:var(--text-light);text-align:center;">' + (t('home.no_cases_for_locality') || 'No specific cases for this locality') + '</p>'}
+                    <div style="display:none;padding:14px 14px 16px;background:#f8faff;border-top:1px solid ${gBorder};">
+                        ${areaCards || `<div style="text-align:center;padding:16px;color:var(--text-light);font-size:0.85rem;">${t('home.no_cases_for_locality') || 'لا توجد حالات محددة لهذه المحلية'}</div>`}
                     </div>
                 </div>`;
             }).join('');
@@ -889,7 +962,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const locality = document.getElementById('assignLocality')?.value || '';
             const area = document.getElementById('assignArea')?.value || '';
-            const targetArea = area ? `${locality}, ${area}` : locality;
+            const specificLocation = document.getElementById('specificClinicLocation')?.value.trim() || '';
+            
+            let targetArea = area ? `${locality}, ${area}` : locality;
+            if (specificLocation) {
+                targetArea += ` — ${specificLocation}`;
+            }
 
             const checkedDiseases = [];
             document.querySelectorAll('input[name="target_diseases"]:checked').forEach(cb => {

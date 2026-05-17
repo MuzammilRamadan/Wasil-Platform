@@ -252,27 +252,7 @@
             <span data-i18n="landing.tickerLive">LIVE</span>
         </div>
         <div class="ticker-track" id="tickerTrack">
-            <span class="ticker-item"><span class="warn-icon">⚠</span> <span data-i18n="landing.ticker1">Khartoum North
-                    — Cholera Outbreak (HIGH RISK)</span></span>
-            <span class="ticker-item"><span class="warn-icon">⚠</span> <span data-i18n="landing.ticker2">Omdurman —
-                    Typhoid Cases Rising (MODERATE)</span></span>
-            <span class="ticker-item"><span class="warn-icon">⚠</span> <span data-i18n="landing.ticker3">Jabarona —
-                    Cholera Alert (HIGH RISK)</span></span>
-            <span class="ticker-item"><span class="warn-icon">⚠</span> <span data-i18n="landing.ticker4">Bahri — Dengue
-                    Fever Detected</span></span>
-            <span class="ticker-item"><span class="warn-icon">⚠</span> <span data-i18n="landing.ticker5">Haj Yousif —
-                    Malaria Cluster Reported</span></span>
-            <!-- Duplicate for seamless loop -->
-            <span class="ticker-item"><span class="warn-icon">⚠</span> <span data-i18n="landing.ticker1">Khartoum North
-                    — Cholera Outbreak (HIGH RISK)</span></span>
-            <span class="ticker-item"><span class="warn-icon">⚠</span> <span data-i18n="landing.ticker2">Omdurman —
-                    Typhoid Cases Rising (MODERATE)</span></span>
-            <span class="ticker-item"><span class="warn-icon">⚠</span> <span data-i18n="landing.ticker3">Jabarona —
-                    Cholera Alert (HIGH RISK)</span></span>
-            <span class="ticker-item"><span class="warn-icon">⚠</span> <span data-i18n="landing.ticker4">Bahri — Dengue
-                    Fever Detected</span></span>
-            <span class="ticker-item"><span class="warn-icon">⚠</span> <span data-i18n="landing.ticker5">Haj Yousif —
-                    Malaria Cluster Reported</span></span>
+            <span class="ticker-item"><span class="warn-icon">ℹ</span> <span data-i18n="landing.loadingTicker">Loading live alerts...</span></span>
         </div>
     </section>
 
@@ -395,6 +375,9 @@
     </script>
 
     <script src="../Js files/wasil-i18n.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../Js files/supabase-config.js"></script>
+    <script src="../Js files/wasil-landing.js"></script>
 </body>
 
 </html>

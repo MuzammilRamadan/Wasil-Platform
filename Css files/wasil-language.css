@@ -9,6 +9,7 @@ body {
     justify-content: center;
     font-family: 'Cairo', 'Inter', Arial, sans-serif;
 }
+
 .lang-container {
     width: 100vw;
     height: 100vh;
@@ -16,26 +17,30 @@ body {
     align-items: center;
     justify-content: center;
 }
+
 .lang-card {
     background: #fff;
     border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
     padding: 48px 32px 40px 32px;
     text-align: center;
     min-width: 280px;
 }
+
 .lang-title {
     font-size: 1.5rem;
     font-weight: 600;
     color: #4A90E2;
     margin-bottom: 32px;
 }
+
 .lang-buttons {
     display: flex;
     gap: 24px;
     justify-content: center;
 }
-.lang-btn {
+
+.lang-select-btn {
     font-size: 1.1rem;
     font-weight: 500;
     padding: 12px 32px;
@@ -46,7 +51,8 @@ body {
     cursor: pointer;
     transition: background 0.2s, transform 0.2s;
 }
-.lang-btn:hover {
+
+.lang-select-btn:hover {
     background: linear-gradient(135deg, #50C9C3 0%, #4A90E2 100%);
     transform: scale(1.05);
 }

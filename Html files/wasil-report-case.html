@@ -681,7 +681,7 @@
                                     ${iconPath}
                                 </svg>
                                 <span>${typeof translateDisease === 'function' ? translateDisease(d.name) : d.name}</span>
-                                <span class="best-match-badge">Best Match</span>
+                                <span class="best-match-badge" data-i18n="report.best_match">Best Match</span>
                             </div>
                         </label>`;
                     }).join('') + `
@@ -713,28 +713,38 @@
                     });
 
                     // ── SYMPTOMS SETUP ──
+                    // Canonical Arabic keys used for disease matching
                     const SYMPTOM_MAP = {
-                        'Cholera':     ['إسهال مائي', 'قيء', 'جفاف', 'تشنجات عضلية', 'غثيان'],
-                        'Typhoid':     ['حمى شديدة', 'ألم في البطن', 'صداع', 'ضعف عام', 'طفح جلدي', 'غثيان'],
-                        'Dengue Fever':['حمى شديدة', 'صداع حاد', 'ألم في المفاصل', 'ألم عضلي', 'طفح جلدي', 'ألم خلف العينين', 'قيء'],
-                        'Malaria':     ['حمى', 'قشعريرة', 'تعرق', 'صداع', 'ألم عضلي', 'غثيان', 'قيء']
+                        'Cholera':      ['إسهال مائي', 'قيء', 'جفاف', 'تشنجات عضلية', 'غثيان'],
+                        'Typhoid':      ['حمى شديدة', 'ألم في البطن', 'صداع', 'ضعف عام', 'طفح جلدي', 'غثيان'],
+                        'Dengue Fever': ['حمى شديدة', 'صداع حاد', 'ألم في المفاصل', 'ألم عضلي', 'طفح جلدي', 'ألم خلف العينين', 'قيء'],
+                        'Malaria':      ['حمى', 'قشعريرة', 'تعرق', 'صداع', 'ألم عضلي', 'غثيان', 'قيء']
                     };
 
-                    // Build unique symptom list
+                    // Build unique symptom list (unique Arabic canonical keys)
                     const allSymptoms = [...new Set(Object.values(SYMPTOM_MAP).flat())];
-                    const selectedSymptoms = new Set();
+                    const selectedSymptoms = new Set(); // stores canonical Arabic keys
                     const symptomsGrid = document.getElementById('symptomsGrid');
 
-                    allSymptoms.forEach(symptom => {
+                    function getSymptomLabel(arKey) {
+                        var lang = localStorage.getItem('wasil_lang') || 'ar';
+                        // Use global WASIL_SYMPTOM_EN map from wasil-i18n.js
+                        return (lang === 'en' && window.WASIL_SYMPTOM_EN && window.WASIL_SYMPTOM_EN[arKey])
+                            ? window.WASIL_SYMPTOM_EN[arKey]
+                            : arKey;
+                    }
+
+                    allSymptoms.forEach(arKey => {
                         const chip = document.createElement('span');
                         chip.className = 'symptom-chip';
-                        chip.textContent = symptom;
+                        chip.dataset.symptom = arKey; // canonical key for matching
+                        chip.textContent = getSymptomLabel(arKey);
                         chip.addEventListener('click', () => {
-                            if (selectedSymptoms.has(symptom)) {
-                                selectedSymptoms.delete(symptom);
+                            if (selectedSymptoms.has(arKey)) {
+                                selectedSymptoms.delete(arKey);
                                 chip.classList.remove('selected');
                             } else {
-                                selectedSymptoms.add(symptom);
+                                selectedSymptoms.add(arKey);
                                 chip.classList.add('selected');
                             }
                             updateDiseaseHighlights();
@@ -803,7 +813,7 @@
 
             localitySelect.addEventListener('change', function() {
                 const locality = this.value;
-                areaSelect.innerHTML = '<option value="" disabled selected>اختر المنطقة...</option>';
+                areaSelect.innerHTML = `<option value="" disabled selected>${typeof t === 'function' ? t('report.select_area') : 'اختر المنطقة...'}</option>`;
                 document.getElementById('otherLocationGroup').style.display = 'none';
 
                 if (locality && areasByLocality[locality]) {

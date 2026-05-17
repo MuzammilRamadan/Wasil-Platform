@@ -16,15 +16,17 @@
 <body>
     <div class="lang-container">
         <div class="lang-card">
-            <div class="lang-title">Choose Your Language</div>
+            <div class="lang-title" data-i18n="lang.title">Choose Your Language</div>
             <div class="lang-buttons">
-                <button class="lang-btn" id="btn-en">English</button>
-                <button class="lang-btn" id="btn-ar">العربية</button>
+                <!-- Use lang-select-btn (not lang-btn) to avoid conflict with i18n toggle code -->
+                <button class="lang-select-btn" id="btn-en" data-i18n="lang.english">English</button>
+                <button class="lang-select-btn" id="btn-ar" data-i18n="lang.arabic">العربية</button>
             </div>
         </div>
     </div>
-    <script src="../Js files/wasil-language.js"></script>
+    <!-- Load i18n FIRST so applyLanguage() runs and translates the title -->
     <script src="../Js files/wasil-i18n.js"></script>
+    <script src="../Js files/wasil-language.js"></script>
 </body>
 
 </html>
